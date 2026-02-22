@@ -1,0 +1,108 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Contexte et motivation}{4}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Problématique}{4}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Objectifs du projet}{4}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}Périmètre et hypothèses}{4}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}Organisation du rapport}{4}{subsection.1.5}%
+\contentsline {section}{\numberline {2}Organisation et gestion du projet}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Répartition des responsabilités et approche collaborative}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Méthodologie Agile itérative}{4}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Conception UX : maquettes et validation fonctionnelle}{4}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Approche DevOps et stratégie Docker-first}{4}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Planification et diagramme de Gantt}{4}{subsection.2.5}%
+\contentsline {subsection}{\numberline {2.6}Processus de validation et revue de code}{5}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}Difficultés rencontrées et gestion des risques}{5}{subsection.2.7}%
+\contentsline {section}{\numberline {3}État de l'art et fondements théoriques}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Analyse de contenu vidéo : enjeux et défis}{5}{subsection.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.1}Données non structurées et difficulté d'indexation}{5}{subsubsection.3.1.1}%
+\contentsline {subsubsection}{\numberline {3.1.2}Contraintes de latence, coût et confidentialité}{5}{subsubsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.2}Reconnaissance automatique de la parole (ASR)}{5}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Principes généraux de la transcription audio--texte}{5}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Choix de modèle (Whisper)}{6}{subsubsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.3}Représentations vectorielles et recherche sémantique}{6}{subsection.3.3}%
+\contentsline {subsubsection}{\numberline {3.3.1}Définition des embeddings}{6}{subsubsection.3.3.1}%
+\contentsline {subsubsection}{\numberline {3.3.2}Indexation et recherche vectorielle}{7}{subsubsection.3.3.2}%
+\contentsline {subsection}{\numberline {3.4}Modèles de langage (LLM)}{7}{subsection.3.4}%
+\contentsline {subsubsection}{\numberline {3.4.1}Capacités et limites des LLM}{7}{subsubsection.3.4.1}%
+\contentsline {subsubsection}{\numberline {3.4.2}Choix de modèle (gpt-oss-120b)}{8}{subsubsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.5}Retrieval-Augmented Generation (RAG)}{8}{subsection.3.5}%
+\contentsline {subsubsection}{\numberline {3.5.1}Principe général}{8}{subsubsection.3.5.1}%
+\contentsline {subsubsection}{\numberline {3.5.2}Forces et limites du RAG}{9}{subsubsection.3.5.2}%
+\contentsline {section}{\numberline {4}Spécifications et conception de l'application OCULA}{9}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Présentation générale de la solution}{9}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Cas d'utilisation et fonctionnalités}{10}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Upload et gestion des vidéos}{10}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Transcription et génération de titre et de résumé}{10}{subsubsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.2.3}Chatbot de question--réponse sur la vidéo}{11}{subsubsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.3}Exigences fonctionnelles}{12}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Exigences non fonctionnelles}{12}{subsection.4.4}%
+\contentsline {subsubsection}{\numberline {4.4.1}Performance et latence}{12}{subsubsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {4.4.2}Scalabilité}{12}{subsubsection.4.4.2}%
+\contentsline {subsubsection}{\numberline {4.4.3}Sécurité et confidentialité}{12}{subsubsection.4.4.3}%
+\contentsline {subsubsection}{\numberline {4.4.4}Robustesse et tolérance aux pannes}{12}{subsubsection.4.4.4}%
+\contentsline {subsection}{\numberline {4.5}Architecture globale}{12}{subsection.4.5}%
+\contentsline {subsubsection}{\numberline {4.5.1}Vue d'ensemble (Frontend, Backend, AI Service)}{12}{subsubsection.4.5.1}%
+\contentsline {subsubsection}{\numberline {4.5.2}Choix technologiques et justification}{13}{subsubsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.6}Conception}{14}{subsection.4.6}%
+\contentsline {subsubsection}{\numberline {4.6.1}Modèle conceptuel et logique}{14}{subsubsection.4.6.1}%
+\contentsline {paragraph}{Relation User -- Video}{14}{section*.13}%
+\contentsline {paragraph}{Relation Video -- VideoTranscript}{15}{section*.14}%
+\contentsline {paragraph}{Relation Video -- Message}{15}{section*.15}%
+\contentsline {paragraph}{Gestion d’état du traitement}{15}{section*.16}%
+\contentsline {subsubsection}{\numberline {4.6.2}Modélisation des transcriptions, chunks et embeddings}{16}{subsubsection.4.6.2}%
+\contentsline {subsubsection}{\numberline {4.6.3}Persistance : base relationnelle, stockage objet et base vectorielle}{18}{subsubsection.4.6.3}%
+\contentsline {paragraph}{Base relationnelle (PostgreSQL)}{18}{section*.20}%
+\contentsline {paragraph}{Stockage objet (Azure Blob Storage)}{18}{section*.21}%
+\contentsline {paragraph}{Base vectorielle (ChromaDB)}{19}{section*.22}%
+\contentsline {section}{\numberline {5}Implémentation}{20}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Frontend : application Angular}{20}{subsection.5.1}%
+\contentsline {subsubsection}{\numberline {5.1.1}Principales pages et composants}{20}{subsubsection.5.1.1}%
+\contentsline {subsubsection}{\numberline {5.1.2}Gestion des appels API et états (auth, vidéos, chat)}{20}{subsubsection.5.1.2}%
+\contentsline {subsubsection}{\numberline {5.1.3}Contraintes UX et accessibilité}{20}{subsubsection.5.1.3}%
+\contentsline {subsection}{\numberline {5.2}Backend : API Spring Boot}{20}{subsection.5.2}%
+\contentsline {subsubsection}{\numberline {5.2.1}Architecture (controllers, services, repositories)}{20}{subsubsection.5.2.1}%
+\contentsline {subsubsection}{\numberline {5.2.2}Gestion des utilisateurs et des vidéos}{20}{subsubsection.5.2.2}%
+\contentsline {subsubsection}{\numberline {5.2.3}Endpoints REST : conception et validation}{20}{subsubsection.5.2.3}%
+\contentsline {subsubsection}{\numberline {5.2.4}Sécurité : authentification et autorisation}{20}{subsubsection.5.2.4}%
+\contentsline {subsection}{\numberline {5.3}Service IA : LangChain + Flask}{20}{subsection.5.3}%
+\contentsline {subsubsection}{\numberline {5.3.1}Extraction audio et transcription (Whisper)}{20}{subsubsection.5.3.1}%
+\contentsline {subsubsection}{\numberline {5.3.2}Chunking : stratégies et paramètres}{20}{subsubsection.5.3.2}%
+\contentsline {subsubsection}{\numberline {5.3.3}Génération d'embeddings (MiniLM)}{21}{subsubsection.5.3.3}%
+\contentsline {subsubsection}{\numberline {5.3.4}RAG : retrieval et construction du prompt}{21}{subsubsection.5.3.4}%
+\contentsline {subsubsection}{\numberline {5.3.5}Appel au LLM externe et post-traitements}{21}{subsubsection.5.3.5}%
+\contentsline {subsection}{\numberline {5.4}Stockage et (infrastructure)}{21}{subsection.5.4}%
+\contentsline {subsubsection}{\numberline {5.4.1}Stockage vidéo et fichiers (Azure Blob)}{21}{subsubsection.5.4.1}%
+\contentsline {subsubsection}{\numberline {5.4.2}Base de données : choix et schéma}{21}{subsubsection.5.4.2}%
+\contentsline {subsubsection}{\numberline {5.4.3}Dockerisation}{21}{subsubsection.5.4.3}%
+\contentsline {section}{\numberline {6}Évaluation et résultats}{21}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Protocole de test}{21}{subsection.6.1}%
+\contentsline {subsubsection}{\numberline {6.1.1}Jeu de vidéos utilisé}{21}{subsubsection.6.1.1}%
+\contentsline {subsubsection}{\numberline {6.1.2}Scénarios de test (upload, transcription, Q\&A)}{21}{subsubsection.6.1.2}%
+\contentsline {subsubsection}{\numberline {6.1.3}Critères : qualité, latence, stabilité}{21}{subsubsection.6.1.3}%
+\contentsline {subsection}{\numberline {6.2}Analyse qualitative}{21}{subsection.6.2}%
+\contentsline {subsubsection}{\numberline {6.2.1}Pertinence des résumés et titres}{22}{subsubsection.6.2.1}%
+\contentsline {subsubsection}{\numberline {6.2.2}Qualité des réponses du chatbot}{22}{subsubsection.6.2.2}%
+\contentsline {subsubsection}{\numberline {6.2.3}Comportement sur contenu bruité / long / multilingue}{22}{subsubsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.3}Analyse quantitative}{22}{subsection.6.3}%
+\contentsline {subsubsection}{\numberline {6.3.1}Temps de traitement par étape (pipeline)}{22}{subsubsection.6.3.1}%
+\contentsline {subsubsection}{\numberline {6.3.2}Temps de réponse du chatbot}{22}{subsubsection.6.3.2}%
+\contentsline {subsubsection}{\numberline {6.3.3}Impact du chunking et du top-k retrieval}{22}{subsubsection.6.3.3}%
+\contentsline {subsection}{\numberline {6.4}Discussion}{22}{subsection.6.4}%
+\contentsline {subsubsection}{\numberline {6.4.1}Limites observées}{22}{subsubsection.6.4.1}%
+\contentsline {subsubsection}{\numberline {6.4.2}Risques et biais potentiels}{22}{subsubsection.6.4.2}%
+\contentsline {subsubsection}{\numberline {6.4.3}Comparaison : RAG vs LLM seul}{22}{subsubsection.6.4.3}%
+\contentsline {section}{\numberline {7}Sécurité, conformité et considérations éthiques}{22}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Confidentialité des données et stockage}{23}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Gestion des accès et des permissions}{23}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Propriété intellectuelle et droits sur les contenus vidéo}{23}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Limites et usages responsables}{23}{subsection.7.4}%
+\contentsline {section}{\numberline {8}Conclusion et perspectives}{23}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Bilan du projet}{23}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Améliorations techniques possibles}{23}{subsection.8.2}%
+\contentsline {subsubsection}{\numberline {8.2.1}Optimisation de la recherche semantique}{23}{subsubsection.8.2.1}%
+\contentsline {subsubsection}{\numberline {8.2.2}Streaming transcription}{23}{subsubsection.8.2.2}%
+\contentsline {subsubsection}{\numberline {8.2.3}Amélioration de la segmentation (chunking adaptatif)}{23}{subsubsection.8.2.3}%
+\contentsline {subsubsection}{\numberline {8.2.4}Analyse de video frame par frame}{23}{subsubsection.8.2.4}%
+\contentsline {subsubsection}{\numberline {8.2.5}Infrastructure}{23}{subsubsection.8.2.5}%
+\contentsline {subsection}{\numberline {8.3}Ouverture produit : industrialisation}{24}{subsection.8.3}%
