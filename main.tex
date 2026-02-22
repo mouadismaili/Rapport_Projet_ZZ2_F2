@@ -17,11 +17,18 @@
 \usepackage{url} % Pour gérer les URLs
 \usepackage{graphicx}
 \usepackage{array}     % For more control over column alignment
+\usepackage{colortbl}  % Table coloring
+\usepackage{tikz} % figs
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, bending}
 
 \title{ArchiLogiciel } %Titre du fichier
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{techheader}{HTML}{0F172A}
+\definecolor{techlinea}{HTML}{F8FAFF}
+\definecolor{techlineb}{HTML}{EEF4FF}
+\definecolor{techroute}{HTML}{E0F2FE}
 
 \lstset{
     backgroundcolor=\color{white},   
@@ -532,27 +539,327 @@ Le modèle relationnel assure la cohérence des données métier, le stockage ob
 Ces trois couches sont complémentaires et interconnectées principalement par \texttt{video\_id} (et \texttt{user\_id} pour les ressources utilisateur). 
 
 \section{Implémentation}
-\noindent \textit{À compléter.}
 \subsection{Frontend : application Angular}
-\noindent \textit{À compléter.}
-\subsubsection{Principales pages et composants}
-\noindent \textit{À compléter.}
-\subsubsection{Gestion des appels API et états (auth, vidéos, chat)}
-\noindent \textit{À compléter.}
-\subsubsection{Contraintes UX et accessibilité}
-\noindent \textit{À compléter.}
+\subsubsection{Principales pages et navigation}
+\paragraph{5.1.1.1 Pages et routes}
+Routes principales (source : \texttt{app.routes.ts}).
+Le tableau~\ref{tab:frontend-routes} présente une vue synthétique des chemins disponibles, des composants associés et du niveau de protection appliqué.
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.28}
+\newcommand{\badgepub}{\colorbox{green!15}{\strut\texttt{publique}}}
+\newcommand{\badgeguard}[1]{\colorbox{blue!10}{\strut\texttt{#1}}}
+\begin{tabular}{|>{\raggedright\arraybackslash}p{1.9cm}|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}p{2.3cm}|>{\raggedright\arraybackslash}p{7.3cm}|}
+\hline
+\rowcolor{techheader}
+\textcolor{white}{\textbf{Route}} & \textcolor{white}{\textbf{Page}} & \textcolor{white}{\textbf{Protection}} & \textcolor{white}{\textbf{R\^ole principal}} \\
+\hline
+\rowcolor{techlinea}
+\cellcolor{techroute}\texttt{/} & Page d'accueil & \badgepub & Page d'accueil et point d'entr\'ee vers l'authentification. \\
+\hline
+\rowcolor{techlineb}
+\cellcolor{techroute}\texttt{/auth} & Page d'authentification & \badgeguard{LoginGuard} & Connexion/inscription dans une seule vue. \\
+\hline
+\rowcolor{techlinea}
+\cellcolor{techroute}\texttt{/upload} & Page d'upload & \badgeguard{AuthGuard} & Page pour envoyer une vid\'eo \`a la plateforme. \\
+\hline
+\rowcolor{techlineb}
+\cellcolor{techroute}\texttt{/myvideos} & Page My Videos & \badgeguard{AuthGuard} & Liste des vid\'eos de l'utilisateur. \\
+\hline
+\rowcolor{techlinea}
+\cellcolor{techroute}\texttt{/video/:id} & Page vid\'eo & \badgeguard{AuthGuard} & Lecture vid\'eo, affichage des m\'etadonn\'ees (titre/r\'esum\'e) et suivi du statut de traitement en temps r\'eel. \\
+\hline
+\rowcolor{techlineb}
+\cellcolor{techroute}\texttt{/settings} & Page param\`etres & \badgeguard{AuthGuard} & Mise \`a jour du profil (nom/pr\'enom/avatar), de l'email et du mot de passe. \\
+\hline
+\end{tabular}
+\caption{Routes frontend, pages associ\'ees et responsabilit\'es}
+\label{tab:frontend-routes}
+\end{table}
+
+\paragraph{5.1.1.2 La navigation métier et les redirections automatiques}
+
+Pour compléter cette vue statique, la figure~\ref{fig:frontend-nav} illustre la navigation réelle entre les pages, y compris les redirections liées aux guards et les transitions métier.
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    page/.style={rectangle, rounded corners=6pt, draw=#1!70, fill=#1!10,
+                 text width=3.7cm, align=center, font=\scriptsize\bfseries,
+                 minimum height=1.0cm, inner sep=3pt},
+    guard/.style={rectangle, rounded corners=3pt, draw=orange!70, fill=orange!15,
+                 text width=2.5cm, align=center, font=\scriptsize, minimum height=0.6cm, inner sep=2.5pt},
+    arrow/.style={-{Stealth[length=4pt]}, thick, #1},
+    dashed arrow/.style={-{Stealth[length=4pt]}, dashed, thick, #1},
+    label/.style={font=\scriptsize\itshape, text=gray, fill=white, inner sep=1.5pt, align=center}
+]
+
+%% NOEUDS PAGES (espacement augmenté)
+\node[page=gray]   (home)     at (0,0)        {/ \\ Page d'accueil};
+\node[page=gray]   (auth)     at (6.4,0)      {/auth \\ Page d'authentification};
+
+\node[page=green]  (myvideos) at (0,-3.6)     {/myvideos \\ Page My Videos};
+\node[page=green]  (upload)   at (6.4,-3.6)   {/upload \\ Page d'upload};
+
+\node[page=green]  (video)    at (0,-7.2)     {/video/:id \\ Page vidéo};
+\node[page=green]  (settings) at (6.4,-7.2)   {/settings \\ Page paramètres};
+
+%% GUARDS
+\node[guard]  (ag1) at (0,-2.1)   {AuthGuard};
+\node[guard]  (ag2) at (6.4,-2.1) {LoginGuard};
+\node[guard]  (ag3) at (0,-5.7)   {AuthGuard};
+\node[guard]  (ag4) at (6.4,-5.7) {AuthGuard};
+
+%% NAVIGATION DIRECTE
+\draw[arrow=black] (home) -- node[label, above]{Sign in / Sign up} (auth);
+\draw[arrow=black] (home) -- (ag1);
+\draw[arrow=black] (ag1) -- (myvideos);
+\draw[arrow=black] (auth) -- (ag2);
+\draw[arrow=black] (ag2) -- (upload);
+\draw[arrow=black] (myvideos) -- (ag3);
+\draw[arrow=black] (ag3) -- (video);
+\draw[arrow=black] (upload) -- (ag4);
+\draw[arrow=black] (ag4) -- (settings);
+
+%% TRANSITIONS METIER (labels déplacés)
+\draw[dashed arrow=violet, bend right=22]
+    (upload.south west) to node[label, pos=0.55, below]{après upload} (video.east);
+
+\draw[dashed arrow=teal, bend right=24]
+    (auth.south west) to node[label, pos=0.45, left]{après login} (myvideos.north east);
+
+\draw[dashed arrow=gray, bend left=10]
+    (myvideos.south) to node[label, pos=0.55, right]{clic vidéo} (video.north);
+
+\draw[dashed arrow=red, bend left=30]
+    (ag2.west) to node[label, pos=0.58, below]{déjà connecté\\$\rightarrow$ /myvideos} (myvideos.east);
+
+%% LEGENDE (décalée à droite)
+\node[font=\scriptsize\bfseries, draw=gray!40, rounded corners=3pt, fill=gray!5,
+      text width=2.8cm, align=center] at (11.5,-0.3) {Légende};
+
+\node[page=green, minimum height=0.55cm, text width=2.4cm, font=\scriptsize\bfseries]
+    at (11.5,-1.5) {Page protégée};
+
+\node[page=gray, minimum height=0.55cm, text width=2.4cm, font=\scriptsize\bfseries]
+    at (11.5,-2.6) {Page publique};
+
+\node[guard, minimum height=0.55cm, text width=2.4cm]
+    at (11.5,-3.7) {Guard};
+
+\draw[dashed arrow=violet] (10.7,-4.8) -- (11.8,-4.8) node[right, font=\scriptsize]{transition métier};
+\draw[dashed arrow=red]    (10.7,-5.8) -- (11.8,-5.8) node[right, font=\scriptsize]{redirection guard};
+\draw[arrow=black]         (10.7,-6.8) -- (11.8,-6.8) node[right, font=\scriptsize]{navigation directe};
+
+\end{tikzpicture}
+}%
+\caption{Parcours principal des pages du frontend}
+\label{fig:frontend-nav}
+\end{figure}
+
+\noindent \textit{Remarque :} ce schéma montre le chemin principal. L'utilisateur peut aussi changer de page via le menu de son avatar.
+
+
+
+
+\subsubsection{Échanges avec le backend}
+
+\paragraph{5.1.2.1 Rôle des services\\[0pt]} 
+\begin{itemize}
+    \item \textbf{AuthService        :} gère la connexion et l'inscription. Il garde les informations de session côté navigateur et permet de savoir si l'utilisateur est encore connecté.
+    \item \textbf{VideoService       :} s'occupe des actions liées aux vidéos : envoyer une vidéo, afficher une vidéo, charger la liste et lancer le traitement.
+    \item \textbf{BlobStorageService :} récupère les liens nécessaires pour afficher les fichiers (vidéo, miniature, avatar).
+    \item \textbf{UserService        :} met à jour les informations du profil utilisateur.
+    \item \textbf{WsService          :} permet de voir l'avancement du traitement d'une vidéo en direct, sans recharger la page.
+\end{itemize}
+
+\paragraph{5.1.2.2 Séquence de traitement d'une vidéo : upload, déclenchement IA et suivi temps réel}
+Le schéma suivant synthétise le scénario métier principal après l'upload d'une vidéo, depuis l'appel REST initial jusqu'aux mises à jour de statut en temps réel.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.94\textwidth}{!}{%
+\begin{tikzpicture}[
+    actor/.style={rectangle, draw=gray!60, rounded corners=3pt, fill=gray!10, minimum width=2.7cm, minimum height=0.8cm, align=center, font=\scriptsize\bfseries},
+    lifeline/.style={gray!60, dashed},
+    call/.style={-{Stealth[length=4pt]}, thick, blue!70!black},
+    async/.style={-{Stealth[length=4pt]}, thick, dashed, violet!80!black},
+    note/.style={rectangle, draw=gray!40, fill=gray!7, rounded corners=2pt, font=\scriptsize, align=left}
+]
+
+\node[actor] (u) at (0,0) {UploadPage};
+\node[actor] (v) at (4.2,0) {VideoService};
+\node[actor] (b) at (8.4,0) {Backend API};
+\node[actor] (w) at (12.6,0) {WsService};
+
+\draw[lifeline] (u) -- (0,-6.1);
+\draw[lifeline] (v) -- (4.2,-6.1);
+\draw[lifeline] (b) -- (8.4,-6.1);
+\draw[lifeline] (w) -- (12.6,-6.1);
+
+\draw[call] (0,-0.9) -- node[above, font=\tiny]{1) upload + metadata + thumbnail} (4.2,-0.9);
+\draw[call] (4.2,-1.6) -- node[above, font=\tiny]{2) POST /api/videos/upload} (8.4,-1.6);
+\draw[call] (8.4,-2.3) -- node[above, font=\tiny]{3) id vidéo} (4.2,-2.3);
+\draw[call] (4.2,-3.0) -- node[above, font=\tiny]{4) POST /api/videos/process/\{id\}} (8.4,-3.0);
+\draw[async] (8.4,-4.0) -- node[above, font=\tiny]{5) statut PENDING/PROCESSING/COMPLETED} (12.6,-4.0);
+\draw[call] (12.6,-4.8) -- node[above, font=\tiny]{6) refresh GET /api/videos/\{id\}} (8.4,-4.8);
+
+\node[note] at (6.3,-5.7) {Mise à jour UI sans polling\\grâce au topic \texttt{/topic/videos/\{id\}}.};
+
+\end{tikzpicture}
+}%
+\caption{Séquence de traitement d'une vidéo : upload, déclenchement IA et suivi temps réel}
+\label{fig:frontend-services}
+\end{figure}
+\subsubsection{Aperçu des pages principales}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/pages/upload.png}
+    \caption{Page d'upload (\texttt{/upload})}
+    \label{fig:frontend-upload-page}
+\end{figure}
+\noindent Cette page permet de téléverser une vidéo puis de lancer son traitement.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/pages/myvideos.png}
+    \caption{Page \textit{My Videos} (\texttt{/myvideos})}
+    \label{fig:frontend-myvideos-page}
+\end{figure}
+\noindent Cette page affiche les vidéos dans une grille simple. Le menu au dessus de l'avatar, visible à droite en haut, permet aussi d'aller vers le reste des pages.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/pages/video.png}
+    \caption{Page vidéo (\texttt{/video/:id})}
+    \label{fig:frontend-video-page}
+\end{figure}
+\noindent Cette page affiche la vidéo traitée, accompagnée d’un titre et d’un résumé. Elle propose également un espace d’échange avec l’IA pour discuter du contenu de la vidéo et poser des questions complémentaires.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/pages/settings.png}
+    \caption{Page \textit{Settings} (\texttt{/settings})}
+    \label{fig:frontend-settings-page}
+\end{figure}
+\noindent Cette page centralise les actions de gestion du compte utilisateur, notamment la mise à jour du profil, de l’adresse e-mail et du mot de passe.
 
 \subsection{Backend : API Spring Boot}
-\noindent \textit{À compléter.}
 \subsubsection{Architecture (controllers, services, repositories)}
-\noindent \textit{À compléter.}
+\paragraph{5.2.1.1 Organisation en couches}
+Le backend Spring Boot suit une architecture en couches qui sépare la responsabilité HTTP, la logique métier et la persistance :
+\begin{itemize}
+    \item \textbf{Couche controllers :} expose les endpoints REST (\texttt{/auth}, \texttt{/users}, \texttt{/videos}, \texttt{/messages}, \texttt{/video-transcripts}, \texttt{/files}).
+    \item \textbf{Couche services :} applique les règles métier (contrôle d'existence, unicité email, validation des timestamps de transcript, orchestration du traitement IA, notifications WebSocket).
+    \item \textbf{Couche repositories :} s'appuie sur Spring Data JPA pour accéder à PostgreSQL via des repositories typés (\texttt{JpaRepository}).
+    \item \textbf{Couche mapping :} les mappers MapStruct isolent les conversions Entity $\leftrightarrow$ DTO.
+\end{itemize}
+
+\paragraph{5.2.1.2 Vue d'ensemble des interactions}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.98\linewidth]{images/Architecture technique du backend.png}
+\caption{Architecture technique du backend OCULA}
+\label{fig:backend-architecture}
+\end{figure}
+
+\noindent Cette séparation permet de faire évoluer chaque couche de façon indépendante. Les changements d'API restent dans les controllers, les règles métier restent dans les services, et la couche d'accès aux données reste concentrée dans les repositories.
+
 \subsubsection{Gestion des utilisateurs et des vidéos}
-\noindent \textit{À compléter.}
+\paragraph{5.2.2.1 Gestion des utilisateurs}
+La gestion des utilisateurs s'appuie sur deux chemins complémentaires :
+\begin{itemize}
+    \item \textbf{Authentification} : \texttt{POST /auth/signup} crée un compte avec mot de passe hashé (\texttt{BCrypt}), et \texttt{POST /auth/login} retourne un JWT (\texttt{token} + \texttt{expiresIn} + informations utilisateur).
+    \item \textbf{Profil} : \texttt{PUT /users/update/\{id\}} accepte un payload \texttt{multipart/form-data} composé d'un avatar optionnel et d'un objet JSON \texttt{user}. Si un nouvel avatar est envoyé, l'ancien fichier est supprimé du Blob Storage avant mise à jour.
+\end{itemize}
+
+\paragraph{5.2.2.2 Gestion des vidéos et cycle de traitement}
+Le cycle principal de vie d'une vidéo est orchestré par \texttt{VideoController} :
+\begin{enumerate}
+    \item \textbf{Upload} (\texttt{POST /videos/upload}) : réception de la vidéo, de la miniature et des métadonnées, génération de clés Blob (\texttt{userId/videos/...}, \texttt{userId/thumbnails/...}), envoi des fichiers vers Azure Blob, puis création de la ligne \texttt{Video} en base avec statut initial \texttt{PENDING}.
+    \item \textbf{Déclenchement IA} (\texttt{POST /videos/process/\{id\}}) : délégation au service Flask via \texttt{AiService}.
+    \item \textbf{Callbacks techniques} : le service IA met à jour l'état via \texttt{PUT /videos/update/status/\{id\}} (PROCESSING/COMPLETED/FAILED), injecte les transcripts via \\ \texttt{POST /video-transcripts}, puis met à jour titre et résumé via \texttt{PUT /videos/update/\{id\}}.
+    \item \textbf{Retour temps réel} : chaque changement de statut déclenche \texttt{WebsocketNotifier} qui publie sur \texttt{/topic/videos/\{id\}}.
+\end{enumerate}
+
+\noindent La pagination est gérée côté backend sur les listes métier (\texttt{/videos/page/\{userId\}}, \texttt{/messages/page/\{videoId\}}), ce qui limite la charge transmise au frontend.
+
 \subsubsection{Endpoints REST : conception et validation}
-\noindent \textit{À compléter.}
+\paragraph{5.2.3.1 Endpoints clefs}
+Le tableau~\ref{tab:backend-endpoints} résume les routes principales et leur rôle.
+\begin{table}[H]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.25}
+\newcommand{\backendpub}{\colorbox{green!15}{\strut\scriptsize\texttt{publique}}}
+\newcommand{\backendjwt}{\colorbox{blue!10}{\strut\scriptsize\texttt{JWT}}}
+\newcommand{\backendint}{\colorbox{orange!18}{\strut\scriptsize\texttt{interne}}}
+\begin{tabular}{|>{\raggedright\arraybackslash}p{5cm}|>{\centering\arraybackslash}p{1.6cm}|>{\raggedright\arraybackslash}p{4.5cm}|>{\raggedright\arraybackslash}p{5.5cm}|}
+\hline
+\rowcolor{techheader}
+\textcolor{white}{\textbf{Endpoint}} & \textcolor{white}{\textbf{Acc\`es}} & \textcolor{white}{\textbf{Validation / r\`egles}} & \textcolor{white}{\textbf{R\^ole / r\'eponse}} \\
+\hline
+\rowcolor{techlinea}
+\texttt{POST /auth/signup} & \backendpub & Email requis, email non déjà utilisé. & Crée un utilisateur, renvoie l'entité persistée. \\
+\hline
+\rowcolor{techlineb}
+\texttt{POST /auth/login} & \backendpub & Email requis, mot de passe requis, identifiants valides. & Renvoie \texttt{token}, \texttt{expiresIn}, \texttt{userInfo}. \\
+\hline
+\rowcolor{techlinea}
+\texttt{POST /videos/upload} & \backendjwt & \texttt{userId} valide, fichier vidéo présent, miniature présente. & Crée la vidéo (statut \texttt{PENDING}) et retourne \texttt{VideoDto}. \\
+\hline
+\rowcolor{techlineb}
+\texttt{POST /videos/process/\{id\}} & \backendjwt / \backendint & Id vidéo existant. & Déclenche \texttt{POST /process} côté service IA. \\
+\hline
+\rowcolor{techlinea}
+\texttt{PUT /videos/update/status/\{id\}} & \backendjwt / \backendint & Id vidéo existant, statut autorisé dans \texttt{VideoStatus}. & Met à jour le statut et notifie WebSocket. \\
+\hline
+\rowcolor{techlineb}
+\texttt{PUT /users/update/\{id\}} & \backendjwt & Id utilisateur existant, format \texttt{multipart/form-data} valide. & Met à jour profil/email/password/avatar. \\
+\hline
+\rowcolor{techlinea}
+\texttt{GET /videos/page/\{userId\}} & \backendjwt & \texttt{userId} valide, paramètres de pagination cohérents. & Retourne un \texttt{Page<VideoDto>}. \\
+\hline
+\rowcolor{techlineb}
+\texttt{POST /video-transcripts} & \backendjwt / \backendint & \texttt{videoId} valide, temps requis, temps positifs, \texttt{endTime >= startTime}. & Persiste un segment de transcript. \\
+\hline
+\rowcolor{techlinea}
+\texttt{GET /messages/page/\{videoId\}} & \backendjwt & \texttt{videoId} valide, pagination cohérente. & Historique chat paginé pour la vidéo. \\
+\hline
+\texttt{GET /files/get-url?key=...} & \backendjwt & Clé Blob fournie, objet Blob accessible. & Renvoie une URL signée de lecture Blob. \\
+\hline
+\end{tabular}
+\caption{Synthèse des endpoints backend principaux}
+\label{tab:backend-endpoints}
+\end{table}
+
+\paragraph{5.2.3.2 Stratégie de validation et gestion d'erreurs}
+La validation combine des contrôles techniques et métier :
+\begin{itemize}
+    \item contrôles d'existence (utilisateur, vidéo, message, transcript) avant mutation
+    \item contraintes métier explicites (ex. timestamps de transcript, unicité email) dans les services
+    \item exception handling centralisé via \texttt{@ControllerAdvice} avec mapping HTTP : \texttt{400} (transcript invalide), \texttt{401} (authentification), \texttt{404} (ressource absente), \texttt{409} (email déjà utilisé)
+\end{itemize}
 
 \subsubsection{Sécurité : authentification et autorisation}
-\noindent \textit{À compléter.}
+
+La sécurité est définie par \texttt{SecurityFilterChain} en mode \textit{stateless} :
+\begin{itemize}
+    \item \texttt{/auth/**} et \texttt{/**} sont publics
+    \item toutes les autres routes exigent une authentification
+    \item deux mecanismes sont supportes : JWT utilisateur (\texttt{Authorization: Bearer ...}) et cle interne machine-a-machine (\texttt{X-API-KEY}) pour les callbacks du service IA.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{images/Chaîne de sécurité backen.png}
+\caption{Chaîne de sécurité backend (JWT + clé interne)}
+\label{fig:backend-security-chain}
+\end{figure}
 
 \subsection{Service IA : LangChain + Flask}
 \noindent \textit{À compléter.}
