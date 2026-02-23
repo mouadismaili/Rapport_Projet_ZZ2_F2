@@ -290,17 +290,76 @@ Lorsqu’un utilisateur envoie un message, le chatbot déclenche une pipeline RA
 \end{figure}
 
 \subsection{Exigences fonctionnelles}
-\noindent \textit{À compléter.}
+
+Les exigences fonctionnelles décrivent les capacités et services que doit fournir l’application OCULA du point de vue des utilisateurs et du système métier.
+
+\subsubsection{Gestion des utilisateurs}
+
+\begin{itemize}
+	\item Le système doit permettre à un utilisateur de créer un compte à l’aide d’une adresse e-mail et d’un mot de passe.
+	\item Le système doit permettre l’authentification sécurisée des utilisateurs.
+	\item Le système doit permettre la modification des informations du profil (nom, prénom, e-mail, mot de passe, avatar).
+	\item Le système doit gérer les sessions utilisateurs via un mécanisme d’authentification basé sur des tokens jwt.
+\end{itemize}
+
+\subsubsection{Gestion des vidéos}
+
+\begin{itemize}
+	\item Le système doit permettre à un utilisateur d’importer une vidéo depuis l’interface web.
+	\item Le système doit stocker les vidéos dans un stockage objet.
+	\item Le système doit associer chaque vidéo à son utilisateur propriétaire.
+	\item Le système doit permettre d’afficher la liste des vidéos d’un utilisateur.
+	\item Le système doit permettre de consulter les détails d’une vidéo (titre, résumé).
+\end{itemize}
+
+\subsubsection{Traitement automatique des vidéos}
+
+\begin{itemize}
+	\item Le système doit extraire automatiquement la transcription d’une vidéo importée.
+	\item Le système doit segmenter la transcription en portions temporelles.
+	\item Le système doit transformer ces segments en représentations vectorielles (embeddings).
+	\item Le système doit générer automatiquement un titre et un résumé à partir de la transcription.
+\end{itemize}
+
+\subsubsection{Recherche sémantique et question--réponse}
+
+\begin{itemize}
+	\item Le système doit permettre à l’utilisateur de poser des questions sur le contenu d’une vidéo.
+	\item Le système doit rechercher les segments les plus pertinents dans la base de données vectorielle.
+	\item Le système doit générer des réponses contextuelles à l’aide d’un LLM.
+	\item Le système doit conserver l’historique des échanges entre l’utilisateur et le chatbot.
+\end{itemize}
+
+\subsubsection{Suivi du traitement}
+
+\begin{itemize}
+	\item Le système doit gérer les différents états du traitement d’une vidéo (en attente, en cours, terminé, échoué).
+	\item Le système doit permettre à l’utilisateur de suivre l’avancement du traitement en temps réel.
+	\item Le système doit notifier l’interface utilisateur lors des changements d’état.
+\end{itemize}
+
 \subsection{Exigences non fonctionnelles}
-\noindent \textit{À compléter.}
+
+Les exigences non fonctionnelles décrivent les contraintes techniques et qualitatives que doit respecter l’application OCULA afin d’assurer sa fiabilité, sa performance et sa sécurité.
+
 \subsubsection{Performance et latence}
-\noindent \textit{À compléter.}
-\subsubsection{Scalabilité}
-\noindent \textit{À compléter.}
+
+\begin{itemize}
+	\item Le système doit assurer un temps de réponse rapide pour les interactions utilisateur (navigation, affichage des vidéos, consultation des résultats).
+	\item Le traitement des vidéos doit être effectué de manière asynchrone afin de ne pas bloquer l’interface utilisateur.
+	\item Le temps de réponse du chatbot doit rester raisonnable pour garantir une expérience fluide.
+	\item Les opérations de recherche sémantique doivent être optimisées pour réduire la latence lors des requêtes.
+\end{itemize}
+
 \subsubsection{Sécurité et confidentialité}
-\noindent \textit{À compléter.}
-\subsubsection{Robustesse et tolérance aux pannes}
-\noindent \textit{À compléter.}
+
+\begin{itemize}
+	\item Le système doit garantir l’authentification et l’autorisation des utilisateurs.
+	\item Les données sensibles doivent être protégées lors du stockage et des communications.
+	\item L’accès aux vidéos doit être restreint uniquement à leur propriétaire.
+	\item la communication entre le backend et le service d’intelligence artificielle repose sur l’utilisation de clés d’API (API keys) permettant d’authentifier les requêtes et de restreindre l’accès aux endpoints internes.
+\end{itemize}
+
 
 \subsection{Architecture globale}
 \subsubsection{Vue d'ensemble (Frontend, Backend, AI Service)}
