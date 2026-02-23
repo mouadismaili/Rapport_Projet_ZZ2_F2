@@ -19,6 +19,7 @@
 \usepackage{array}     % For more control over column alignment
 \usepackage{colortbl}  % Table coloring
 \usepackage{tikz} % figs
+\usepackage{minted}
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, bending}
 
 \title{ArchiLogiciel } %Titre du fichier
@@ -50,8 +51,8 @@
     numbers=left,
     numberstyle=\footnotesize\color{mygray},
     stepnumber=1,
-    numbersep=12pt,
-    xleftmargin=2.6em,
+    numbersep=10pt,
+    xleftmargin=0pt,
     framexleftmargin=2.2em,
     breaklines=true,
     breakatwhitespace=true,
@@ -73,7 +74,9 @@
      {ô}{{\^o}}1
      {â}{{\^a}}1
 }
-\lstset{style=oculacode}
+\lstset{style=oculacode,
+    breaklines=true,
+    columns=fullflexible}
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
@@ -378,7 +381,6 @@ Les exigences non fonctionnelles décrivent les contraintes techniques et qualit
 	\item la communication entre le backend et le service d’intelligence artificielle repose sur l’utilisation de clés d’API (API keys) permettant d’authentifier les requêtes et de restreindre l’accès aux endpoints internes.
 \end{itemize}
 
-
 \subsection{Architecture globale}
 \subsubsection{Vue d'ensemble (Frontend, Backend, AI Service)}
 Notre application \textbf{Ocula} suit une architecture structurée en trois principales couches. D’abord, le frontend permet à l’utilisateur de téléverser une vidéo et de demander son analyse. Ensuite, le backend gère les requêtes, enregistre les métadonnées dans la base de données et stocke les fichiers dans un système de stockage objet. Enfin, la partie IA prend en charge le traitement de la vidéo, elle génère la transcription, crée des embeddings stockés dans une base vectorielle, puis exploite ces données pour alimenter le LLM, qui produit des résumés, des titres et des réponses pertinentes aux questions des utilisateurs.
@@ -404,7 +406,7 @@ Pour la \textbf{persistance des données}, nous avons choisi \textbf{PostgreSQL}
 \subsection{Conception}
 \subsubsection{Modèle conceptuel et logique}
 
-Le modèle conceptuel d’OCULA est structuré autour de l’entité \textit{Video}, qui constitue le cœur fonctionnel du système. Bien que l’application soit multi-utilisateur, l’ensemble du cycle de traitement IA est vidéo-centré : les opérations d’analyse, de transcription, de génération d’embeddings et de question–réponse s’appuient systématiquement sur l’identifiant \texttt{video\_id}.
+Le modèle conceptuel d’OCULA est structuré autour de l’entité \textit{Video}, qui constitue le cœur fonctionnel du système. Bien que l’application soit multi-utilisateur, l’ensemble du cycle de traitement IA est vidéo-centré : les opérations d’analyse, de transcription, de génération d’embeddings et de question–réponse s’appuient systématiquement sur l’identifiant \path{video\_id}.
 Ainsi, l’entité \textit{User} possède les vidéos, mais c’est la \textit{Video} qui orchestre le pipeline métier.
 
 \begin{figure}[H]
@@ -421,14 +423,14 @@ Un utilisateur peut posséder plusieurs vidéos (\textbf{1--N}). Cette relation 
 \begin{itemize}
     \item \textbf{Sécurité} : le contrôle d’accès repose sur le propriétaire de la vidéo ; un utilisateur ne peut accéder qu’à ses propres ressources.
     \item \textbf{Isolation des données} : chaque compte constitue un espace logique distinct.
-    \item \textbf{Scalabilité} : les requêtes peuvent être filtrées et paginées par \texttt{userId}, améliorant les performances.
+    \item \textbf{Scalabilité} : les requêtes peuvent être filtrées et paginées par \path{userId}, améliorant les performances.
     \item \textbf{Architecture multi-tenant} : la base est partagée, mais le cloisonnement est assuré au niveau applicatif.
 \end{itemize}
 
 \paragraph{Relation Video -- VideoTranscript}  
 
 
-Contrairement à une approche monolithique consistant à stocker une transcription complète sous forme d’un simple champ texte, OCULA adopte une modélisation segmentée. Une vidéo possède donc \textbf{0..*} entités \textit{VideoTranscript}, chacune caractérisée par un \texttt{startTime}, un \texttt{endTime} et un \texttt{transcriptText}.
+Contrairement à une approche monolithique consistant à stocker une transcription complète sous forme d’un simple champ texte, OCULA adopte une modélisation segmentée. Une vidéo possède donc \textbf{0..*} entités \textit{VideoTranscript}, chacune caractérisée par un \path{startTime}, un \path{endTime} et un \path{transcriptText}.
 
 Ce choix répond à plusieurs objectifs :
 
@@ -451,7 +453,7 @@ Chaque vidéo peut contenir \textbf{0..*} messages correspondant aux échanges e
 
 \paragraph{Gestion d’état du traitement}
 
-L’attribut \texttt{status} de l’entité \textit{Video} (PENDING, PROCESSING, COMPLETED, FAILED) modélise explicitement le cycle de vie du traitement asynchrone.
+L’attribut \path{status} de l’entité \textit{Video} (PENDING, PROCESSING, COMPLETED, FAILED) modélise explicitement le cycle de vie du traitement asynchrone.
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.5\textwidth]{images/Gestion d’état du traitement-2026-02-22-192854.png}
@@ -495,7 +497,7 @@ Cette granularité intermédiaire permet :
 
 
 Chaque chunk est transformé en vecteur numérique à l’aide du modèle 
-\texttt{sentence-transformers/all-MiniLM-L6-v2}, chargé via \textit{HuggingFaceEmbeddings}.
+\path{sentence-transformers/all-MiniLM-L6-v2}, chargé via \textit{HuggingFaceEmbeddings}.
 
 Ce modèle encode les textes en vecteurs de dimension fixe permettant une comparaison sémantique par mesure de similarité ou de distance vectorielle. 
 Chaque chunk correspond ainsi à un triplet logique :
@@ -512,14 +514,15 @@ Cette représentation vectorielle permet de comparer la question de l’utilisat
 \textbf{3. Organisation dans la base vectorielle}
 
 Les embeddings sont stockés dans ChromaDB selon une organisation par vidéo. 
-Pour chaque vidéo, une collection dédiée (\texttt{video\_<video\_id>}) est utilisée ou créée lors de l’initialisation du flux d’indexation.
+Pour chaque vidéo, une collection dédiée (\path{video\_<video\_id>}) est utilisée ou créée lors de l’initialisation du flux d’indexation.
 
 Chaque document vectoriel contient :
 
 \begin{itemize}
+
     \item le texte du chunk,
     \item l’embedding associé,
-    \item des métadonnées : \texttt{video\_id}, \texttt{start\_time}, \texttt{end\_time}.
+    \item des métadonnées : \path{video\_id}, \path{start\_time}, \path{end\_time}.
 \end{itemize}
 \begin{figure}[H]
     \centering
@@ -544,7 +547,7 @@ Cette organisation garantit :
     \item une correspondance directe entre passage récupéré et intervalle temporel.
 \end{itemize}
 
-Le modèle relationnel assure la cohérence transactionnelle des données métier, tandis que la couche vectorielle optimise la récupération contextuelle pour le RAG ; les deux couches sont donc complémentaires et synchronisées par \texttt{video\_id}.
+Le modèle relationnel assure la cohérence transactionnelle des données métier, tandis que la couche vectorielle optimise la récupération contextuelle pour le RAG ; les deux couches sont donc complémentaires et synchronisées par \path{video\_id}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{images/rag_pipeline_matrix.png}
@@ -576,7 +579,7 @@ Il est toutefois important de noter qu’il n’existe pas de transaction global
 
 Les fichiers volumineux tels que les vidéos, les miniatures et les avatars sont stockés dans un service de type objet.
 
-La base relationnelle conserve principalement la \textit{clé d’objet} (object key) associée à chaque ressource (\texttt{content}, \texttt{thumbnail}, \texttt{avatar}). 
+La base relationnelle conserve principalement la \textit{clé d’objet} (object key) associée à chaque ressource (\path{content}, \path{thumbnail}, \path{avatar}). 
 Une URL signée est générée dynamiquement lors de l’accès au fichier.
 
 Ce choix permet :
@@ -592,7 +595,7 @@ Ce choix permet :
 
 Les embeddings générés à partir des chunks sont stockés dans une base vectorielle dédiée (ChromaDB).
 
-Chaque vidéo dispose d’une collection nommée \texttt{video\_<video\_id>}. 
+Chaque vidéo dispose d’une collection nommée \path{video\_<video\_id>}. 
 
 Cette organisation assure :
 
@@ -613,43 +616,46 @@ Cette organisation assure :
 \medskip
 
 Le modèle relationnel assure la cohérence des données métier, le stockage objet prend en charge les contenus binaires via des clés d’objet, et la base vectorielle optimise la récupération sémantique pour le RAG. 
-Ces trois couches sont complémentaires et interconnectées principalement par \texttt{video\_id} (et \texttt{user\_id} pour les ressources utilisateur). 
+Ces trois couches sont complémentaires et interconnectées principalement par \path{video\_id} (et \path{user\_id} pour les ressources utilisateur). 
+\medskip
 
+La conception présentée précédemment définit la structure logique et la stratégie de persistance du système. 
+Nous détaillons désormais son implémentation concrète à travers les différentes couches applicatives : frontend, backend et service IA.
 \section{Implémentation}
 \subsection{Frontend : application Angular}
 \subsubsection{Principales pages et navigation}
 \paragraph{5.1.1.1 Pages et routes}
-Routes principales (source : \texttt{app.routes.ts}).
+Routes principales (source : \path{app.routes.ts}).
 Le tableau~\ref{tab:frontend-routes} présente une vue synthétique des chemins disponibles, des composants associés et du niveau de protection appliqué.
 \begin{table}[H]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.28}
-\newcommand{\badgepub}{\colorbox{green!15}{\strut\texttt{publique}}}
-\newcommand{\badgeguard}[1]{\colorbox{blue!10}{\strut\texttt{#1}}}
+\newcommand{\badgepub}{\colorbox{green!15}{\strut\path{publique}}}
+\newcommand{\badgeguard}[1]{\colorbox{blue!10}{\strut\path{#1}}}
 \begin{tabular}{|>{\raggedright\arraybackslash}p{1.9cm}|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}p{2.3cm}|>{\raggedright\arraybackslash}p{7.3cm}|}
 \hline
 \rowcolor{techheader}
 \textcolor{white}{\textbf{Route}} & \textcolor{white}{\textbf{Page}} & \textcolor{white}{\textbf{Protection}} & \textcolor{white}{\textbf{R\^ole principal}} \\
 \hline
 \rowcolor{techlinea}
-\cellcolor{techroute}\texttt{/} & Page d'accueil & \badgepub & Page d'accueil et point d'entr\'ee vers l'authentification. \\
+\cellcolor{techroute}\path{/} & Page d'accueil & \badgepub & Page d'accueil et point d'entr\'ee vers l'authentification. \\
 \hline
 \rowcolor{techlineb}
-\cellcolor{techroute}\texttt{/auth} & Page d'authentification & \badgeguard{LoginGuard} & Connexion/inscription dans une seule vue. \\
+\cellcolor{techroute}\path{/auth} & Page d'authentification & \badgeguard{LoginGuard} & Connexion/inscription dans une seule vue. \\
 \hline
 \rowcolor{techlinea}
-\cellcolor{techroute}\texttt{/upload} & Page d'upload & \badgeguard{AuthGuard} & Page pour envoyer une vid\'eo \`a la plateforme. \\
+\cellcolor{techroute}\path{/upload} & Page d'upload & \badgeguard{AuthGuard} & Page pour envoyer une vid\'eo \`a la plateforme. \\
 \hline
 \rowcolor{techlineb}
-\cellcolor{techroute}\texttt{/myvideos} & Page My Videos & \badgeguard{AuthGuard} & Liste des vid\'eos de l'utilisateur. \\
+\cellcolor{techroute}\path{/myvideos} & Page My Videos & \badgeguard{AuthGuard} & Liste des vid\'eos de l'utilisateur. \\
 \hline
 \rowcolor{techlinea}
-\cellcolor{techroute}\texttt{/video/:id} & Page vid\'eo & \badgeguard{AuthGuard} & Lecture vid\'eo, affichage des m\'etadonn\'ees (titre/r\'esum\'e) et suivi du statut de traitement en temps r\'eel. \\
+\cellcolor{techroute}\path{/video/:id} & Page vid\'eo & \badgeguard{AuthGuard} & Lecture vid\'eo, affichage des m\'etadonn\'ees (titre/r\'esum\'e) et suivi du statut de traitement en temps r\'eel. \\
 \hline
 \rowcolor{techlineb}
-\cellcolor{techroute}\texttt{/settings} & Page param\`etres & \badgeguard{AuthGuard} & Mise \`a jour du profil (nom/pr\'enom/avatar), de l'email et du mot de passe. \\
+\cellcolor{techroute}\path{/settings} & Page param\`etres & \badgeguard{AuthGuard} & Mise \`a jour du profil (nom/pr\'enom/avatar), de l'email et du mot de passe. \\
 \hline
 \end{tabular}
 \caption{Routes frontend, pages associ\'ees et responsabilit\'es}
@@ -783,7 +789,7 @@ Le schéma suivant synthétise le scénario métier principal après l'upload d'
 \draw[async] (8.4,-4.0) -- node[above, font=\tiny]{5) statut PENDING/PROCESSING/COMPLETED} (12.6,-4.0);
 \draw[call] (12.6,-4.8) -- node[above, font=\tiny]{6) refresh GET /api/videos/\{id\}} (8.4,-4.8);
 
-\node[note] at (6.3,-5.7) {Mise à jour UI sans polling\\grâce au topic \texttt{/topic/videos/\{id\}}.};
+\node[note] at (6.3,-5.7) {Mise à jour UI sans polling\\grâce au topic \path{/topic/videos/\{id\}}.};
 
 \end{tikzpicture}
 }%
@@ -829,9 +835,9 @@ Le schéma suivant synthétise le scénario métier principal après l'upload d'
 \paragraph{5.2.1.1 Organisation en couches}
 Le backend Spring Boot suit une architecture en couches qui sépare la responsabilité HTTP, la logique métier et la persistance :
 \begin{itemize}
-    \item \textbf{Couche controllers :} expose les endpoints REST (\texttt{/auth}, \texttt{/users}, \texttt{/videos}, \texttt{/messages}, \texttt{/video-transcripts}, \texttt{/files}).
+    \item \textbf{Couche controllers :} expose les endpoints REST (\path{/auth}, \path{/users}, \path{/videos}, \path{/messages}, \path{/video-transcripts}, \path{/files}).
     \item \textbf{Couche services :} applique les règles métier (contrôle d'existence, unicité email, validation des timestamps de transcript, orchestration du traitement IA, notifications WebSocket).
-    \item \textbf{Couche repositories :} s'appuie sur Spring Data JPA pour accéder à PostgreSQL via des repositories typés (\texttt{JpaRepository}).
+    \item \textbf{Couche repositories :} s'appuie sur Spring Data JPA pour accéder à PostgreSQL via des repositories typés (\path{JpaRepository}).
     \item \textbf{Couche mapping :} les mappers MapStruct isolent les conversions Entity $\leftrightarrow$ DTO.
 \end{itemize}
 
@@ -849,20 +855,20 @@ Le backend Spring Boot suit une architecture en couches qui sépare la responsab
 \paragraph{5.2.2.1 Gestion des utilisateurs}
 La gestion des utilisateurs s'appuie sur deux chemins complémentaires :
 \begin{itemize}
-    \item \textbf{Authentification} : \texttt{POST /auth/signup} crée un compte avec mot de passe hashé (\texttt{BCrypt}), et \texttt{POST /auth/login} retourne un JWT (\texttt{token} + \texttt{expiresIn} + informations utilisateur).
-    \item \textbf{Profil} : \texttt{PUT /users/update/\{id\}} accepte un payload \texttt{multipart/form-data} composé d'un avatar optionnel et d'un objet JSON \texttt{user}. Si un nouvel avatar est envoyé, l'ancien fichier est supprimé du Blob Storage avant mise à jour.
+    \item \textbf{Authentification} : \path{POST /auth/signup} crée un compte avec mot de passe hashé (\path{BCrypt}), et \path{POST /auth/login} retourne un JWT (\path{token} + \path{expiresIn} + informations utilisateur).
+    \item \textbf{Profil} : \path{PUT /users/update/\{id\}} accepte un payload \path{multipart/form-data} composé d'un avatar optionnel et d'un objet JSON \path{user}. Si un nouvel avatar est envoyé, l'ancien fichier est supprimé du Blob Storage avant mise à jour.
 \end{itemize}
 
 \paragraph{5.2.2.2 Gestion des vidéos et cycle de traitement}
-Le cycle principal de vie d'une vidéo est orchestré par \texttt{VideoController} :
+Le cycle principal de vie d'une vidéo est orchestré par \path{VideoController} :
 \begin{enumerate}
-    \item \textbf{Upload} (\texttt{POST /videos/upload}) : réception de la vidéo, de la miniature et des métadonnées, génération de clés Blob (\texttt{userId/videos/...}, \texttt{userId/thumbnails/...}), envoi des fichiers vers Azure Blob, puis création de la ligne \texttt{Video} en base avec statut initial \texttt{PENDING}.
-    \item \textbf{Déclenchement IA} (\texttt{POST /videos/process/\{id\}}) : délégation au service Flask via \texttt{AiService}.
-    \item \textbf{Callbacks techniques} : le service IA met à jour l'état via \texttt{PUT /videos/update/status/\{id\}} (PROCESSING/COMPLETED/FAILED), injecte les transcripts via \\ \texttt{POST /video-transcripts}, puis met à jour titre et résumé via \texttt{PUT /videos/update/\{id\}}.
-    \item \textbf{Retour temps réel} : chaque changement de statut déclenche \texttt{WebsocketNotifier} qui publie sur \texttt{/topic/videos/\{id\}}.
+    \item \textbf{Upload} (\path{POST /videos/upload}) : réception de la vidéo, de la miniature et des métadonnées, génération de clés Blob (\path{userId/videos/...}, \path{userId/thumbnails/...}), envoi des fichiers vers Azure Blob, puis création de la ligne \path{Video} en base avec statut initial \path{PENDING}.
+    \item \textbf{Déclenchement IA} (\path{POST /videos/process/\{id\}}) : délégation au service Flask via \path{AiService}.
+    \item \textbf{Callbacks techniques} : le service IA met à jour l'état via \path{PUT /videos/update/status/\{id\}} (PROCESSING/COMPLETED/FAILED), injecte les transcripts via \\ \path{POST /video-transcripts}, puis met à jour titre et résumé via \path{PUT /videos/update/\{id\}}.
+    \item \textbf{Retour temps réel} : chaque changement de statut déclenche \path{WebsocketNotifier} qui publie sur \path{/topic/videos/\{id\}}.
 \end{enumerate}
 
-\noindent La pagination est gérée côté backend sur les listes métier (\texttt{/videos/page/\{userId\}}, \texttt{/messages/page/\{videoId\}}), ce qui limite la charge transmise au frontend.
+\noindent La pagination est gérée côté backend sur les listes métier (\path{/videos/page/\{userId\}}, \path{/messages/page/\{videoId\}}), ce qui limite la charge transmise au frontend.
 
 \subsubsection{Endpoints REST : conception et validation}
 \paragraph{5.2.3.1 Endpoints clefs}
@@ -872,42 +878,42 @@ Le tableau~\ref{tab:backend-endpoints} résume les routes principales et leur r�
 \small
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.25}
-\newcommand{\backendpub}{\colorbox{green!15}{\strut\scriptsize\texttt{publique}}}
-\newcommand{\backendjwt}{\colorbox{blue!10}{\strut\scriptsize\texttt{JWT}}}
-\newcommand{\backendint}{\colorbox{orange!18}{\strut\scriptsize\texttt{interne}}}
+\newcommand{\backendpub}{\colorbox{green!15}{\strut\scriptsize\path{publique}}}
+\newcommand{\backendjwt}{\colorbox{blue!10}{\strut\scriptsize\path{JWT}}}
+\newcommand{\backendint}{\colorbox{orange!18}{\strut\scriptsize\path{interne}}}
 \begin{tabular}{|>{\raggedright\arraybackslash}p{5cm}|>{\centering\arraybackslash}p{1.6cm}|>{\raggedright\arraybackslash}p{4.5cm}|>{\raggedright\arraybackslash}p{5.5cm}|}
 \hline
 \rowcolor{techheader}
 \textcolor{white}{\textbf{Endpoint}} & \textcolor{white}{\textbf{Acc\`es}} & \textcolor{white}{\textbf{Validation / r\`egles}} & \textcolor{white}{\textbf{R\^ole / r\'eponse}} \\
 \hline
 \rowcolor{techlinea}
-\texttt{POST /auth/signup} & \backendpub & Email requis, email non déjà utilisé. & Crée un utilisateur, renvoie l'entité persistée. \\
+\path{POST /auth/signup} & \backendpub & Email requis, email non déjà utilisé. & Crée un utilisateur, renvoie l'entité persistée. \\
 \hline
 \rowcolor{techlineb}
-\texttt{POST /auth/login} & \backendpub & Email requis, mot de passe requis, identifiants valides. & Renvoie \texttt{token}, \texttt{expiresIn}, \texttt{userInfo}. \\
+\path{POST /auth/login} & \backendpub & Email requis, mot de passe requis, identifiants valides. & Renvoie \path{token}, \path{expiresIn}, \path{userInfo}. \\
 \hline
 \rowcolor{techlinea}
-\texttt{POST /videos/upload} & \backendjwt & \texttt{userId} valide, fichier vidéo présent, miniature présente. & Crée la vidéo (statut \texttt{PENDING}) et retourne \texttt{VideoDto}. \\
+\path{POST /videos/upload} & \backendjwt & \path{userId} valide, fichier vidéo présent, miniature présente. & Crée la vidéo (statut \path{PENDING}) et retourne \path{VideoDto}. \\
 \hline
 \rowcolor{techlineb}
-\texttt{POST /videos/process/\{id\}} & \backendjwt / \backendint & Id vidéo existant. & Déclenche \texttt{POST /process} côté service IA. \\
+\path{POST /videos/process/\{id\}} & \backendjwt / \backendint & Id vidéo existant. & Déclenche \path{POST /process} côté service IA. \\
 \hline
 \rowcolor{techlinea}
-\texttt{PUT /videos/update/status/\{id\}} & \backendjwt / \backendint & Id vidéo existant, statut autorisé dans \texttt{VideoStatus}. & Met à jour le statut et notifie WebSocket. \\
+\path{PUT /videos/update/status/\{id\}} & \backendjwt / \backendint & Id vidéo existant, statut autorisé dans \path{VideoStatus}. & Met à jour le statut et notifie WebSocket. \\
 \hline
 \rowcolor{techlineb}
-\texttt{PUT /users/update/\{id\}} & \backendjwt & Id utilisateur existant, format \texttt{multipart/form-data} valide. & Met à jour profil/email/password/avatar. \\
+\path{PUT /users/update/\{id\}} & \backendjwt & Id utilisateur existant, format \path{multipart/form-data} valide. & Met à jour profil/email/password/avatar. \\
 \hline
 \rowcolor{techlinea}
-\texttt{GET /videos/page/\{userId\}} & \backendjwt & \texttt{userId} valide, paramètres de pagination cohérents. & Retourne un \texttt{Page<VideoDto>}. \\
+\path{GET /videos/page/\{userId\}} & \backendjwt & \path{userId} valide, paramètres de pagination cohérents. & Retourne un \path{Page<VideoDto>}. \\
 \hline
 \rowcolor{techlineb}
-\texttt{POST /video-transcripts} & \backendjwt / \backendint & \texttt{videoId} valide, temps requis, temps positifs, \texttt{endTime >= startTime}. & Persiste un segment de transcript. \\
+\path{POST /video-transcripts} & \backendjwt / \backendint & \path{videoId} valide, temps requis, temps positifs, \path{endTime >= startTime}. & Persiste un segment de transcript. \\
 \hline
 \rowcolor{techlinea}
-\texttt{GET /messages/page/\{videoId\}} & \backendjwt & \texttt{videoId} valide, pagination cohérente. & Historique chat paginé pour la vidéo. \\
+\path{GET /messages/page/\{videoId\}} & \backendjwt & \path{videoId} valide, pagination cohérente. & Historique chat paginé pour la vidéo. \\
 \hline
-\texttt{GET /files/get-url?key=...} & \backendjwt & Clé Blob fournie, objet Blob accessible. & Renvoie une URL signée de lecture Blob. \\
+\path{GET /files/get-url?key=...} & \backendjwt & Clé Blob fournie, objet Blob accessible. & Renvoie une URL signée de lecture Blob. \\
 \hline
 \end{tabular}
 \caption{Synthèse des endpoints backend principaux}
@@ -919,16 +925,16 @@ La validation combine des contrôles techniques et métier :
 \begin{itemize}
     \item contrôles d'existence (utilisateur, vidéo, message, transcript) avant mutation
     \item contraintes métier explicites (ex. timestamps de transcript, unicité email) dans les services
-    \item exception handling centralisé via \texttt{@ControllerAdvice} avec mapping HTTP : \texttt{400} (transcript invalide), \texttt{401} (authentification), \texttt{404} (ressource absente), \texttt{409} (email déjà utilisé)
+    \item exception handling centralisé via \path{@ControllerAdvice} avec mapping HTTP : \path{400} (transcript invalide), \path{401} (authentification), \path{404} (ressource absente), \path{409} (email déjà utilisé)
 \end{itemize}
 
 \subsubsection{Sécurité : authentification et autorisation}
 
-La sécurité est définie par \texttt{SecurityFilterChain} en mode \textit{stateless} :
+La sécurité est définie par \path{SecurityFilterChain} en mode \textit{stateless} :
 \begin{itemize}
-    \item \texttt{/auth/**} et \texttt{/**} sont publics
+    \item \path{/auth/**} et \path{/**} sont publics
     \item toutes les autres routes exigent une authentification
-    \item deux mecanismes sont supportes : JWT utilisateur (\texttt{Authorization: Bearer ...}) et cle interne machine-a-machine (\texttt{X-API-KEY}) pour les callbacks du service IA.
+    \item deux mecanismes sont supportes : JWT utilisateur (\path{Authorization: Bearer ...}) et cle interne machine-a-machine (\path{X-API-KEY}) pour les callbacks du service IA.
 \end{itemize}
 
 \begin{figure}[H]
@@ -939,13 +945,177 @@ La sécurité est définie par \texttt{SecurityFilterChain} en mode \textit{stat
 \end{figure}
 
 \subsection{Service IA : LangChain + Flask}
-\noindent \textit{À compléter.}
+Le traitement intelligent des vidéos est assuré par un microservice dédié développé en Python et exposé via Flask. 
+Ce service prend en charge les opérations computationnelles intensives du système : transcription audio, génération d’embeddings, indexation vectorielle et mécanisme de question–réponse basé sur le RAG.
+
+Contrairement au backend Spring Boot, qui gère les aspects transactionnels et la logique métier applicative, le service IA est spécialisé dans les traitements liés aux modèles de langage et à la recherche sémantique. 
+Cette séparation permet d’isoler les dépendances liées aux modèles IA, de limiter l’impact des traitements lourds sur le backend principal et de faire évoluer indépendamment les composants.
+
+L’orchestration interne repose sur LangChain, utilisé ici comme couche d’intégration entre les différents modules IA, et non comme framework applicatif complet. 
+LangChain structure les interactions entre les embeddings, la base vectorielle et le modèle de langage externe.
+
+Concrètement, son utilisation dans le service IA couvre :
+
+\begin{itemize}
+    \item \textbf{Embeddings} : la classe \path{HuggingFaceEmbeddings} 
+    charge le modèle \path{sentence-transformers/all-MiniLM-L6-v2} afin de vectoriser les chunks avant leur stockage dans ChromaDB.
+    
+    \item \textbf{Base vectorielle} : \path{langchain\_chroma.Chroma} sert d’interface avec ChromaDB pour l’ajout de documents (\path{add\_documents}) et la recherche par similarité (\path{similarity\_search\_with\_score}).
+    
+    \item \textbf{Prompting et chaining} : les différents prompts (titre, résumé, réécriture, RAG) sont définis via \path{PromptTemplate} et exécutés sous forme de pipeline :
+    \begin{verbatim}
+prompt | llm | StrOutputParser()
+    \end{verbatim}
+    
+    \item \textbf{Appel au LLM} : \path{ChatCerebras} permet d’interagir avec le modèle externe \path{gpt-oss-120b} pour la génération du titre, du résumé et des réponses RAG.
+\end{itemize}
+
+LangChain assure ainsi la cohérence du flux complet, reliant définition du prompt, appel au modèle, parsing des sorties et interaction avec la base vectorielle. 
+Les sous-sections suivantes détaillent successivement les différentes phases du pipeline : transcription, chunking, génération d’embeddings et mécanisme RAG.
+
 
 \subsubsection{Extraction audio et transcription (Whisper)}
-\noindent \textit{À compléter.}
+
+Le déclenchement du traitement d’une vidéo est effectué via l’endpoint \path{/process} exposé par le service Flask. 
+Afin d’éviter le blocage de la requête HTTP, le pipeline est exécuté dans un thread Python dédié. 
+Cette approche permet au backend principal de rester réactif tout en assurant un traitement potentiellement long.
+
+\paragraph{Chargement du modèle Whisper}
+
+Le modèle Whisper est chargé une seule fois à l’initialisation du service IA :
+
+\begin{lstlisting}[language=Python, caption={Chargement du modèle Whisper}, label={lst:whisper-load}]
+    # ai_part/services/ai_models.py
+    import whisper
+    whisper_model = whisper.load_model("base")
+\end{lstlisting}
+
+
+Le choix du modèle \path{"base"} constitue un compromis entre précision de transcription et coût computationnel, adapté à une exécution locale.
+
+\paragraph{Pipeline de traitement}
+
+Lorsqu’une requête de traitement est reçue, la fonction principale orchestre les différentes étapes :
+
+\begin{lstlisting}[language=Python, caption={Chargement du modèle Whisper}, label={lst:whisper-load}]
+# ai_part/services/processing.py
+def processing_task(video_id, object_key):
+    try:
+        update_status(video_id, "PROCESSING")
+
+        temp_filename = None
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
+                temp_filename = temp_file.name
+                print(f"Downloading blob: {object_key} to {temp_filename}")
+                blob_client = container_client.get_blob_client(object_key)
+                blob_data = blob_client.download_blob().readall()
+                temp_file.write(blob_data)
+                
+            transcription = whisper_model.transcribe(temp_filename, verbose=True)
+            save_transcript_chunk(video_id, transcription['segments'])
+            embed_script(video_id, chunk_video_transcript(transcription))
+            analyze(video_id, transcription['text'])
+
+        finally:
+            if temp_filename and os.path.exists(temp_filename):
+                try:
+                    os.remove(temp_filename)
+                except Exception as e:
+                    print(f"Warning: Could not remove temp file {temp_filename}: {e}")
+        
+        update_status(video_id, "COMPLETED")
+
+    except Exception as e:
+        print(f"Error in transcription task: {e}")
+        update_status(video_id, "FAILED")
+    pass
+\end{lstlisting}
+
+La vidéo est d’abord téléchargée depuis Azure Blob Storage à l’aide de sa clé d’objet (\path{object\_key}) vers un fichier temporaire local. 
+La transcription est ensuite effectuée via \path{whisper\_model.transcribe}, qui retourne :
+
+\begin{itemize}
+    \item un texte global (\path{text}),
+    \item une liste de segments contenant \path{start}, \path{end} et \path{text}.
+\end{itemize}
+
+Les segments sont persistés côté backend sous forme d’entités \textit{VideoTranscript}, conservant ainsi la granularité temporelle nécessaire à la traçabilité et au futur découpage en chunks.
+
+Le statut de la vidéo est mis à jour au début (\path{PROCESSING}) puis à la fin du traitement (\path{COMPLETED}). 
+En cas d’exception, le statut peut être positionné à \path{FAILED}, garantissant une gestion explicite du cycle de vie du traitement.
+
+Le fichier temporaire est nettoyé systématiquement en fin de traitement (\path{finally}), même en cas d’erreur.
+
+Cette gestion d’état et de ressources permet au frontend d’afficher l’avancement du traitement tout en assurant la cohérence et la robustesse du système dans un contexte distribué.
 
 \subsubsection{Chunking : stratégies et paramètres}
-\noindent \textit{À compléter.}
+\paragraph{Reconstruction des bornes temporelles des chunks} 
+\mbox{}\\
+Le découpage en chunks est réalisé sur le texte complet issu de Whisper (\path{transcription['text']}) via \path{RecursiveCharacterTextSplitter}. 
+Cependant, pour préserver la traçabilité temporelle, chaque chunk doit être associé à un intervalle \path{[start, end]} exploitable comme source dans l’interface.
+
+Pour cela, le service construit d’abord une correspondance (\textit{segment\_map}) entre la progression en caractères dans le texte global et les segments Whisper. 
+Chaque segment est représenté par une borne \path{end\_char} et ses timestamps \path{start/end}. 
+Ensuite, pour chaque chunk extrait, sa position \path{[chunk\_start, chunk\_end]} dans le texte global est retrouvée, puis convertie en timestamps en recherchant les segments couvrant ces bornes.
+
+Cette approche permet d’associer à chaque chunk un intervalle temporel cohérent, tout en conservant un découpage textuel adapté au retrieval.
+\begin{lstlisting}[language=Python, caption={Découpage en chunks avec reconstruction des timestamps}, label={lst:chunk-video-transcript}]
+def chunk_video_transcript(transcription, chunk_size=RAG_CHUNK_SIZE, chunk_overlap=RAG_CHUNK_OVERLAP):
+    if not transcription:
+        return []
+
+    full_text = transcription['text']
+    segments = transcription['segments']
+    
+    segment_map = []
+    current_char = 0
+    for seg in segments:
+        length = len(seg['text'])
+        segment_map.append({
+            'end_char': current_char + length,
+            'start': seg['start'],
+            'end': seg['end']
+        })
+        current_char += length
+
+    splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
+    text_chunks = splitter.split_text(full_text)
+    
+    result_chunks = []
+    current_search_start = 0
+    
+    for chunk in text_chunks:
+        chunk_start = full_text.find(chunk, current_search_start)
+        if chunk_start == -1:
+            chunk_start = full_text.find(chunk)
+        if chunk_start == -1:
+            continue
+            
+        chunk_end = chunk_start + len(chunk)
+        current_search_start = chunk_start + 1
+        
+        start_time = segment_map[0]['start']
+        for item in segment_map:
+            if item['end_char'] > chunk_start:
+                start_time = item['start']
+                break
+        
+        end_time = segment_map[-1]['end']
+        for item in segment_map:
+            if item['end_char'] >= chunk_end:
+                end_time = item['end']
+                break
+        
+        result_chunks.append({
+            'text': chunk,
+            'start': start_time,
+            'end': end_time
+        })
+
+    print("result_chunks", result_chunks)
+    return result_chunks
+\end{lstlisting}
 
 \subsubsection{Génération d'embeddings (MiniLM)}
 \noindent \textit{À compléter.}
@@ -1301,9 +1471,9 @@ La fonction \textbf{getFileUrl} permet de générer un lien sécurisé pour acc�
 
 % Dans le cadre du projet OCULA, le choix des modèles de traitement automatique du langage et de la parole a été guidé par plusieurs critères : qualité des résultats, coût d’utilisation, facilité d’intégration, contrôle du pipeline et adéquation avec un projet académique. Cette section détaille les modèles retenus ainsi que les raisons pour lesquelles certaines alternatives n’ont pas été privilégiées.
 
-% \subsection{Modèle d'embeddings : \texttt{all-MiniLM-L6-v2}}
+% \subsection{Modèle d'embeddings : \path{all-MiniLM-L6-v2}}
 
-% Le modèle \texttt{sentence-transformers/all-MiniLM-L6-v2} est utilisé pour transformer des phrases en représentations vectorielles numériques. Ces vecteurs sont ensuite exploités pour la recherche sémantique dans le cadre de la méthode \textit{Retrieval-Augmented Generation} (RAG).
+% Le modèle \path{sentence-transformers/all-MiniLM-L6-v2} est utilisé pour transformer des phrases en représentations vectorielles numériques. Ces vecteurs sont ensuite exploités pour la recherche sémantique dans le cadre de la méthode \textit{Retrieval-Augmented Generation} (RAG).
 
 % \textbf{Justification du choix}
 % \begin{itemize}
@@ -1319,7 +1489,7 @@ La fonction \textbf{getFileUrl} permet de générer un lien sécurisé pour acc�
 %     \item Embeddings via API (OpenAI, Cohere) : qualité élevée mais dépendance à un service externe payant.
 % \end{itemize}
 
-% Ainsi, \texttt{all-MiniLM-L6-v2} représente un compromis optimal entre coût, performance et simplicité d’intégration.
+% Ainsi, \path{all-MiniLM-L6-v2} représente un compromis optimal entre coût, performance et simplicité d’intégration.
 
 % % --------------------------------------------------
 
@@ -1345,9 +1515,9 @@ La fonction \textbf{getFileUrl} permet de générer un lien sécurisé pour acc�
 
 % % --------------------------------------------------
 
-% \subsection{Modèle de langage : \texttt{gpt-oss-120b}}
+% \subsection{Modèle de langage : \path{gpt-oss-120b}}
 
-% Le modèle \texttt{gpt-oss-120b}, accessible via une API externe fournie par Cerebras, est utilisé pour la compréhension et la génération de texte, notamment pour la génération de résumés et l’interrogation conversationnelle.
+% Le modèle \path{gpt-oss-120b}, accessible via une API externe fournie par Cerebras, est utilisé pour la compréhension et la génération de texte, notamment pour la génération de résumés et l’interrogation conversationnelle.
 
 % \textbf{Justification du choix}
 % \begin{itemize}
@@ -1363,7 +1533,7 @@ La fonction \textbf{getFileUrl} permet de générer un lien sécurisé pour acc�
 %     \item Modèles open-source auto-hébergés (LLaMA, Mistral) : contrôle total mais besoins matériels importants (GPU).
 % \end{itemize}
 
-% Le choix de \texttt{gpt-oss-120b} permet ainsi de bénéficier de la puissance d’un grand modèle de langage tout en conservant une approche ouverte et économiquement raisonnable.
+% Le choix de \path{gpt-oss-120b} permet ainsi de bénéficier de la puissance d’un grand modèle de langage tout en conservant une approche ouverte et économiquement raisonnable.
 
 
 
