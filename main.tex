@@ -1264,10 +1264,94 @@ Pour accéder à l’un de ces fichiers, nous utilisons une clé unique qui perm
 
 La fonction \textbf{getFileUrl} permet de générer un lien sécurisé pour accéder à un fichier stocké dans Azure Blob Storage. Elle crée un token SAS (Shared Access Signature) qui donne une permission de lecture limitée dans le temps. L’URL finale contient ce token, ce qui permet d’accéder temporairement au fichier sans exposer les informations sensibles du compte Azure.
 
-\subsubsection{Base de données : choix et schéma}
-\noindent \textit{À compléter.}
+\subsubsection{Base de données}
+
+Notre application Ocula repose sur une architecture hybride utilisant deux types de bases de données complémentaires : une base de données relationnelle \textbf{PostgreSQL} et une base de données vectorielle \textbf{ChromaDB}. Ce choix permet de répondre aux différents besoins de stockage et de traitement des données de l’application.
+
+La base de données \textbf{PostgreSQL} est utilisée pour stocker les données structurées de l’application. Elle contient notamment les informations relatives aux utilisateurs, aux vidéos importées, les messages et les transcriptions détectée.
+
+En complément, \textbf{ChromaDB} est utilisée comme base de données vectorielle afin de gérer les représentations vectorielle de la transcription de vidéo. Ces vecteurs sont stockés afin de les exploiter dans les traitements de RAG.
+
+L’utilisation combinée de ces deux bases permet ainsi de séparer les responsabilités : \textbf{PostgreSQL} assure la gestion des données structurées, tandis que \textbf{ChromaDB} prend en charge le stockage et l’interrogation des données vectorielles nécessaires aux fonctionnement d’intelligence artificielle de l’application.
 
 \subsubsection{Dockerisation}
+
+L'ensemble de l'application \textbf{OCULA} est conteneurisé à l'aide de \textbf{Docker} et orchestré avec \textbf{Docker Compose}. Cette approche garantit la portabilité de l'application, l'isolation des environnements et une gestion simplifiée des dépendances entre les services.
+
+\begin{lstlisting}
+	FROM maven:3.9.9-eclipse-temurin-21 AS build
+	WORKDIR /app
+	
+	COPY pom.xml .
+	COPY .mvn .mvn
+	COPY mvnw mvnw
+	
+	RUN mvn -q -DskipTests dependency:go-offline
+	
+	COPY src src
+	RUN mvn -q -DskipTests package
+	
+	FROM eclipse-temurin:21-jre
+	WORKDIR /app
+	
+	COPY --from=build /app/target/*.jar /app/app.jar
+	
+	EXPOSE 8080
+	
+	ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+\end{lstlisting}
+
+Ce Dockerfile permet d'exécuter le backend d'Ocula. La première étape utilise Maven pour télécharger les dépendances, compiler le code source et générer un fichier JAR. La seconde étape utilise une image contenant le Java, copie le JAR généré, expose le port 8080 et lance automatiquement l’application avec la commande java -jar.
+
+\begin{lstlisting}
+	FROM python:3.10-slim
+	
+	ENV PYTHONDONTWRITEBYTECODE=1 \
+	PYTHONUNBUFFERED=1 \
+	VIRTUAL_ENV=/opt/venv \
+	PATH="/opt/venv/bin:$PATH"
+	
+	WORKDIR /app
+	
+	COPY requirements.txt /app/requirements.txt
+	RUN apt-get update && apt-get install -y ffmpeg \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& python -m venv /opt/venv \
+	&& pip install --upgrade pip \
+	&& pip install -r /app/requirements.txt
+	
+	COPY . /app
+	
+	EXPOSE 5000
+	ENV PORT=5000
+	
+	CMD ["python", "app.py"]
+\end{lstlisting}
+
+Ce Dockerfile permet d'exécuter la partie IA d'Ocula. Il utilise une image de Python 3.10, configure des variables d’environnement, puis crée un environnement virtuel dans lequel il installe les dépendances listées dans le fichier requirements.txt, ainsi que l’outil ffmpeg nécessaire au fonctionnement de Whisper. Ensuite, il copie le code source dans le conteneur, expose le port 5000 et lance automatiquement l’application avec la commande python app.py.
+
+\begin{lstlisting}
+	FROM node:20-alpine AS build
+	
+	WORKDIR /app
+	
+	COPY package*.json ./
+	RUN npm install
+	
+	COPY . .
+	RUN npm run build 
+	
+	FROM nginx:1.27-alpine
+	
+	COPY nginx.conf /etc/nginx/conf.d/default.conf
+	COPY --from=build /app/dist/ocula-frontend/browser /usr/share/nginx/html
+	
+	EXPOSE 80
+	
+	CMD ["nginx", "-g", "daemon off;"]
+\end{lstlisting} 
+
+Ce Dockerfile sert à construire et lancer le frontend de l’application. Il utilise d’abord Node.js pour installer les dépendances du projet, puis il utilise Nginx pour servir les fichiers générés. Enfin, il expose le port 80 et démarre le serveur Nginx pour rendre l’application accessible.
 
 \section{Évaluation et résultats}
 \noindent \textit{À compléter.}
