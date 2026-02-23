@@ -21,43 +21,50 @@
 \usepackage{tikz} % figs
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, bending}
 
-\lstset{
-	language=Java,
-	basicstyle=\ttfamily\small,
-	keywordstyle=\color{blue},
-	commentstyle=\color{gray},
-	stringstyle=\color{red},
-	breaklines=true,
-	frame=single
-}
-
 \title{ArchiLogiciel } %Titre du fichier
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{codebg}{RGB}{248,250,252}
+\definecolor{codeframe}{RGB}{203,213,225}
 \definecolor{techheader}{HTML}{0F172A}
 \definecolor{techlinea}{HTML}{F8FAFF}
 \definecolor{techlineb}{HTML}{EEF4FF}
 \definecolor{techroute}{HTML}{E0F2FE}
 
-\lstset{
-    backgroundcolor=\color{white},   
-    basicstyle=\footnotesize\ttfamily,   
-    breaklines=true,                 
-    captionpos=b,                    
-    commentstyle=\color{mygreen},    
-    keywordstyle=\color{blue},       
-    stringstyle=\color{mymauve},     
-    frame=single,                    
-    rulecolor=\color{black},         
-    language=C,                      
-    showspaces=false,                
-    showstringspaces=false,          
-    tabsize=4 ,
-    inputencoding=utf8,           % Indique que l'encodage utilisé est UTF-8
-    extendedchars=true,           % Utilise des caractères étendus
+\lstdefinestyle{oculacode}{
+    language=Java,
+    alsoletter={@},
+    backgroundcolor=\color{codebg},
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    keywordstyle=[2]\color{teal!70!black}\bfseries,
+    commentstyle=\color{mygreen},
+    stringstyle=\color{mymauve},
+    emph={uploadFile,createVideoWithUpload,getFileUrl},
+    emphstyle=\color{orange!80!black}\bfseries,
+    morekeywords=[2]{PostMapping,RequestParam,ResponseEntity,MultipartFile,UUID,Duration,OffsetDateTime,BlobClient,BlobSasPermission,BlobServiceSasSignatureValues},
+    frame=single,
+    framerule=0.6pt,
+    rulecolor=\color{codeframe},
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    stepnumber=1,
+    numbersep=12pt,
+    xleftmargin=2.6em,
+    framexleftmargin=2.2em,
+    breaklines=true,
+    breakatwhitespace=true,
+    showspaces=false,
+    showstringspaces=false,
+    tabsize=4,
+    keepspaces=true,
+    columns=fullflexible,
+    captionpos=b,
+    inputencoding=utf8,
+    extendedchars=true,
     literate=%
-     {é}{{\'e}}1                 % Configuration pour les accents
+     {é}{{\'e}}1
      {è}{{\`e}}1
      {à}{{\`a}}1
      {ç}{{\c{c}}}1
@@ -66,6 +73,7 @@
      {ô}{{\^o}}1
      {â}{{\^a}}1
 }
+\lstset{style=oculacode}
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
