@@ -21,6 +21,16 @@
 \usepackage{tikz} % figs
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, bending}
 
+\lstset{
+	language=Java,
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue},
+	commentstyle=\color{gray},
+	stringstyle=\color{red},
+	breaklines=true,
+	frame=single
+}
+
 \title{ArchiLogiciel } %Titre du fichier
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
@@ -938,11 +948,67 @@ La sécurité est définie par \texttt{SecurityFilterChain} en mode \textit{stat
 \subsubsection{Appel au LLM externe et post-traitements}
 \noindent \textit{À compléter.}
 
-\subsection{Stockage et (infrastructure)}
-\noindent \textit{À compléter.}
+\subsection{Stockage et Dockerisation}
 
-\subsubsection{Stockage vidéo et fichiers (Azure Blob)}
-\noindent \textit{À compléter.}
+\subsubsection{Stockage vidéo et fichiers (Azure Blob Storage)}
+
+Notre application Ocula utilise le service Azure Blob Storage pour stocker l’ensemble des fichiers importés par les utilisateurs. Ceux-ci peuvent notamment enregistrer leur avatar, les vidéos à traiter ainsi que les miniatures (thumbnails) extraites de ces vidéos.
+
+\begin{lstlisting}
+	public void uploadFile(String fileName, InputStream data, long size) {
+		BlobClient blobClient = containerClient.getBlobClient(fileName);
+		blobClient.upload(data, size, true);
+	}
+\end{lstlisting}
+
+La fonction \textbf{uploadFile} permet d’envoyer un fichier vers Azure Blob Storage. Elle utilise le nom du fichier comme clé unique pour récupérer un client Azure (BlobClient), puis elle transfère les données du fichier vers le conteneur de stockage. Si un fichier portant le même nom existe déjà, il est remplacé. Cette méthode sert donc à stocker physiquement les fichiers des utilisateurs dans le cloud.
+
+\begin{lstlisting}
+	@PostMapping("/upload")
+	public ResponseEntity<VideoDto> createVideoWithUpload(
+	@RequestParam("video") MultipartFile video,
+	@RequestParam("thumbnail") MultipartFile thumbnail,
+	@RequestParam("title") String title,
+	@RequestParam("summary") String summary,
+	@RequestParam("userId") UUID userId,
+	@RequestParam("duration") String durationSeconds) throws IOException, UserNotFoundException {
+		
+		Duration duration = Duration.ofSeconds(Long.parseLong(durationSeconds));
+		
+		String videoKey = userId.toString() + "/videos/" + UUID.randomUUID().toString()
+		+ video.getOriginalFilename().replaceAll("[^a-zA-Z0-9._-]", "_");
+		String thumbnailKey = userId.toString() + "/thumbnails/" + UUID.randomUUID().toString()
+		+ thumbnail.getOriginalFilename().replaceAll("[^a-zA-Z0-9._-]", "_");
+		
+		blobStorageService.uploadFile(videoKey, video.getInputStream(), video.getSize());
+		blobStorageService.uploadFile(thumbnailKey, thumbnail.getInputStream(), thumbnail.getSize());
+		
+		VideoDto createdVideo = videoService.createVideoWithUpload(videoKey, thumbnailKey, title, summary, userId,
+		duration);
+		
+		return ResponseEntity.ok(createdVideo);
+	}
+\end{lstlisting}
+
+La méthode \textbf{createVideoWithUpload} sert à gérer tout le processus d’upload côté application. Elle reçoit les fichiers envoyés par l’utilisateur (vidéo et miniature), génère des clés uniques pour organiser leur stockage dans Azure Blob Storage, puis appelle le service d’upload pour les enregistrer. Enfin, elle sauvegarde dans la base de données les informations liées à la vidéo ainsi que les chemins des fichiers stockés.
+
+Pour accéder à l’un de ces fichiers, nous utilisons une clé unique qui permet de générer une URL temporaire et sécurisée, garantissant un accès contrôlé aux ressources.
+
+\begin{lstlisting}
+	public String getFileUrl(String fileName) {
+		BlobClient blobClient = containerClient.getBlobClient(fileName);
+		
+		OffsetDateTime expiryTime = OffsetDateTime.now().plusHours(6);
+		BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
+		
+		BlobServiceSasSignatureValues values = new BlobServiceSasSignatureValues(expiryTime, permission)
+		.setStartTime(OffsetDateTime.now().minusMinutes(5));
+		
+		return blobClient.getBlobUrl() + "?" + blobClient.generateSas(values);
+	}
+\end{lstlisting}
+
+La fonction \textbf{getFileUrl} permet de générer un lien sécurisé pour accéder à un fichier stocké dans Azure Blob Storage. Elle crée un token SAS (Shared Access Signature) qui donne une permission de lecture limitée dans le temps. L’URL finale contient ce token, ce qui permet d’accéder temporairement au fichier sans exposer les informations sensibles du compte Azure.
 
 \subsubsection{Base de données : choix et schéma}
 \noindent \textit{À compléter.}
