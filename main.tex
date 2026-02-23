@@ -1118,7 +1118,83 @@ def chunk_video_transcript(transcription, chunk_size=RAG_CHUNK_SIZE, chunk_overl
 \end{lstlisting}
 
 \subsubsection{Génération d'embeddings (MiniLM)}
-\noindent \textit{À compléter.}
+
+Après l’étape de chunking, chaque chunk est converti en représentation vectorielle afin de permettre une recherche sémantique efficace lors du mécanisme RAG. 
+Le service IA utilise le modèle \path{sentence-transformers/all-MiniLM-L6-v2}, exécuté localement sur CPU, via l’intégration LangChain \path{HuggingFaceEmbeddings}.
+
+\paragraph{Initialisation du modèle d'embedding}
+
+Le modèle d’embedding est chargé une seule fois à l’initialisation du service IA, afin d’éviter une surcharge à chaque requête. 
+Dans l’implémentation actuelle, les embeddings ne sont pas normalisés lors de l’encodage (\path{normalize\_embeddings=False}), et l’exécution est configurée sur CPU.
+
+
+\begin{lstlisting}[language=Python, caption={Initialisation du modèle d'embedding}, label={lst:embed-model-init}]
+# ai_part/services/ai_models.py
+from langchain_huggingface import HuggingFaceEmbeddings
+
+model_name = "sentence-transformers/all-MiniLM-L6-v2"
+model_kwargs = {'device': 'cpu'}
+encode_kwargs = {'normalize_embeddings': False}
+
+embed_model = HuggingFaceEmbeddings(
+    model_name=model_name,
+    model_kwargs=model_kwargs,
+    encode_kwargs=encode_kwargs
+)
+\end{lstlisting}
+
+\paragraph{Construction des documents vectoriels}
+
+Chaque chunk est encapsulé dans un objet \path{Document} (LangChain) contenant :
+(i) le texte du chunk (\path{page\_content}), et (ii) les métadonnées nécessaires à la traçabilité : \path{video\_id}, \path{start\_time} et \path{end\_time}. 
+Ces métadonnées permettent notamment de restituer des sources temporelles associées aux réponses du chatbot.
+
+\begin{lstlisting}[language=Python, caption={Création des documents avec métadonnées}, label={lst:doc-metadata}]
+# ai_part/services/database.py
+from langchain_core.documents import Document
+
+doc = Document(
+    page_content=chunk['text'],
+    metadata={
+        "video_id": video_id,
+        "start_time": chunk['start'],
+        "end_time": chunk['end'],
+    }
+)
+\end{lstlisting}
+
+\paragraph{Indexation dans ChromaDB}
+
+Les documents vectoriels sont stockés dans ChromaDB via l’interface \path{langchain\_chroma.Chroma}. 
+L’indexation est organisée par vidéo : chaque vidéo possède une collection dédiée nommée \path{video\_<video\_id>}. 
+Cette stratégie limite le bruit inter-vidéos et garantit que la recherche sémantique effectuée lors du chat reste strictement associée à la vidéo consultée.
+
+\begin{lstlisting}[language=Python, caption={Indexation des documents dans une collection Chroma dédiée}, label={lst:chroma-index}]
+# ai_part/services/database.py
+from langchain_chroma import Chroma
+
+collection_name = f"video_{str(video_id)}"
+
+vector_store = Chroma(
+    client=ai_models.db_client,
+    collection_name=collection_name,
+    embedding_function=ai_models.embed_model
+)
+vector_store.add_documents(docs_to_add)
+\end{lstlisting}
+
+\paragraph{Intégration au pipeline de traitement}
+
+L’indexation des chunks intervient immédiatement après la transcription et le chunking, au sein du pipeline de traitement de la vidéo :
+
+\begin{lstlisting}[language=Python, caption={Enchaînement transcription $\rightarrow$ chunking $\rightarrow$ embeddings}, label={lst:pipeline-embed}]
+# ai_part/services/processing.py
+transcription = whisper_model.transcribe(temp_filename, verbose=True)
+chunks = chunk_video_transcript(transcription)
+embed_script(video_id, chunks)
+\end{lstlisting}
+
+Ainsi, à l’issue du traitement, chaque vidéo est associée à une collection Chroma contenant les chunks vectorisés et leurs métadonnées temporelles, base nécessaire au retrieval utilisé dans la phase RAG.
 
 \subsubsection{RAG : retrieval et construction du prompt}
 \noindent \textit{À compléter.}
