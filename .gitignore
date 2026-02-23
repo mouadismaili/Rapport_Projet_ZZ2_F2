@@ -1,1 +1,14 @@
 out/*
+
+*.toc
+*.log
+*.aux
+*.bbl
+*.blg
+*.bcf
+*.out
+*.nlo
+*.pdf
+*.run.xml
+*.synctex.gz
+*.fdb_latexmk
