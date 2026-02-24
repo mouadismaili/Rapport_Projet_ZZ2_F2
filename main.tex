@@ -119,11 +119,9 @@
 \noindent \textit{À compléter.}
 \section{Organisation et gestion du projet}
 
-Le projet OCULA, développé sur une durée de \textbf{quatre semaines}, s'est appuyé sur une organisation collaborative où chaque membre de l'équipe a participé à tous les domaines d'expertise (frontend, backend, service IA). Cette approche holistique a permis à chacun d'acquérir une compréhension globale du système et de contribuer à l'émergence d'une architecture cohérente. Cette section décrit les processus mis en place pour coordonner l'équipe, planifier les tâches et gérer les risques inhérents à un projet combinant plusieurs technologies.
-
 \subsection{Répartition des responsabilités et approche collaborative}
 
-L'équipe de développement comprend trois étudiants qui ont collaboré sur tous les domaines d'expertise. Plutôt que d'assigner des rôles statiques et spécialisés (un développeur backend, un développeur frontend, un ingénieur IA), nous avons adopté une stratégie d'apprentissage transversal où chacun a contribué à la conception et la réalisation de l'ensemble des composantes.
+L'équipe de développement comprend trois étudiants qui ont collaboré sur tous les domaines d'expertise. Plutôt que d'assigner des rôles spécialisés, nous avons adopté une stratégie d'apprentissage transversal où chacun a contribué à la conception et la réalisation de l'ensemble des composantes.
 
 \paragraph{Principes de collaboration}
 
@@ -142,25 +140,15 @@ Les tâches ont été réparties selon le schéma suivant :
     \item \textbf{Participation croisée} : chaque membre a touché aux trois domaines (frontend Angular, backend Spring Boot, service IA en Python). Ce chevauchement intentionnel facilite la compréhension du système global et répartit les connaissances.
 \end{enumerate}
 
-\paragraph{Avantages de cette approche}
-
-\begin{itemize}
-    \item \textbf{Résilience du projet} : aucune personne ne devient un goulot d'étranglement pour une partie critique.
-    \item \textbf{Compréhension globale} : chaque développeur peut comprendre et intervenir n'importe où dans la codebase.
-    \item \textbf{Apprentissage accéléré} : travailler sur plusieurs domaines enrichit les compétences individuelles.
-    \item \textbf{Qualité des décisions} : les discussions collectives favorisent des choix architecturaux bien pensés.
-\end{itemize}
-
 \subsection{Méthodologie Agile itérative}
 
-Afin de maximiser la productivité dans un laps de temps court (quatre semaines), l'équipe a adopté une méthodologie Agile fondée sur des sprints courts.
+Afin de maximiser la productivité dans un laps de temps court (entre quatre et cinq semaines), l'équipe a adopté une méthodologie Agile fondée sur des sprints courts.
 
 \paragraph{Caractéristiques des sprints}
 
 \begin{itemize}
-    \item \textbf{Durée} : sprints de \textbf{2 à 3 jours}.
-    \item \textbf{Cadence} : réunions de synchronisation régulières à l'issue de chaque sprint.
-    \item \textbf{Contenu} : chaque sprint prédéfinit un ensemble restreint d'objectifs (nouvelles fonctionnalités, corrections, documentation).
+    \item \textbf{Cadence} : sprints d' \textbf{un jour sur deux}.
+    \item \textbf{Contenu} : chaque sprint prédéfinit un ensemble restreint d'objectifs (nouvelles fonctionnalités, corrections, tests).
     \item \textbf{Revue et rétrospective} : à la fin de chaque sprint, l'équipe évalue :
     \begin{itemize}
         \item ce qui a été réalisé,
@@ -169,27 +157,11 @@ Afin de maximiser la productivité dans un laps de temps court (quatre semaines)
     \end{itemize}
 \end{itemize}
 
-\paragraph{Outil de suivi}
-
-Le suivi du code et des modifications a été centralisé via \textbf{GitLab}. Chaque développeur crée une branche pour une tâche spécifique, puis pousse ses modifications vers le dépôt central. Cette discipline de versionning permet :
-
-\begin{itemize}
-    \item de tracer historiquement chaque développement,
-    \item d'identifier les auteurs et dates des modifications,
-    \item de faciliter les code reviews et la fusion des branches (merge requests).
-\end{itemize}
-
-\paragraph{Bénéfices de cette approche}
-
-Ces sprints courts, associés à une équipe physiquement collocalisée, ont permis une feedback rapide et une adaptation continuelle des priorités. La courte durée du projet (quatre semaines) a justifié cette cadence rapide, incompatible avec des sprints de deux à quatre semaines des projets plus longs.
-
-\subsection{Conception UX : maquettes et validation fonctionnelle}
-
-Avant de commencer le développement, l'équipe a réalisé une phase de conception servant de référence pour l'implémentation.
+\subsection{Conception UX/UI : maquettes}
 
 \paragraph{Maquettage avec Figma}
 
-Les interfaces utilisateur ont été prototypées avec \textbf{Figma}, un outil collaboratif de conception web. Les maquettes ont couvert les principales pages de l'application :
+Les interfaces utilisateur ont été prototypées avec \raisebox{-1.1ex}{\includegraphics[height=1.5em]{images/Figma-Logo.png}}, un outil collaboratif de conception web. Les maquettes ont couvert les principales pages de l'application :
 
 \begin{itemize}
     \item Page d'authentification (connexion/inscription),
@@ -200,246 +172,89 @@ Les interfaces utilisateur ont été prototypées avec \textbf{Figma}, un outil 
     \item Page de paramètres utilisateur.
 \end{itemize}
 
-Ces maquettes ont servi de référence visuelle durant toute la phase de développement du frontend, garantissant une cohérence entre la vision initiale et la réalité implémentée.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/figmas.jpg}
+    \caption{Maquettes Figma de l'application OCULA}
+    \label{fig:placeholder}
+\end{figure}
 
-\paragraph{Validation fonctionnelle}
+Ces maquettes ont guidé le développement du frontend et ont évolué vers une version finale améliorée, fidèle à la vision initiale.
 
-Outre les maquettes visuelles, l'équipe a validé les fonctionnalités dès leur implémentation selon un cycle court :
-
-\begin{enumerate}
-    \item \textbf{Développement d'une fonctionnalité} (ex. upload, transcription),
-    \item \textbf{Test manuel local} par le développeur et ses pairs,
-    \item \textbf{Vérification que la fonctionnalité} répond aux critères d'acceptation,
-    \item \textbf{Intégration dans la branche principale} après validation.
-\end{enumerate}
-
-Cette validation continue a permis d'identifier et corriger les défauts rapidement, évitant la dérive courante dans les projets où les tests ne sont faits qu'à la fin.
-
-\subsection{Approche DevOps et stratégie Docker-first}
+\subsection{stratégie Docker-first}
 
 La gestion des environments et du déploiement a reposé sur une stratégie favorisant la conteneurisation complète de l'application.
 
 \paragraph{Dockerisation de tous les services}
 
-L'ensemble de l'application (frontend, backend, service IA, base de données) a été empaquetée dans des conteneurs Docker dès le départ :
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/docker_compose.png}
+    \caption{Architecture Docker de l'application OCULA}
+    \label{fig:placeholder}
+\end{figure}
 
-\begin{itemize}
-    \item Frontend : image Nginx servant l'application Angular compilée,
-    \item Backend : image Maven compilant Spring Boot et image JRE pour l'exécution,
-    \item Service IA : image Python contenant LangChain, Whisper et les dépendances IA,
-    \item PostgreSQL : image PostgreSQL 16 pour les données relationnelles,
-    \item ChromaDB : instance dédiée à la base vectorielle.
-\end{itemize}
-
-\paragraph{Orchestration locale avec Docker Compose}
-
-Le fichier \path{docker-compose.yml} orchestre l'ensemble des services sur une machine locale. La commande :
-
-\begin{verbatim}
-    docker compose up --build
-\end{verbatim}
-
-\noindent construit et lance tous les services en un seul geste. Cela garantit que :
-
-\begin{itemize}
-    \item les versions des dépendances sont identiques sur toutes les machines,
-    \item chaque développeur dispose d'un environment identique,
-    \item l'application peut être testée dans les mêmes conditions de production.
-\end{itemize}
-
-\paragraph{Absence de pipeline CI/CD}
-
-Aucun pipeline de CI/CD (GitHub Actions, GitLab CI, Jenkins) n'a été mis en place. Les raisons principales sont :
-
-\begin{itemize}
-    \item durée du projet limitée (quatre semaines),
-    \item équipe réduite (trois développeurs) capable de tester manuellement,
-    \item déploiement sur infrastructure locale uniquement (pas de production cloud).
-\end{itemize}
-
-Cette simplification a permis de concentrer les efforts sur les fonctionnalités plutôt que sur l'infrastructure de déploiement continu. Toutefois, l'architecture Docker-first laisse la porte ouverte à un CI/CD futur.
+L'ensemble de l'application (frontend, backend, service IA, base de données) a été empaquetée dans des conteneurs Docker dès le départ. L'architecture Docker de l'application est orchestrée par Docker Compose, qui coordonne les différents services et garantit leur interaction transparente au sein de l'infrastructure conteneurisée.
 
 \subsection{Planification et diagramme de Gantt}
 
-La portée du projet, couvrant trois domaines techniques (frontend, backend, IA), a nécessité une planification explicite afin de synchroniser les efforts et éviter les goulots d'étranglement.
+Un diagramme de Gantt a été élaboré pour visualiser le calendrier, les dépendances entre tâches et les étapes clés du projet.
 
-\paragraph{Phases du projet}
-
-Le projet s'est structuré en deux grandes phases :
-
-\begin{enumerate}
-    \item \textbf{Phase de conception} (semaine 1) :
-    \begin{itemize}
-        \item Analyse des exigences et cas d'utilisation,
-        \item Choix technologiques et architecture globale,
-        \item Maquettage des interfaces,
-        \item Mise en place de l'infrastructure Docker locale.
-    \end{itemize}
-    
-    \item \textbf{Phase de développement} (semaines 2 à 4) :
-    \begin{itemize}
-        \item Implémentation itérative des composantes frontend, backend et IA,
-        \item Intégration progressive des modules,
-        \item Validation manuelle continue,
-        \item Documentation du code et de l'architecture.
-    \end{itemize}
-\end{enumerate}
-
-\paragraph{Outil de planification}
-
-Un diagramme de Gantt a été élaboré afin de visualiser :
-
-\begin{itemize}
-    \item le calendrier de chaque tâche majeure,
-    \item les dépendances entre tâches (ex. le backend doit exposer ses API avant que le frontend ne les consomme),
-    \item la charge estimée pour chaque domaine,
-    \item les jalons critiques.
-\end{itemize}
-
-Ce diagramme a servi de référence pour la révision hebdomadaire des priorités et l'ajustement du scope si nécessaire.
-
-\paragraph{Adaptation et revisions}
-
-En raison de la nature Agile du projet et de l'apprentissage progressif de technologies nouvelles, le plan initial a connu des ajustements. Les réunions de fin de sprint ont permis de :
-
-\begin{itemize}
-    \item identifier les tâches terminées plus tôt ou plus tard que prévu,
-    \item réévaluer les dépendances,
-    \item réorganiser les priorités pour les sprints suivants.
-\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{images/gantt.jpg}
+    \caption{Planification du projet avec diagramme de Gantt}
+    \label{fig:placeholder}
+\end{figure}
 
 \subsection{Processus de validation et revue de code}
 
-Bien que l'équipe soit réduite, un processus de validation du code a été instauré afin de maintenir la qualité et de favoriser le partage de connaissance.
-
-\paragraph{Code reviews informelles}
-
-Entre développeurs collocalisés, les reviews se déroulaient souvent de manière informelle :
-
-\begin{itemize}
-    \item \textbf{Pair-programming} : deux développeurs travaillaient ensemble sur une tâche critique, se validant mutuellement en temps réel.
-    \item \textbf{Discussions de conception} : avant de commencer une implémentation, présentée rapidement aux autres pour recueillir des retours.
-    \item \textbf{Tests croisés} : un développeur teste la fonctionnalité développée par un pair en local sur sa machine.
-\end{itemize}
-
 \paragraph{Rigueur sur les branches et merges}
 
-Sur GitLab, la discipline était la suivante :
+Sur GitLab, nous avons adopté un workflow structuré pour la gestion du code :
 
 \begin{itemize}
-    \item Une branche par fonctionnalité ou task (ex. \path{feature/video-upload}, \path{feature/rag-chatbot}),
-    \item Des commits atomiques et descriptifs,
-    \item Une relecture sommaire avant merge sur la branche principale (\path{main} ou \path{develop}).
+    \item Chaque fonctionnalité ou tâche génère une nouvelle branche (ex. \path{feature/video-upload}, \path{feature/rag-chatbot}),
+    \item Une fois la fonctionnalité terminée, la branche est fusionnée dans \path{develop},
+    \item Après tests et vérification que tout fonctionne correctement, le code est fusionné dans \path{main}.
 \end{itemize}
 
-Bien qu'informelle comparée à des processus d'entreprise strictes, cette approche a maintenu une certaine discipline tout en restant flexible.
+Ce workflow garantit une séparation claire entre le développement actif, l'intégration et la version stable du projet.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\linewidth]{images/gitnew.png}
+    \caption{Workflow Git adopté pour la gestion du code}
+    \label{fig:placeholder}
+\end{figure}
 
 \subsection{Difficultés rencontrées et gestion des risques}
 
-Tout projet d'envergure rencontre des obstacles. Cette sous-section détaille ceux que l'équipe a affrontés et les stratégies adoptées pour les surmonter.
-
 \paragraph{Difficultés principales}
 
-\subsubsection*{1. Prise en main des technologies}
+\subsubsection*{Hétérogénéité des environnements de développement}
 
-\textbf{Problème} : le projet combinait trois échos techniques distincts (Angular pour le frontend, Spring Boot pour le backend, Python/LangChain pour l'IA), chacun avec son écosystème, ses conventions et ses pièges.
+\textbf{Problème} : les trois membres de l'équipe travaillaient sur des systèmes d'exploitation différents avec des configurations locales variées (versions de Python, Java, Node.js différentes, outils de build divergents).
 
-\textbf{Impact} : courbe d'apprentissage initiale, ralentissements pendant les deux premières semaines.
+\textbf{Impact} : incompatibilités lors du partage de code, dépendances non portables, scripts de build défaillants sur certains postes, temps perdu en débogage environnemental.
 
-\textbf{Mitigation} :
+\textbf{Solution} :
 \begin{itemize}
-    \item \textbf{Documentation et tutoriels} : chaque membre a consacré du temps à explorer la documentation officielle.
-    \item \textbf{Pair-programming} : lors du premier module de chaque domaine, deux développeurs travaillaient ensemble.
-    \item \textbf{Partage de connaissances} : après chaque exploration, le développeur partagait ses découvertes avec l'équipe lors des réunions.
-\end{itemize}
-
-\subsubsection*{2. Communication entre frontend et backend}
-
-\textbf{Problème} : le frontend est client des API fournies par le backend. Un décalage dans la spécification des endpoints, des formats de requête ou des réponses JSON pouvait bloquer le frontend.
-
-\textbf{Impact} : blocages mutuels pendant l'intégration, corrections tardives de contrats.
-
-\textbf{Mitigation} :
-\begin{itemize}
-    \item \textbf{Spécification d'API partagée} : avant l'implémentation, les développeurs frontend et backend se réunissaient pour définir explicitement la signature de chaque endpoint (path, méthode HTTP, format du payload et de la réponse).
-    \item \textbf{Utilisation d'une API mock} : le frontend pouvait développer en parallèle en utilisant des données mockées, sans bloquer sur le backend.
-    \item \textbf{Intégration précoce} : dès qu'un endpoint était disponible, l'intégration était testée immédiatement.
-\end{itemize}
-
-\subsubsection*{3. Intégration des services IA}
-
-\textbf{Problème} : le service IA effectue des tâches longues et coûteuses (transcription, génération d'embeddings, appel au LLM distant). L'intégration asynchrone requiert une gestion d'état et une communication robuste entre le backend et le service IA.
-
-\textbf{Impact} : risque de timeouts, de pertes de messages, d'incohérences d'état.
-
-\textbf{Mitigation} :
-\begin{itemize}
-    \item \textbf{Traitement asynchrone explicite} : les tâches lourdes sont lancées dans des threads Python séparés plutôt que dans le contexte de la requête HTTP.
-    \item \textbf{Gestion d'état des vidéos} : le statut (PENDING, PROCESSING, COMPLETED, FAILED) est explicitement géré en base de données et notifié au frontend en temps réel via WebSocket.
-    \item \textbf{Callbacks de notification} : le service IA notifie le backend de l'avancement via des endpoints dédiés (PUT /videos/update/status).
-    \item \textbf{Tests progressifs} : chaque étape du pipeline IA (transcription, chunking, embeddings, RAG) a été testée isolément avant intégration.
-\end{itemize}
-
-\subsubsection*{4. Gestion du temps face à la courte durée du projet}
-
-\textbf{Problème} : quatre semaines pour construire une application complète couvrant trois domaines techniques.
-
-\textbf{Impact} : risque de scope creep, d'accumulation de dette technique, de limitation du périmètre de validation.
-
-\textbf{Mitigation} :
-\begin{itemize}
-    \item \textbf{MVP bien défini} : au départ, une liste claire des fonctionnalités essentielles vs. optionnelles a été établie.
-    \item \textbf{Sprints courts et revues fréquentes} : chaque sprint de 2--3 jours était suivi d'une évaluation, permettant des ajustements rapides.
-    \item \textbf{Priorisation agile} : les tâches ont été hiérarchisées par valeur ajoutée et complexité, concentrant les efforts sur les éléments critiques.
-    \item \textbf{Partage des responsabilités} : l'approche collaborative a évité qu'une personne ne soit « surchargée » ; les tâches se distribuaient dynamiquement selon la charge.
+    \item \textbf{Stratégie Docker-first} : l'application a été entièrement conteneurisée, garantissant une cohérence totale entre développement et déploiement.
+    \item \textbf{Docker Compose} : orchestration centralisée de tous les services, permettant le lancement de l'application entière en une seule commande, quel que soit l'OS.
+    \item \textbf{Documentation d'installation} : guide détaillé pour installer Docker et Docker Compose sur tous les OS, éliminant les frictions de setup.
+    \item \textbf{Tests dans les conteneurs} : tests et validations effectués dans les conteneurs, assurant la compatibilité avec l'environnement de production.
 \end{itemize}
 
 \paragraph{Mécanismes de gestion des risques mis en place}
 
 \begin{itemize}
-    \item \textbf{Discussions régulières d'équipe} : réunions quotidiennes de 15 minutes pour synchronisation et identification des blocages,
+    \item \textbf{Discussions régulières d'équipe} : réunions quotidiennes pour synchronisation et détection des blocages,
     \item \textbf{Répartition claire des tâches} : chaque membre savait précisément sur quoi travailler, minimisant les doublons,
     \item \textbf{Validation progressive des fonctionnalités} : chaque module était validé manuellement lors de son développement,
-    \item \textbf{Consultation active de la documentation} : plutôt que de rester bloqué, les développeurs exploraient la documentation officielle des technologies pour résoudre les problèmes,
+    \item \textbf{Consultation de la documentation} : les développeurs consultaient la documentation officielle pour résoudre les problèmes,
     \item \textbf{Flexibilité de scope} : capacité à ajuster les priorités et à reporter les fonctionnalités optionnelles.
 \end{itemize}
-
-\paragraph{Bilan de gestion des difficultés}
-
-L'équipe a réussi à transformer la plupart des difficultés en opportunités d'apprentissage. La courte durée du projet, loin d'être un handicap, a imposé une discipline et une clarté favorables à l'avancement. Les trois à quatre semaines se sont écoulées de manière progressive, avec une implication collective et une capacité d'adaptation constante.
-
-\begin{figure}[H]
-\centering
-\resizebox{0.9\textwidth}{!}{%
-\begin{tikzpicture}[
-    node distance=2.5cm,
-    problem/.style={rectangle, rounded corners=3pt, draw=red!70, fill=red!20, minimum width=2.2cm, minimum height=0.6cm, align=center, font=\scriptsize\bfseries},
-    solution/.style={rectangle, rounded corners=3pt, draw=green!70, fill=green!20, minimum width=2.2cm, minimum height=1.2cm, align=center, font=\scriptsize},
-    arrow/.style={-{Stealth[length=3pt]}, thick, blue!70}
-]
-
-\node[problem] (p1) at (0, 0) {1. Techno};
-\node[solution] (s1) at (0, -1.4) {Pair-prog\\Docs\\Partage};
-
-\node[problem] (p2) at (2.8, 0) {2. Frontend/\\Backend};
-\node[solution] (s2) at (2.8, -1.4) {API spec\\Mock\\Intégr. rapide};
-
-\node[problem] (p3) at (5.6, 0) {3.Service IA};
-\node[solution] (s3) at (5.6, -1.4) {Async\\État\\Callbacks};
-
-\node[problem] (p4) at (8.4, 0) {4. Temps};
-\node[solution] (s4) at (8.4, -1.4) {MVP\\Sprints\\Priorisation};
-
-\draw[arrow] (p1) -- (s1);
-\draw[arrow] (p2) -- (s2);
-\draw[arrow] (p3) -- (s3);
-\draw[arrow] (p4) -- (s4);
-
-\end{tikzpicture}
-}%
-\caption{Synthèse : 4 difficultés majeures et stratégies de résolution}
-\label{fig:difficulties-management}
-\end{figure}
 
 \section{État de l'art et fondements théoriques}
 \subsection{Analyse de contenu vidéo : enjeux et défis}
