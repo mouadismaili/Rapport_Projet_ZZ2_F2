@@ -2159,43 +2159,52 @@ Ce Dockerfile permet d'exécuter la partie IA d'Ocula. Il utilise une image de P
 Ce Dockerfile sert à construire et lancer le frontend de l’application. Il utilise d’abord Node.js pour installer les dépendances du projet, puis il utilise Nginx pour servir les fichiers générés. Enfin, il expose le port 80 et démarre le serveur Nginx pour rendre l’application accessible.
 
 \section{Évaluation et résultats}
-\noindent \textit{À compléter.}
 
 \subsection{Protocole de test}
-\noindent \textit{À compléter.}
 
 \subsubsection{Jeu de vidéos utilisé}
-\noindent \textit{À compléter.}
+Notre application accepte plusieurs formats vidéo couramment utilisés, notamment : MP4, MOV, AVI, WebM et MKV. Cette diversité permet d’assurer la compatibilité avec la majorité des sources vidéo utilisées par les utilisateurs.
 
-\subsubsection{Scénarios de test (upload, transcription, Q\&A)}
-\noindent \textit{À compléter.}
+La taille maximale des vidéos a été fixée à 150~Mo afin de garantir le bon fonctionnement du système. Cette limite permet de respecter les contraintes du stockage Azure Blob Storage, de maintenir des performances acceptables lors des traitements IA exécutés en local (transcription, embeddings), 
+et de contrôler la consommation de tokens de LLM utilisé pour la génération de texte.
 
-\subsubsection{Critères : qualité, latence, stabilité}
-\noindent \textit{À compléter.}
+Le jeu de test comprenait des vidéos présentant des caractéristiques variées :
 
-\subsection{Analyse qualitative}
-\noindent \textit{À compléter.}
+\begin{itemize}
+	\item différentes durées (courtes, moyennes et longues) 
+	\item plusieurs langues et accents 
+	\item différents niveaux de qualité audio
+	\item divers domaines de contenu
+\end{itemize}
 
-\subsubsection{Pertinence des résumés et titres}
-\noindent \textit{À compléter.}
+\subsubsection{Scénarios de test}
 
-\subsubsection{Qualité des réponses du chatbot}
-\noindent \textit{À compléter.}
+\paragraph{Test d'importation de vidéo}
 
-\subsubsection{Comportement sur contenu bruité / long / multilingue}
-\noindent \textit{À compléter.}
+Ce test vise à vérifier le bon fonctionnement du processus d’upload des vidéos. 
+Il consiste à téléverser des fichiers de formats différents (MP4, MOV, AVI, WebM, MKV) 
+et de tailles variées, tout en contrôlant les points suivants :
 
-\subsection{Analyse quantitative}
-\noindent \textit{À compléter.}
+\begin{itemize}
+	\item validation du format et de la taille maximale autorisée ;
+	\item enregistrement correct des métadonnées dans la base de données ;
+	\item stockage réussi du fichier dans le système de stockage objet ;
+	\item génération correcte de la clé d’accès et de l’URL sécurisée ;
+	\item mise à jour du statut initial de la vidéo (PENDING).
+\end{itemize}
 
-\subsubsection{Temps de traitement par étape (pipeline)}
-\noindent \textit{À compléter.}
+\paragraph{Test de transcription de vidéo}
 
-\subsubsection{Temps de réponse du chatbot}
-\noindent \textit{À compléter.}
+Ce test permet d’évaluer le pipeline de traitement automatique après l’importation. 
+Il consiste à lancer l’analyse d’une vidéo et à vérifier les étapes suivantes :
 
-\subsubsection{Impact du chunking et du top-k retrieval}
-\noindent \textit{À compléter.}
+\begin{itemize}
+	\item extraction correcte de l’audio à partir de la vidéo ;
+	\item génération d’une transcription cohérente et segmentée ;
+	\item découpage du texte en chunks exploitables ;
+	\item création et stockage des embeddings dans la base vectorielle ;
+	\item mise à jour progressive des statuts de traitement jusqu’à COMPLETED.
+\end{itemize}
 
 \subsection{Discussion}
 \noindent \textit{À compléter.}
