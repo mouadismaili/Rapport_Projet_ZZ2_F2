@@ -2244,64 +2244,130 @@ L’utilisation de l’application Ocula est strictement encadrée afin de garan
 
 \subsection{Bilan du projet}
 
-Le projet OCULA avait pour ambition de transformer une vidéo en une ressource intelligemment exploitable. 
-Au-delà de la simple transcription automatique, l’objectif était de concevoir un système capable de structurer, synthétiser et rendre interrogeable un contenu vidéo en langage naturel.
+Le projet OCULA avait pour objectif de transformer une vidéo en une ressource intelligemment exploitable, capable d’être synthétisée et interrogée en langage naturel. 
+Au-delà de la simple implémentation technique, ce projet nous a confrontés à des problématiques concrètes liées au traitement du langage, à l’architecture logicielle et à l’intégration de modèles d’intelligence artificielle dans un système complet.
 
-Les résultats obtenus démontrent la faisabilité de cette approche. 
-Le système permet aujourd’hui :
+Sur le plan fonctionnel, nous avons conçu un pipeline cohérent permettant :
 \begin{itemize}
-    \item la transcription automatique d’une vidéo via un modèle de reconnaissance vocale,
-    \item la génération automatique d’un titre et d’un résumé cohérents,
-    \item l’indexation sémantique du transcript via des embeddings vectoriels,
-    \item l’interrogation contextualisée du contenu grâce à un mécanisme RAG,
-    \item la restitution de réponses accompagnées de références temporelles explicites.
+    \item la transcription automatique d’une vidéo,
+    \item la génération d’un titre et d’un résumé pertinents,
+    \item l’indexation sémantique du transcript,
+    \item l’interrogation contextualisée via un mécanisme RAG,
+    \item la restitution de réponses accompagnées de références temporelles.
 \end{itemize}
 
-D’un point de vue pédagogique et technique, le projet a permis de consolider des compétences en architecture microservices, traitement asynchrone, intégration de modèles d’intelligence artificielle, recherche vectorielle et conception de pipelines robustes et explicables.
+Sur le plan architectural, le projet nous a amenés à structurer une application distribuée en trois couches distinctes (frontend, backend, service IA), à gérer un traitement asynchrone avec suivi d’état explicite, et à assurer une séparation claire des responsabilités entre les composants.
 
+D’un point de vue technique, nous avons approfondi plusieurs concepts majeurs :
+\begin{itemize}
+    \item fonctionnement des embeddings et recherche vectorielle,
+    \item intégration d’un modèle de langage externe via LangChain,
+    \item conception d’un pipeline Retrieval-Augmented Generation robuste,
+    \item gestion des seuils, du reranking et des mécanismes de fallback,
+    \item mise en place de mécanismes d’explicabilité via citations temporelles.
+\end{itemize}
+
+Le projet nous a également confrontés aux limites concrètes des modèles de langage, notamment le risque d’hallucination, la dépendance à la qualité de la transcription et l’importance du contrôle du contexte fourni au modèle.
+
+Au-delà des aspects techniques, OCULA nous a permis de mieux comprendre les enjeux liés à la conception d’un système intelligent complet : 
+il ne s’agit pas uniquement d’utiliser un modèle performant, mais d’orchestrer correctement les données, les flux et les contraintes afin de garantir robustesse, pertinence et explicabilité.
 \subsection{Améliorations techniques possibles}
 
-Bien que fonctionnel, le système peut être amélioré sur plusieurs axes afin d’en accroître la performance, la robustesse et les capacités.
+Bien que le système OCULA soit pleinement fonctionnel dans son périmètre actuel, plusieurs axes d’amélioration technique peuvent être envisagés afin d’en accroître la performance, la scalabilité et les capacités d’analyse.
 
+Ces évolutions concernent principalement l’optimisation du pipeline de traitement, l’enrichissement multimodal du contenu analysé ainsi que l’adaptation de l’infrastructure à un contexte de déploiement à plus grande échelle.
+
+Les sous-sections suivantes présentent les principales pistes identifiées.
 \subsubsection{Streaming transcription}
 
-Actuellement, la transcription est réalisée de manière batch après l’upload complet de la vidéo. 
-Une évolution naturelle consisterait à intégrer un mécanisme de transcription en streaming, permettant d’indexer progressivement le contenu pendant le traitement. 
-Cela réduirait la latence perçue par l’utilisateur et ouvrirait la voie à une interrogation quasi temps réel.
+Dans la version actuelle d’OCULA, la transcription est réalisée de manière batch : la vidéo est d’abord entièrement uploadée, puis traitée dans son intégralité avant que les résultats ne soient disponibles. 
+Cette approche présente l’avantage de la simplicité et de la robustesse, mais elle introduit une latence perceptible pour l’utilisateur, notamment pour des vidéos longues.
 
+Une évolution naturelle du système consisterait à intégrer un mécanisme de transcription en streaming. 
+Dans ce modèle, l’audio serait traité progressivement au fur et à mesure de sa réception ou de son extraction, permettant une génération incrémentale du transcript.
+
+Une telle approche offrirait plusieurs avantages :
+\begin{itemize}
+    \item réduction significative du temps d’attente avant disponibilité des premiers résultats,
+    \item possibilité d’indexation progressive des chunks,
+    \item ouverture vers une interrogation quasi temps réel du contenu.
+\end{itemize}
+
+Cependant, cette évolution impliquerait des adaptations architecturales importantes, notamment en matière de gestion d’état, de synchronisation entre transcription partielle et indexation vectorielle, ainsi que de gestion des erreurs sur des flux continus. 
+Elle nécessiterait également une réflexion sur la cohérence des timestamps et sur la mise à jour dynamique des collections vectorielles.
+
+Le streaming transcription constitue ainsi une perspective d’amélioration ambitieuse, orientée vers une expérience utilisateur plus fluide et interactive.
 \subsubsection{Analyse de vidéo frame par frame}
 
-Le périmètre actuel repose exclusivement sur le contenu audio. 
-L’intégration d’une analyse visuelle (détection d’objets, OCR, reconnaissance d’éléments graphiques) permettrait d’exploiter les informations présentes uniquement à l’écran. 
-Une approche multimodale combinant audio et image améliorerait significativement la richesse du système.
+Dans sa version actuelle, OCULA repose exclusivement sur l’analyse du contenu audio via la transcription automatique. 
+Cette approche permet d’exploiter efficacement les informations verbalisées, mais elle ignore les éléments visuels présents dans la vidéo.
 
+Or, de nombreuses vidéos contiennent des informations cruciales qui ne sont pas exprimées oralement : 
+diapositives de présentation, schémas, équations, captures d’écran, démonstrations visuelles ou textes affichés à l’écran. 
+Un système fondé uniquement sur le transcript peut ainsi manquer une partie significative du contenu réel.
+
+Une évolution vers une analyse \textit{frame par frame} permettrait d’intégrer une dimension multimodale au système. 
+Cette approche pourrait inclure :
+\begin{itemize}
+    \item l’extraction périodique d’images clés (key frames),
+    \item la reconnaissance optique de caractères (OCR) pour détecter le texte affiché,
+    \item la détection d’objets ou d’éléments visuels pertinents,
+    \item l’association temporelle entre contenu visuel et contenu audio.
+\end{itemize}
+
+L’intégration de ces informations dans le pipeline d’indexation nécessiterait une adaptation du modèle de données ainsi qu’un enrichissement des métadonnées stockées dans la base vectorielle. 
+Les embeddings pourraient alors représenter non seulement du texte issu du transcript, mais également des descriptions générées à partir du contenu visuel.
+
+Une telle extension transformerait OCULA en un système véritablement multimodal, capable de répondre à des questions portant sur des éléments visibles à l’écran, et non uniquement sur ce qui est prononcé. 
+Elle représenterait toutefois un défi significatif en termes de coût de calcul, de stockage et de complexité algorithmique.
 \subsubsection{Infrastructure}
 
-L’architecture actuelle repose sur une séparation frontend/backend/service IA adaptée à un contexte académique. 
-Pour un déploiement à plus grande échelle, plusieurs optimisations seraient envisageables :
-\begin{itemize}
-    \item distribution de la base vectorielle,
-    \item mise en cache des requêtes fréquentes,
-    \item orchestration via conteneurisation avancée,
-    \item surveillance et métriques centralisées.
-\end{itemize}
+L’architecture actuelle d’OCULA repose sur une séparation claire entre frontend, backend et service IA, déployés sous forme de conteneurs distincts. 
+Cette organisation est adaptée à un contexte académique et à une charge modérée, mais plusieurs évolutions seraient nécessaires pour envisager un déploiement à plus grande échelle.
 
-Ces améliorations renforceraient la scalabilité et la résilience du système.
+Tout d’abord, la base vectorielle pourrait être optimisée afin de mieux supporter un volume important de vidéos et de requêtes simultanées. 
+Une distribution de l’index vectoriel, l’utilisation d’index plus avancés ou l’intégration d’un moteur spécialisé pour la recherche à grande échelle permettraient d’améliorer la performance et la latence.
 
+Ensuite, le traitement asynchrone des vidéos pourrait être externalisé vers une file de messages (message broker), permettant une meilleure gestion des tâches longues et une meilleure résilience en cas de montée en charge. 
+Cette approche faciliterait également la mise en place d’un système de workers dédiés au traitement IA.
+
+L’orchestration des conteneurs pourrait également évoluer vers une solution de type Kubernetes, offrant des mécanismes de réplication automatique, de supervision et de tolérance aux pannes.
+
+Enfin, l’ajout d’outils de monitoring et de centralisation des logs permettrait d’améliorer l’observabilité du système. 
+Dans un contexte de production, le suivi des performances du pipeline RAG, des temps de réponse du LLM et des taux d’erreur deviendrait essentiel pour garantir la qualité du service.
+
+Ces améliorations renforceraient la scalabilité, la robustesse et la maintenabilité du système, tout en préparant une éventuelle industrialisation.
 \subsection{Ouverture produit : industrialisation}
 
-Au-delà de son cadre académique, OCULA présente un potentiel d’industrialisation important. 
-Un tel système pourrait être appliqué à des plateformes de formation en ligne, à la gestion de conférences enregistrées, à la documentation d’entreprise ou encore à l’archivage intelligent de contenus audiovisuels.
+Au-delà de son cadre académique, OCULA présente un potentiel d’industrialisation significatif. 
+La capacité à transformer automatiquement une vidéo en ressource interrogeable et synthétisée répond à un besoin croissant dans de nombreux secteurs.
 
-Une industrialisation impliquerait :
+Plusieurs domaines pourraient bénéficier d’un tel système :
 \begin{itemize}
-    \item un renforcement des mécanismes de sécurité et de conformité,
-    \item une gestion fine des coûts liés aux appels aux modèles externes,
-    \item une optimisation de la performance et de la latence,
-    \item une amélioration continue des modèles et des paramètres RAG.
+    \item plateformes de formation en ligne souhaitant rendre leurs cours plus interactifs,
+    \item entreprises cherchant à valoriser des enregistrements internes (réunions, conférences, webinaires),
+    \item institutions académiques souhaitant indexer des archives audiovisuelles,
+    \item plateformes de diffusion de contenu éducatif ou technique.
 \end{itemize}
 
-Ainsi, OCULA constitue non seulement une démonstration technique cohérente, mais également une base solide pour le développement futur d’outils d’exploration intelligente de contenus vidéo à grande échelle.
+Toutefois, le passage d’un prototype académique à un produit industriel impliquerait plusieurs adaptations majeures.
 
+Sur le plan technique, il serait nécessaire de renforcer :
+\begin{itemize}
+    \item la gestion de la montée en charge et la distribution des services,
+    \item la sécurisation des données et la conformité réglementaire,
+    \item l’optimisation des coûts liés aux appels aux modèles de langage externes,
+    \item la supervision continue des performances du système.
+\end{itemize}
+
+Sur le plan fonctionnel, une industrialisation impliquerait également :
+\begin{itemize}
+    \item une amélioration de l’interface utilisateur,
+    \item une personnalisation des paramètres d’analyse,
+    \item une gestion fine des droits d’accès et des rôles,
+    \item une adaptation à différents contextes linguistiques et sectoriels.
+\end{itemize}
+
+Ainsi, OCULA constitue non seulement une démonstration technique cohérente, mais également une base conceptuelle solide pour le développement futur d’outils d’exploration intelligente de contenus vidéo à grande échelle.
 
 \end{document}
