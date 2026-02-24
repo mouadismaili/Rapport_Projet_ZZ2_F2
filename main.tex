@@ -1,4 +1,4 @@
-\documentclass{rapportECL}
+﻿\documentclass{rapportECL}
 \usepackage{listings}
 \usepackage{lipsum}
 \usepackage{gensymb}
@@ -890,7 +890,7 @@ L’attribut \path{status} de l’entité \textit{Video} (PENDING, PROCESSING, C
 \centering
 \includegraphics[width=0.5\textwidth]{images/Gestion d’état du traitement-2026-02-22-192854.png}
 \caption{Gestion d’état du traitement (VideoStatus)}
-\label{fig:domain-model}
+\label{fig:domain-model} 
 \end{figure}
 Dans un système distribué où la transcription et l’indexation peuvent prendre plusieurs minutes, ce champ est essentiel pour :
 
@@ -1681,7 +1681,15 @@ if not filtered:
 Le score retourné est traité comme une \textbf{distance} : plus la distance est faible, plus le document est pertinent.  
 Un seuil configurable (\texttt{RAG\_MAX\_DISTANCE}) permet d’exclure les passages trop éloignés sémantiquement. 
 En l’absence de résultat satisfaisant, un mécanisme de repli conserve les meilleurs éléments du top-k initial.
-
+Le diagramme suivant présente la séquence complète d’exécution du pipeline RAG lors d’une requête utilisateur. 
+Il met en évidence les interactions entre le backend, le service IA, la base vectorielle et le modèle de langage.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/rag_seq.png}
+    \caption{Séquence d’exécution du pipeline RAG}
+    \label{fig:rag-sequence}
+\end{figure}
+Le pipeline peut être décomposé en plusieurs étapes successives.
 \paragraph{Reranking hybride lexical et sémantique}
 
 Après la phase de retrieval initiale, le service IA peut appliquer un mécanisme de reranking via la fonction \texttt{rerank\_context}, si le paramètre \texttt{RAG\_ENABLE\_RERANK} est activé.
@@ -1814,7 +1822,57 @@ Cette approche reste sensible aux variations linguistiques, aux synonymes et aux
 
 
 \subsubsection{Appel au LLM externe et post-traitements}
-\noindent \textit{À compléter.}
+
+La génération des sorties textuelles repose sur un modèle de langage externe intégré via LangChain. 
+Le service IA utilise l’interface \texttt{ChatCerebras} pour interagir avec le modèle \texttt{gpt-oss-120b}.
+
+\paragraph{Configuration du modèle}
+
+Le modèle est configuré avec des paramètres favorisant la stabilité et la précision :
+
+\begin{itemize}
+    \item \textbf{temperature = 0.1} afin de limiter la variabilité,
+    \item \textbf{max\_tokens = 2048} pour encadrer la longueur maximale de génération.
+\end{itemize}
+
+Ce paramétrage est cohérent avec un système de question–réponse fondé sur un contexte contraint, où la fidélité au transcript prime sur la créativité.
+
+
+Le modèle ne reçoit que le contexte explicitement construit lors de la phase RAG, ce qui limite les risques d’hallucination hors contexte.
+
+\paragraph{Génération du titre et du résumé}
+
+Le même mécanisme d’appel LLM est réutilisé pour enrichir automatiquement les métadonnées de la vidéo après transcription complète.  
+Deux prompts dédiés sont définis (\texttt{title\_prompt} et \texttt{summary\_prompt}) et exécutés via la même structure de chaîne LangChain :
+
+\begin{lstlisting}[language=Python, caption={Génération LLM du titre et du résumé}]
+title_chain = title_prompt | ai_models.llm | StrOutputParser()
+summary_chain = summary_prompt | ai_models.llm | StrOutputParser()
+
+title = title_chain.invoke({"text": transcript})
+summary = summary_chain.invoke({"text": transcript})
+\end{lstlisting}
+
+Les résultats sont ensuite persistés côté backend via une mise à jour de l’entité \textit{Video}, notamment des champs \texttt{title} et \texttt{summary}. 
+Cette séparation garantit que le service IA ne manipule pas directement la base relationnelle.
+
+\paragraph{Post-traitements et robustesse}
+
+Après génération d’une réponse RAG, deux mécanismes assurent la cohérence :
+
+\begin{itemize}
+    \item insertion automatique de citations si aucune n’est détectée,
+    \item filtrage des sources effectivement utilisées dans la réponse.
+\end{itemize}
+
+En cas d’absence de contexte exploitable, une réponse explicite est renvoyée :
+
+\begin{lstlisting}[language=Python]
+"I don't have enough context from this video yet."
+\end{lstlisting}
+
+La structure finale renvoyée au backend contient \texttt{answer} et \texttt{sources}. 
+Le backend encapsule ensuite cette réponse dans un objet \texttt{AskMessageResponse} avant transmission au frontend.
 
 \subsection{Stockage et Dockerisation}
 
@@ -2019,8 +2077,6 @@ Ce Dockerfile sert à construire et lancer le frontend de l’application. Il ut
 \noindent \textit{À compléter.}
 
 \section{Conformité et considérations éthiques}
-
-\subsection{Confidentialité des données et stockage}
 
 \subsection{Propriété intellectuelle et droits sur les contenus vidéo}
 
