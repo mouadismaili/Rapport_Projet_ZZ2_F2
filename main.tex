@@ -7,6 +7,7 @@
 \usepackage{csquotes}
 \usepackage{biblatex}
 \bibliography{biblio} 
+\usepackage{booktabs}
 \usepackage{minted}
 \usepackage{caption}
 \usepackage{amssymb} % pour \checkmark
@@ -88,6 +89,7 @@
 
 %----------- Informations du rapport ---------
 
+
 \titre{OCULA} %Titre du fichier .pdf
 \UE{\textbf{Projet ZZ2 F2}} %Nom de la UE
 \enseignant{Loïc \textsc{Yon}} %Nom de l'enseignant
@@ -108,15 +110,147 @@
 
 \section{Introduction}
 \subsection{Contexte et motivation}
-\noindent \textit{À compléter.}
+La vidéo est devenue un support dominant pour la diffusion d’information, de formation et de communication. 
+Cours enregistrés, conférences, tutoriels, réunions, contenus éducatifs ou techniques : ces ressources sont riches, mais difficiles à exploiter rapidement lorsqu’elles dépassent quelques minutes. 
+Contrairement au texte, une vidéo ne se \og parcourt \fg{} pas efficacement : retrouver un passage précis, vérifier une information ou synthétiser l’essentiel demande souvent un visionnage long et répétitif.
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Situation} & \textbf{Limite actuelle} & \textbf{Conséquence} \\
+\midrule
+Vidéo longue & Navigation linéaire uniquement & Temps de recherche élevé \\
+Transcript brut & Texte non structuré & Difficulté d’exploration \\
+Recherche par mots-clés & Sens non capturé & Résultats incomplets \\
+Absence de synthèse & Pas de résumé automatique & Compréhension globale limitée \\
+Réponses non traçables & Pas de références temporelles & Manque d’explicabilité \\
+\bottomrule
+\end{tabular}
+\caption{Limites de l’exploration vidéo traditionnelle}
+\label{tab:problem-video}
+\end{table}
+Cette difficulté est accentuée par deux constats. 
+D’une part, les métadonnées associées aux vidéos (titre, description, chapitrage) sont souvent incomplètes ou peu fiables. 
+D’autre part, la recherche classique par mots-clés reste limitée : elle dépend fortement des termes exacts utilisés et ne capture pas toujours le sens réel d’une question. 
+Ainsi, même lorsque l’information est présente dans la vidéo, il est fréquent de ne pas pouvoir la retrouver rapidement.
+
+Dans ce contexte, les progrès récents en reconnaissance automatique de la parole et en modèles de langage permettent d’envisager une nouvelle approche : transformer une vidéo en une source interrogeable, où l’utilisateur peut poser des questions en langage naturel et obtenir des réponses contextualisées. 
+L’objectif n’est pas seulement de générer une réponse, mais de fournir un accès plus direct au contenu, tout en gardant une forme de traçabilité (par exemple via des repères temporels) pour faciliter la vérification.
+
+
 \subsection{Problématique}
-\noindent \textit{À compléter.}
+
+Si la transcription automatique permet aujourd’hui de transformer un contenu audio en texte exploitable, elle ne suffit pas à rendre une vidéo réellement intelligible et interrogeable. 
+Un transcript brut représente un volume important de texte non structuré, difficile à synthétiser, à explorer et à exploiter efficacement.
+
+La problématique centrale du projet OCULA peut être formulée ainsi :
+\medskip
+
+
+\noindent\textbf{Comment transformer automatiquement une vidéo longue en une ressource structurée, synthétisée et interrogeable en langage naturel, tout en garantissant des réponses pertinentes et traçables ?}
+\medskip
+
+Cette problématique implique plusieurs dimensions complémentaires :
+
+\begin{itemize}
+    \item générer automatiquement des métadonnées pertinentes (titre et résumé) à partir du contenu réel de la vidéo,
+    \item segmenter et structurer le transcript afin de le rendre exploitable,
+    \item indexer le contenu de manière sémantique et non uniquement lexicale,
+    \item permettre une interaction en langage naturel via un mécanisme de question–réponse,
+    \item garantir l’explicabilité des réponses en fournissant des références temporelles précises.
+\end{itemize}
+
+Le défi consiste donc à concevoir un système combinant reconnaissance automatique de la parole, indexation vectorielle et génération augmentée par récupération (RAG), capable d’assurer un équilibre entre synthèse, pertinence, robustesse et explicabilité.
 \subsection{Objectifs du projet}
-\noindent \textit{À compléter.}
+
+Afin de répondre à la problématique formulée précédemment, le projet OCULA poursuit plusieurs objectifs techniques complémentaires.
+
+\paragraph{1. Automatiser la transformation d’une vidéo en ressource exploitable}
+
+Le système doit être capable de traiter automatiquement une vidéo déposée par un utilisateur, d’en extraire l’audio et de produire une transcription fiable à l’aide d’un modèle de reconnaissance automatique de la parole.
+
+\paragraph{2. Enrichir automatiquement les métadonnées}
+
+À partir de la transcription complète, OCULA doit générer un titre pertinent et un résumé synthétique reflétant fidèlement le contenu réel de la vidéo. 
+Ces éléments visent à améliorer la compréhension globale et l’accessibilité du contenu.
+
+\paragraph{3. Structurer et indexer le contenu de manière sémantique}
+
+Le transcript doit être segmenté en unités cohérentes, converties en représentations vectorielles et indexées dans une base de données adaptée à la recherche sémantique. 
+L’objectif est de permettre une récupération efficace des passages pertinents en fonction du sens de la question posée.
+
+\paragraph{4. Permettre une interaction en langage naturel}
+
+OCULA doit offrir un mécanisme de question–réponse permettant à l’utilisateur d’interroger le contenu d’une vidéo en langage naturel. 
+Les réponses générées doivent être contextualisées et basées uniquement sur les informations présentes dans la vidéo.
+
+\paragraph{5. Garantir la traçabilité et l’explicabilité}
+
+Chaque réponse produite doit être accompagnée de références temporelles précises, permettant à l’utilisateur de vérifier l’origine des informations dans la vidéo. 
+L’explicabilité constitue ainsi une exigence centrale du système.
+
+\paragraph{6. Concevoir une architecture robuste et modulaire}
+
+Enfin, le projet vise à mettre en place une architecture distribuée séparant clairement frontend, backend et service IA, tout en assurant la robustesse du traitement asynchrone et la gestion explicite des états du pipeline.
+
 \subsection{Périmètre et hypothèses}
-\noindent \textit{À compléter.}
+
+Le projet OCULA s’inscrit dans un cadre fonctionnel clairement défini, avec des choix techniques assumés et des limites explicites.
+
+\paragraph{Périmètre fonctionnel}
+
+OCULA traite des vidéos déposées par des utilisateurs authentifiés et repose principalement sur l’analyse du contenu audio. 
+Le système permet :
+
+\begin{itemize}
+    \item la transcription automatique de la piste video,
+    \item la génération d’un titre et d’un résumé à partir du transcript,
+    \item l’indexation sémantique du contenu textuel,
+    \item l’interrogation de la vidéo via un mécanisme de question–réponse basé sur le transcript.
+\end{itemize}
+
+Le système ne réalise pas d’analyse visuelle avancée (reconnaissance d’objets, analyse d’images frame-by-frame ou OCR), et ne prend pas en compte les éléments purement visuels non exprimés oralement.
+
+\paragraph{Hypothèses techniques}
+
+Le fonctionnement d’OCULA repose sur plusieurs hypothèses :
+
+\begin{itemize}
+    \item la qualité de la transcription est suffisante pour permettre une indexation sémantique pertinente ;
+    \item les réponses générées doivent exclusivement s’appuyer sur le contenu fourni dans le contexte RAG ;
+    \item le modèle de langage externe ne dispose pas d’accès direct aux bases de données ;
+    \item la charge utilisateur reste compatible avec une architecture microservices non distribuée à grande échelle.
+\end{itemize}
+
+\paragraph{Limites actuelles}
+
+Certaines limites sont identifiées dans le périmètre actuel :
+
+\begin{itemize}
+    \item absence de traitement multimodal (audio + image),
+    \item absence de fine-tuning spécifique du modèle de langage,
+\end{itemize}
+
+Ces éléments constituent des pistes d’évolution futures mais ne font pas partie du périmètre initial du projet.
 \subsection{Organisation du rapport}
-\noindent \textit{À compléter.}
+
+Le présent rapport est structuré de manière progressive afin de présenter successivement le cadre théorique, les choix de conception, l’implémentation et l’évaluation du système OCULA.
+
+Le chapitre 2 décrit l’organisation du projet et la méthodologie adoptée, en détaillant la répartition des responsabilités, la planification et les choix d’ingénierie collaborative.
+
+Le chapitre 3 présente l’état de l’art et les fondements théoriques mobilisés, notamment en reconnaissance automatique de la parole, en représentations vectorielles et en génération augmentée par récupération (RAG).
+
+Le chapitre 4 expose les spécifications et la conception du système, en mettant en évidence l’architecture globale ainsi que le modèle de données retenu.
+
+Le chapitre 5 détaille l’implémentation technique, incluant le frontend, le backend et le service IA, ainsi que les mécanismes internes du pipeline de traitement.
+
+Le chapitre 6 analyse les résultats obtenus à travers une évaluation qualitative et quantitative du système.
+
+Le chapitre 7 aborde les considérations de sécurité, de confidentialité et les aspects éthiques liés à l’utilisation des modèles d’intelligence artificielle.
+
+Enfin, le chapitre 8 conclut le rapport et présente les perspectives d’évolution du projet.
 \section{Organisation et gestion du projet}
 
 \subsection{Répartition des responsabilités et approche collaborative}
@@ -257,12 +391,135 @@ Ce workflow garantit une séparation claire entre le développement actif, l'int
 \end{itemize}
 
 \section{État de l'art et fondements théoriques}
-\subsection{Analyse de contenu vidéo : enjeux et défis}
-\noindent \textit{À compléter.}
-\subsubsection{Données non structurées et difficulté d'indexation}
-\noindent \textit{À compléter.}
-\subsubsection{Contraintes de latence, coût et confidentialité}
-\noindent \textit{À compléter.}
+
+\subsection{Analyse des solutions existantes}
+
+\subsubsection{Otter.ai}
+
+\textbf{Description} \\
+Otter.ai est une application spécialisée dans la transcription automatique de contenus audio et vidéo, principalement orientée vers les réunions professionnelles. Elle propose également des résumés automatiques et une recherche textuelle dans les transcriptions.
+
+\textbf{Fonctionnalités principales}
+\begin{itemize}
+    \item Transcription automatique en temps réel ou différé
+	\item Résumé automatique de réunions
+	\item Recherche par mots-clés dans les transcriptions
+\end{itemize}
+
+\textbf{Modèle économique}  
+Solution freemium avec des fonctionnalités avancées accessibles uniquement via abonnement payant.
+
+\textbf{Limites}
+\begin{itemize}
+	\item Orienté réunions, peu adapté aux vidéos longues génériques
+	\item Absence de chatbot conversationnel basé sur RAG
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{images/otter.png}
+	\caption{Page tarification de Otter.ai}
+	\label{fig:otter}
+\end{figure}
+
+\subsubsection{Fireflies.ai}
+
+\textbf{Description} \\  
+Fireflies.ai est un outil d’analyse automatique de réunions intégrant transcription, résumé et recherche. Il s’intègre directement à des plateformes de visioconférence.
+
+\textbf{Fonctionnalités principales}
+\begin{itemize}
+    \item Transcription automatique de réunions
+	\item Résumés et points clés
+	\item Recherche dans les conversations
+\end{itemize}
+
+\textbf{Modèle économique}  
+Service payant avec abonnement mensuel.
+
+\textbf{Limites}
+\begin{itemize}
+    \item Fortement dépendant des outils de visioconférence
+    \item Pas conçu pour l’analyse libre de fichiers vidéo
+	\item Absence d’interrogation conversationnelle avancée
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+    \includegraphics[width=\linewidth]{images/fireflies.png}
+    \caption{Service et tarification Fireflies.ai}
+    \label{fig:placeholder}
+\end{figure}
+
+
+\subsubsection{Google (YouTube / Vertex AI)}
+
+\textbf{Description}  
+Google propose plusieurs solutions permettant l’analyse de contenus vidéo. YouTube intègre la génération automatique de sous-titres, tandis que Vertex AI et Speech-to-Text permettent la transcription et l’analyse via API.
+
+\textbf{Fonctionnalités principales}
+\begin{itemize}
+    \item Transcription automatique de vidéos
+	\item Recherche textuelle basique
+	\item APIs d’analyse audio et vidéo
+\end{itemize}
+
+\textbf{Modèle économique}  
+YouTube est gratuit pour l’utilisateur final, tandis que les APIs Google Cloud sont facturées à l’usage.
+
+\textbf{Limites}
+\begin{itemize}
+    \item Pas de chatbot conversationnel sur le contenu vidéo
+	\item Solutions fragmentées (plusieurs services à combiner)
+	\item Mise en place technique complexe
+\end{itemize}
+
+
+\subsubsection{OpenAI (ChatGPT / Whisper API)}
+
+\textbf{Description}  
+OpenAI propose des modèles de langage et de transcription permettant l’analyse de contenus textuels et audio. ChatGPT permet l’interrogation conversationnelle de documents, tandis que Whisper assure une transcription automatique de haute qualité.
+
+\textbf{Fonctionnalités principales}
+\begin{itemize}
+    \item Transcription audio multilingue
+	\item Génération de résumés
+	\item Question-réponse conversationnelle
+\end{itemize}
+
+\textbf{Modèle économique}  
+APIs payantes facturées à l’usage, avec accès gratuit limité via l’interface ChatGPT.
+
+\textbf{Limites}
+\begin{itemize}
+	\item Pas de gestion native de vidéos complètes
+	\item Absence de pipeline clé-en-main pour l’analyse vidéo
+	\item Pas d’indexation temporelle automatique
+\end{itemize}
+
+Bien que plusieurs applications et plateformes proposent des fonctionnalités proches
+de celles du projet OCULA, aucune ne couvre l’ensemble du périmètre fonctionnel visé.
+OCULA se distingue des solutions existantes à plusieurs niveaux, tant sur le plan fonctionnel
+que technique.
+
+\begin{table}[H]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{|l|c|c|c|}
+		\hline
+		\textbf{Solution} & \textbf{Vidéo} & \textbf{Résumé} & \textbf{Chat RAG} \\
+		\hline
+		Otter.ai & \checkmark & \checkmark & \texttimes \\
+		Fireflies.ai & \checkmark & \checkmark & \texttimes \\
+		Google (YouTube) & \checkmark & \texttimes & \texttimes \\
+		OpenAI (API) & \texttimes & \checkmark & \checkmark \\
+		\textbf{OCULA} & \checkmark & \checkmark & \checkmark \\
+		\hline
+	\end{tabular}
+	\caption{Comparaison fonctionnelle entre OCULA et les solutions existantes}
+	\label{tab:comparison}
+\end{table}
+
 
 \subsection{Reconnaissance automatique de la parole (ASR)}
 ASR (automatic speech recognition) est une technologie qui convertit le langage parlé en texte écrit. Elle traite les signaux audio, identifie les modèles de parole et les transcrit en texte avec une grande précision.
@@ -529,7 +786,7 @@ Pour la \textbf{persistance des données}, nous avons choisi \textbf{PostgreSQL}
 \subsection{Conception}
 \subsubsection{Modèle conceptuel et logique}
 
-Le modèle conceptuel d’OCULA est structuré autour de l’entité \textit{Video}, qui constitue le cœur fonctionnel du système. Bien que l’application soit multi-utilisateur, l’ensemble du cycle de traitement IA est vidéo-centré : les opérations d’analyse, de transcription, de génération d’embeddings et de question–réponse s’appuient systématiquement sur l’identifiant \path{video\_id}.
+Le modèle conceptuel d’OCULA est structuré autour de l’entité \textit{Video}, qui constitue le cœur fonctionnel du système. Bien que l’application soit multi-utilisateur, l’ensemble du cycle de traitement IA est vidéo-centré : les opérations d’analyse, de transcription, de génération d’embeddings et de question–réponse s’appuient systématiquement sur l’identifiant \path{video\id}.
 Ainsi, l’entité \textit{User} possède les vidéos, mais c’est la \textit{Video} qui orchestre le pipeline métier.
 
 \begin{figure}[H]
@@ -581,7 +838,7 @@ L’attribut \path{status} de l’entité \textit{Video} (PENDING, PROCESSING, C
 \centering
 \includegraphics[width=0.5\textwidth]{images/Gestion d’état du traitement-2026-02-22-192854.png}
 \caption{Gestion d’état du traitement (VideoStatus)}
-\label{fig:domain-model}
+\label{fig:domain-model} 
 \end{figure}
 Dans un système distribué où la transcription et l’indexation peuvent prendre plusieurs minutes, ce champ est essentiel pour :
 
@@ -637,7 +894,7 @@ Cette représentation vectorielle permet de comparer la question de l’utilisat
 \textbf{3. Organisation dans la base vectorielle}
 
 Les embeddings sont stockés dans ChromaDB selon une organisation par vidéo. 
-Pour chaque vidéo, une collection dédiée (\path{video\_<video\_id>}) est utilisée ou créée lors de l’initialisation du flux d’indexation.
+Pour chaque vidéo, une collection dédiée (\path{video\<video\id>}) est utilisée ou créée lors de l’initialisation du flux d’indexation.
 
 Chaque document vectoriel contient :
 
@@ -645,7 +902,7 @@ Chaque document vectoriel contient :
 
     \item le texte du chunk,
     \item l’embedding associé,
-    \item des métadonnées : \path{video\_id}, \path{start\_time}, \path{end\_time}.
+    \item des métadonnées : \path{video\id}, \path{start\time}, \path{end\time}.
 \end{itemize}
 \begin{figure}[H]
     \centering
@@ -670,7 +927,7 @@ Cette organisation garantit :
     \item une correspondance directe entre passage récupéré et intervalle temporel.
 \end{itemize}
 
-Le modèle relationnel assure la cohérence transactionnelle des données métier, tandis que la couche vectorielle optimise la récupération contextuelle pour le RAG ; les deux couches sont donc complémentaires et synchronisées par \path{video\_id}.
+Le modèle relationnel assure la cohérence transactionnelle des données métier, tandis que la couche vectorielle optimise la récupération contextuelle pour le RAG ; les deux couches sont donc complémentaires et synchronisées par \path{video\id}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{images/rag_pipeline_matrix.png}
@@ -718,7 +975,7 @@ Ce choix permet :
 
 Les embeddings générés à partir des chunks sont stockés dans une base vectorielle dédiée (ChromaDB).
 
-Chaque vidéo dispose d’une collection nommée \path{video\_<video\_id>}. 
+Chaque vidéo dispose d’une collection nommée \path{video\<video\id>}. 
 
 Cette organisation assure :
 
@@ -739,7 +996,7 @@ Cette organisation assure :
 \medskip
 
 Le modèle relationnel assure la cohérence des données métier, le stockage objet prend en charge les contenus binaires via des clés d’objet, et la base vectorielle optimise la récupération sémantique pour le RAG. 
-Ces trois couches sont complémentaires et interconnectées principalement par \path{video\_id} (et \path{user\_id} pour les ressources utilisateur). 
+Ces trois couches sont complémentaires et interconnectées principalement par \path{video\id} (et \path{user\id} pour les ressources utilisateur). 
 \medskip
 
 La conception présentée précédemment définit la structure logique et la stratégie de persistance du système. 
@@ -1083,13 +1340,16 @@ Concrètement, son utilisation dans le service IA couvre :
     \item \textbf{Embeddings} : la classe \path{HuggingFaceEmbeddings} 
     charge le modèle \path{sentence-transformers/all-MiniLM-L6-v2} afin de vectoriser les chunks avant leur stockage dans ChromaDB.
     
-    \item \textbf{Base vectorielle} : \path{langchain\_chroma.Chroma} sert d’interface avec ChromaDB pour l’ajout de documents (\path{add\_documents}) et la recherche par similarité (\path{similarity\_search\_with\_score}).
+    \item \textbf{Base vectorielle} : \path{langchain\chroma.Chroma} sert d’interface avec ChromaDB pour l’ajout de documents (\path{add_documents}) et la recherche par similarité (\path{similarity_search_with_score}).
     
     \item \textbf{Prompting et chaining} : les différents prompts (titre, résumé, réécriture, RAG) sont définis via \path{PromptTemplate} et exécutés sous forme de pipeline :
-    \begin{verbatim}
-prompt | llm | StrOutputParser()
-    \end{verbatim}
-    
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{images/langchain-prompt-chain.png}
+    \caption{Pipeline LangChain de prompting et chaining}
+    \label{fig:langchain-prompt-chain}
+    \end{figure}
+
     \item \textbf{Appel au LLM} : \path{ChatCerebras} permet d’interagir avec le modèle externe \path{gpt-oss-120b} pour la génération du titre, du résumé et des réponses RAG.
 \end{itemize}
 
@@ -1155,8 +1415,8 @@ def processing_task(video_id, object_key):
     pass
 \end{lstlisting}
 
-La vidéo est d’abord téléchargée depuis Azure Blob Storage à l’aide de sa clé d’objet (\path{object\_key}) vers un fichier temporaire local. 
-La transcription est ensuite effectuée via \path{whisper\_model.transcribe}, qui retourne :
+La vidéo est d’abord téléchargée depuis Azure Blob Storage à l’aide de sa clé d’objet (\path{object\key}) vers un fichier temporaire local. 
+La transcription est ensuite effectuée via \path{whisper\model.transcribe}, qui retourne :
 
 \begin{itemize}
     \item un texte global (\path{text}),
@@ -1179,8 +1439,8 @@ Le découpage en chunks est réalisé sur le texte complet issu de Whisper (\pat
 Cependant, pour préserver la traçabilité temporelle, chaque chunk doit être associé à un intervalle \path{[start, end]} exploitable comme source dans l’interface.
 
 Pour cela, le service construit d’abord une correspondance (\textit{segment\_map}) entre la progression en caractères dans le texte global et les segments Whisper. 
-Chaque segment est représenté par une borne \path{end\_char} et ses timestamps \path{start/end}. 
-Ensuite, pour chaque chunk extrait, sa position \path{[chunk\_start, chunk\_end]} dans le texte global est retrouvée, puis convertie en timestamps en recherchant les segments couvrant ces bornes.
+Chaque segment est représenté par une borne \path{end\char} et ses timestamps \path{start/end}. 
+Ensuite, pour chaque chunk extrait, sa position \path{[chunk\start, chunk\end]} dans le texte global est retrouvée, puis convertie en timestamps en recherchant les segments couvrant ces bornes.
 
 Cette approche permet d’associer à chaque chunk un intervalle temporel cohérent, tout en conservant un découpage textuel adapté au retrieval.
 \begin{lstlisting}[language=Python, caption={Découpage en chunks avec reconstruction des timestamps}, label={lst:chunk-video-transcript}]
@@ -1248,7 +1508,7 @@ Le service IA utilise le modèle \path{sentence-transformers/all-MiniLM-L6-v2}, 
 \paragraph{Initialisation du modèle d'embedding}
 
 Le modèle d’embedding est chargé une seule fois à l’initialisation du service IA, afin d’éviter une surcharge à chaque requête. 
-Dans l’implémentation actuelle, les embeddings ne sont pas normalisés lors de l’encodage (\path{normalize\_embeddings=False}), et l’exécution est configurée sur CPU.
+Dans l’implémentation actuelle, les embeddings ne sont pas normalisés lors de l’encodage (\path{normalize\embeddings=False}), et l’exécution est configurée sur CPU.
 
 
 \begin{lstlisting}[language=Python, caption={Initialisation du modèle d'embedding}, label={lst:embed-model-init}]
@@ -1269,7 +1529,7 @@ embed_model = HuggingFaceEmbeddings(
 \paragraph{Construction des documents vectoriels}
 
 Chaque chunk est encapsulé dans un objet \path{Document} (LangChain) contenant :
-(i) le texte du chunk (\path{page\_content}), et (ii) les métadonnées nécessaires à la traçabilité : \path{video\_id}, \path{start\_time} et \path{end\_time}. 
+(i) le texte du chunk (\path{page\content}), et (ii) les métadonnées nécessaires à la traçabilité : \path{video\id}, \path{start\time} et \path{end\time}. 
 Ces métadonnées permettent notamment de restituer des sources temporelles associées aux réponses du chatbot.
 
 \begin{lstlisting}[language=Python, caption={Création des documents avec métadonnées}, label={lst:doc-metadata}]
@@ -1288,8 +1548,8 @@ doc = Document(
 
 \paragraph{Indexation dans ChromaDB}
 
-Les documents vectoriels sont stockés dans ChromaDB via l’interface \path{langchain\_chroma.Chroma}. 
-L’indexation est organisée par vidéo : chaque vidéo possède une collection dédiée nommée \path{video\_<video\_id>}. 
+Les documents vectoriels sont stockés dans ChromaDB via l’interface \path{langchain\chroma.Chroma}. 
+L’indexation est organisée par vidéo : chaque vidéo possède une collection dédiée nommée \path{video\<video\id>}. 
 Cette stratégie limite le bruit inter-vidéos et garantit que la recherche sémantique effectuée lors du chat reste strictement associée à la vidéo consultée.
 
 \begin{lstlisting}[language=Python, caption={Indexation des documents dans une collection Chroma dédiée}, label={lst:chroma-index}]
@@ -1319,11 +1579,248 @@ embed_script(video_id, chunks)
 
 Ainsi, à l’issue du traitement, chaque vidéo est associée à une collection Chroma contenant les chunks vectorisés et leurs métadonnées temporelles, base nécessaire au retrieval utilisé dans la phase RAG.
 
-\subsubsection{RAG : retrieval et construction du prompt}
-\noindent \textit{À compléter.}
+\subsubsection{RAG : retrieval, filtrage et construction du contexte}
+
+Le mécanisme RAG (Retrieval-Augmented Generation) constitue le cœur du système de question–réponse. 
+Il permet de générer une réponse contextualisée à partir des chunks précédemment indexés dans ChromaDB.
+
+\paragraph{Réécriture optionnelle de la requête}
+
+Avant la phase de retrieval, le service IA peut appliquer une réécriture de la question utilisateur via la fonction \texttt{rewrite\_query}. 
+Cette étape est activée uniquement si le paramètre \texttt{RAG\_ENABLE\_QUERY\_REWRITE} est positionné à \texttt{True}.
+
+L’objectif est d’améliorer la qualité du retrieval en reformulant la question sous une forme plus descriptive ou plus adaptée à la recherche sémantique.
+
+Afin de garantir un comportement stable, plusieurs contraintes sont appliquées :
+\begin{itemize}
+    \item normalisation sur une seule ligne (suppression des retours multiples),
+    \item limitation de la longueur via \texttt{RAG\_QUERY\_REWRITE\_MAX\_CHARS},
+    \item retour à la question originale en cas d’échec ou de sortie vide.
+\end{itemize}
+
+Cette étape constitue une optimisation contrôlée du pipeline et n’altère jamais la requête initiale en cas d’erreur.
+\paragraph{Retrieval vectoriel et filtrage par distance}
+
+La recherche est effectuée exclusivement dans la collection associée à la vidéo (\texttt{video\_<video\_id>}) afin de garantir l’isolation des contenus.
+
+\begin{lstlisting}[language=Python, caption={Retrieval et filtrage par distance}, label={lst:rag-core}]
+vector_store = Chroma(
+    client=ai_models.db_client,
+    collection_name=f"video_{video_id}",
+    embedding_function=ai_models.embed_model
+)
+
+doc_scores = vector_store.similarity_search_with_score(
+    retrieval_question,
+    k=RAG_TOP_K
+)
+
+filtered = [
+    (doc, distance)
+    for doc, distance in doc_scores
+    if float(distance) <= RAG_MAX_DISTANCE
+]
+
+if not filtered:
+    fallback_count = max(1, min(RAG_FALLBACK_TOP_K, len(doc_scores)))
+    filtered = doc_scores[:fallback_count]
+\end{lstlisting}
+
+Le score retourné est traité comme une \textbf{distance} : plus la distance est faible, plus le document est pertinent.  
+Un seuil configurable (\texttt{RAG\_MAX\_DISTANCE}) permet d’exclure les passages trop éloignés sémantiquement. 
+En l’absence de résultat satisfaisant, un mécanisme de repli conserve les meilleurs éléments du top-k initial.
+Le diagramme suivant présente la séquence complète d’exécution du pipeline RAG lors d’une requête utilisateur. 
+Il met en évidence les interactions entre le backend, le service IA, la base vectorielle et le modèle de langage.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.95\textwidth]{images/rag_seq.png}
+    \caption{Séquence d’exécution du pipeline RAG}
+    \label{fig:rag-sequence}
+\end{figure}
+Le pipeline peut être décomposé en plusieurs étapes successives.
+\paragraph{Reranking hybride lexical et sémantique}
+
+Après la phase de retrieval initiale, le service IA peut appliquer un mécanisme de reranking via la fonction \texttt{rerank\_context}, si le paramètre \texttt{RAG\_ENABLE\_RERANK} est activé.
+
+Contrairement à une simple sélection par distance, cette étape combine deux signaux complémentaires :
+
+\begin{itemize}
+    \item \textbf{Similarité sémantique} : dérivée de la distance retournée par Chroma, transformée en score via la formule $1 / (1 + distance)$. Cette transformation garantit une valeur comprise dans $(0,1]$, où une distance faible produit une similarité élevée.
+    
+    \item \textbf{Recouvrement lexical} : proportion de termes communs entre la question et le contenu du chunk. Les tokens sont extraits via une tokenisation par expression régulière, avec suppression d’un ensemble de stopwords (anglais et français).
+\end{itemize}
+
+Le score final est calculé comme une combinaison pondérée :
+
+\[
+\text{score}_{final} =
+\alpha \cdot \text{similarité}_{sémantique}
++
+(1-\alpha) \cdot \text{recouvrement}_{lexical}
+\]
+
+où $\alpha$ correspond au paramètre \texttt{RAG\_RERANK\_SEMANTIC\_WEIGHT}.
+
+Les documents sont ensuite triés par score décroissant et seuls les \texttt{RAG\_RERANK\_TOP\_N} meilleurs passages sont conservés.
+
+Cette approche hybride permet de corriger certaines limites du retrieval purement vectoriel, notamment lorsque la similarité sémantique ne capture pas explicitement des mots-clés importants présents dans la question.
+
+
+
+
+\paragraph{Construction du contexte}
+
+Après le reranking éventuel, les documents retenus sont transformés en un contexte structuré via la fonction \texttt{format\_context}.
+Chaque chunk est préfixé par une balise temporelle stable.
+
+\begin{lstlisting}[language=Python, caption={Construction du contexte annoté}]
+def format_context(doc_scores):
+    parts = []
+    sources = []
+
+    for doc, score in doc_scores:
+        metadata = doc.metadata or {}
+        start = round(float(metadata.get("start_time", 0)), 2)
+        end = round(float(metadata.get("end_time", 0)), 2)
+        text = doc.page_content or ""
+
+        parts.append(f"[{start}-{end}] {text}")
+        sources.append({
+            "start_time": start,
+            "end_time": end,
+            "text": text,
+            "score": float(score)
+        })
+
+    return "\n\n".join(parts), sources
+\end{lstlisting}
+
+Les timestamps sont arrondis afin de garantir un format stable, facilitant la détection ultérieure des citations.
+\paragraph{Appel au modèle de langage}
+
+Le contexte ainsi construit est injecté dans le prompt RAG via une chaîne LangChain.
+
+\begin{lstlisting}[language=Python, caption={Génération de la réponse via LangChain}]
+chain = rag_prompt | ai_models.llm | StrOutputParser()
+
+answer = chain.invoke({
+    "question": question,
+    "context": context_text
+})
+\end{lstlisting}
+
+Le modèle reçoit la question originale ainsi que le contexte concaténé issu des chunks sélectionnés.
+\paragraph{Validation des citations et filtrage des sources}
+
+Après génération, deux post-traitements garantissent la cohérence et l’explicabilité du système.
+
+\begin{lstlisting}[language=Python, caption={Insertion automatique de citations}]
+answer = ensure_citations(answer, sources)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Filtrage des sources réellement utilisées}]
+used_sources = filter_sources_by_answer(answer, sources)
+\end{lstlisting}
+
+Si aucun contexte exploitable n’est disponible, la réponse de repli est :
+
+\begin{lstlisting}[language=Python]
+if not context_text:
+    return {
+        "answer": "I don't have enough context from this video yet.",
+        "sources": []
+    }
+\end{lstlisting}
+
+La réponse finale retournée au backend contient \texttt{answer} et \texttt{sources}, encapsulés ensuite dans un objet \texttt{AskMessageResponse}.
+
+La structure retournée par le service IA contient donc la réponse générée ainsi que la liste des sources associées. 
+Le backend encapsule ensuite cette réponse dans un objet \texttt{AskMessageResponse} transmis au frontend.
+
+\medskip
+
+Le comportement du pipeline RAG repose sur un ensemble de paramètres configurables permettant d’ajuster finement la stratégie de récupération, de filtrage et de reranking. 
+Ces paramètres sont définis au niveau du service IA et peuvent être adaptés selon les besoins en précision, robustesse ou performance.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|l|}
+\hline
+Paramètre & Type & Rôle \\
+\hline
+RAG\_TOP\_K & int & Nombre initial de passages récupérés \\
+RAG\_MAX\_DISTANCE & float & Seuil maximal de distance acceptable \\
+RAG\_FALLBACK\_TOP\_K & int & Nombre conservé si seuil trop strict \\
+RAG\_ENABLE\_QUERY\_REWRITE & bool & Activation réécriture requête \\
+RAG\_ENABLE\_RERANK & bool & Activation reranking \\
+RAG\_RERANK\_SEMANTIC\_WEIGHT & float & Pondération sémantique \\
+RAG\_RERANK\_TOP\_N & int & Nombre final de passages retenus \\
+\hline
+\end{tabular}
+\caption{Paramètres configurables du pipeline RAG}
+\label{tab:rag-parameters-final}
+\end{table}
+
+Cette paramétrisation offre une flexibilité importante mais introduit également certaines limites. 
+En particulier, le reranking lexical repose sur une tokenisation simple basée sur des expressions régulières. 
+Cette approche reste sensible aux variations linguistiques, aux synonymes et aux différences morphologiques, ce qui constitue une limite identifiée du mécanisme hybride.
+
+
+
+
 
 \subsubsection{Appel au LLM externe et post-traitements}
-\noindent \textit{À compléter.}
+
+La génération des sorties textuelles repose sur un modèle de langage externe intégré via LangChain. 
+Le service IA utilise l’interface \texttt{ChatCerebras} pour interagir avec le modèle \texttt{gpt-oss-120b}.
+
+\paragraph{Configuration du modèle}
+
+Le modèle est configuré avec des paramètres favorisant la stabilité et la précision :
+
+\begin{itemize}
+    \item \textbf{temperature = 0.1} afin de limiter la variabilité,
+    \item \textbf{max\_tokens = 2048} pour encadrer la longueur maximale de génération.
+\end{itemize}
+
+Ce paramétrage est cohérent avec un système de question–réponse fondé sur un contexte contraint, où la fidélité au transcript prime sur la créativité.
+
+
+Le modèle ne reçoit que le contexte explicitement construit lors de la phase RAG, ce qui limite les risques d’hallucination hors contexte.
+
+\paragraph{Génération du titre et du résumé}
+
+Le même mécanisme d’appel LLM est réutilisé pour enrichir automatiquement les métadonnées de la vidéo après transcription complète.  
+Deux prompts dédiés sont définis (\texttt{title\_prompt} et \texttt{summary\_prompt}) et exécutés via la même structure de chaîne LangChain :
+
+\begin{lstlisting}[language=Python, caption={Génération LLM du titre et du résumé}]
+title_chain = title_prompt | ai_models.llm | StrOutputParser()
+summary_chain = summary_prompt | ai_models.llm | StrOutputParser()
+
+title = title_chain.invoke({"text": transcript})
+summary = summary_chain.invoke({"text": transcript})
+\end{lstlisting}
+
+Les résultats sont ensuite persistés côté backend via une mise à jour de l’entité \textit{Video}, notamment des champs \texttt{title} et \texttt{summary}. 
+Cette séparation garantit que le service IA ne manipule pas directement la base relationnelle.
+
+\paragraph{Post-traitements et robustesse}
+
+Après génération d’une réponse RAG, deux mécanismes assurent la cohérence :
+
+\begin{itemize}
+    \item insertion automatique de citations si aucune n’est détectée,
+    \item filtrage des sources effectivement utilisées dans la réponse.
+\end{itemize}
+
+En cas d’absence de contexte exploitable, une réponse explicite est renvoyée :
+
+\begin{lstlisting}[language=Python]
+"I don't have enough context from this video yet."
+\end{lstlisting}
+
+La structure finale renvoyée au backend contient \texttt{answer} et \texttt{sources}. 
+Le backend encapsule ensuite cette réponse dans un objet \texttt{AskMessageResponse} avant transmission au frontend.
 
 \subsection{Stockage et Dockerisation}
 
@@ -1477,43 +1974,52 @@ Ce Dockerfile permet d'exécuter la partie IA d'Ocula. Il utilise une image de P
 Ce Dockerfile sert à construire et lancer le frontend de l’application. Il utilise d’abord Node.js pour installer les dépendances du projet, puis il utilise Nginx pour servir les fichiers générés. Enfin, il expose le port 80 et démarre le serveur Nginx pour rendre l’application accessible.
 
 \section{Évaluation et résultats}
-\noindent \textit{À compléter.}
 
 \subsection{Protocole de test}
-\noindent \textit{À compléter.}
 
 \subsubsection{Jeu de vidéos utilisé}
-\noindent \textit{À compléter.}
+Notre application accepte plusieurs formats vidéo couramment utilisés, notamment : MP4, MOV, AVI, WebM et MKV. Cette diversité permet d’assurer la compatibilité avec la majorité des sources vidéo utilisées par les utilisateurs.
 
-\subsubsection{Scénarios de test (upload, transcription, Q\&A)}
-\noindent \textit{À compléter.}
+La taille maximale des vidéos a été fixée à 150~Mo afin de garantir le bon fonctionnement du système. Cette limite permet de respecter les contraintes du stockage Azure Blob Storage, de maintenir des performances acceptables lors des traitements IA exécutés en local (transcription, embeddings), 
+et de contrôler la consommation de tokens de LLM utilisé pour la génération de texte.
 
-\subsubsection{Critères : qualité, latence, stabilité}
-\noindent \textit{À compléter.}
+Le jeu de test comprenait des vidéos présentant des caractéristiques variées :
 
-\subsection{Analyse qualitative}
-\noindent \textit{À compléter.}
+\begin{itemize}
+	\item différentes durées (courtes, moyennes et longues) 
+	\item plusieurs langues et accents 
+	\item différents niveaux de qualité audio
+	\item divers domaines de contenu
+\end{itemize}
 
-\subsubsection{Pertinence des résumés et titres}
-\noindent \textit{À compléter.}
+\subsubsection{Scénarios de test}
 
-\subsubsection{Qualité des réponses du chatbot}
-\noindent \textit{À compléter.}
+\paragraph{Test d'importation de vidéo}
 
-\subsubsection{Comportement sur contenu bruité / long / multilingue}
-\noindent \textit{À compléter.}
+Ce test vise à vérifier le bon fonctionnement du processus d’upload des vidéos. 
+Il consiste à téléverser des fichiers de formats différents (MP4, MOV, AVI, WebM, MKV) 
+et de tailles variées, tout en contrôlant les points suivants :
 
-\subsection{Analyse quantitative}
-\noindent \textit{À compléter.}
+\begin{itemize}
+	\item validation du format et de la taille maximale autorisée ;
+	\item enregistrement correct des métadonnées dans la base de données ;
+	\item stockage réussi du fichier dans le système de stockage objet ;
+	\item génération correcte de la clé d’accès et de l’URL sécurisée ;
+	\item mise à jour du statut initial de la vidéo (PENDING).
+\end{itemize}
 
-\subsubsection{Temps de traitement par étape (pipeline)}
-\noindent \textit{À compléter.}
+\paragraph{Test de transcription de vidéo}
 
-\subsubsection{Temps de réponse du chatbot}
-\noindent \textit{À compléter.}
+Ce test permet d’évaluer le pipeline de traitement automatique après l’importation. 
+Il consiste à lancer l’analyse d’une vidéo et à vérifier les étapes suivantes :
 
-\subsubsection{Impact du chunking et du top-k retrieval}
-\noindent \textit{À compléter.}
+\begin{itemize}
+	\item extraction correcte de l’audio à partir de la vidéo ;
+	\item génération d’une transcription cohérente et segmentée ;
+	\item découpage du texte en chunks exploitables ;
+	\item création et stockage des embeddings dans la base vectorielle ;
+	\item mise à jour progressive des statuts de traitement jusqu’à COMPLETED.
+\end{itemize}
 
 \subsection{Discussion}
 \noindent \textit{À compléter.}
@@ -1527,306 +2033,156 @@ Ce Dockerfile sert à construire et lancer le frontend de l’application. Il ut
 \subsubsection{Comparaison : RAG vs LLM seul}
 \noindent \textit{À compléter.}
 
-\section{Sécurité, conformité et considérations éthiques}
-\noindent \textit{À compléter.}
-
-\subsection{Confidentialité des données et stockage}
-\noindent \textit{À compléter.}
-
-\subsection{Gestion des accès et des permissions}
-\noindent \textit{À compléter.}
+\section{Conformité et considérations éthiques}
 
 \subsection{Propriété intellectuelle et droits sur les contenus vidéo}
-\noindent \textit{À compléter.}
+
+Chaque auteur dispose de droits pour protéger son œuvre, comprenant un droit moral et un droit patrimonial. Le droit moral permet à l’auteur de protéger son nom ainsi que l’intégrité de son œuvre contre toute exploitation. Le droit patrimonial, qui dure jusqu'à 70 ans après le décès de l’auteur, lui permet d’en tirer un profit. 
+
+Chaque personne dispose d’un droit exclusif sur son image (photo ou vidéo) ainsi que sur son utilisation. Elle peut s’opposer à l’utilisation de cette image sans son autorisation.
+
+Pour diffuser une vidéo dans notre application Ocula il faudrait obtenir:
+
+\begin{itemize}
+	\item une autorisation de la personne concernée.
+	\item une autorisation écrite si la personne est reconnaissable dans la vidéo.
+	\item l’accord de l’auteur de la vidéo au titre du droit d’auteur. 
+\end{itemize}
 
 \subsection{Limites et usages responsables}
-\noindent \textit{À compléter.}
+
+L’utilisation de contenus dans l’application Ocula doit respecter certaines limites afin de garantir un usage responsable et conforme à la loi. Il est notamment interdit de diffuser des images ou des vidéos portant atteinte à la vie privée, à la dignité ou à la réputation des personnes concernées. Toute utilisation doit être faite avec le consentement préalable des individus identifiables et dans le respect du droit d’auteur.
+
+L’utilisation de l’application Ocula est strictement encadrée afin de garantir un usage responsable et éthique. Il est notamment interdit de téléverser, diffuser ou partager des contenus inappropriés, tels que ceux portant contenant des propos violents, haineux, discriminatoires ou illégaux.
 
 \section{Conclusion et perspectives}
-\noindent \textit{À compléter.}
 
 \subsection{Bilan du projet}
-\noindent \textit{À compléter.}
 
+Le projet OCULA avait pour objectif de transformer une vidéo en une ressource intelligemment exploitable, capable d’être synthétisée et interrogée en langage naturel. 
+Au-delà de la simple implémentation technique, ce projet nous a confrontés à des problématiques concrètes liées au traitement du langage, à l’architecture logicielle et à l’intégration de modèles d’intelligence artificielle dans un système complet.
+
+Sur le plan fonctionnel, nous avons conçu un pipeline cohérent permettant :
+\begin{itemize}
+    \item la transcription automatique d’une vidéo,
+    \item la génération d’un titre et d’un résumé pertinents,
+    \item l’indexation sémantique du transcript,
+    \item l’interrogation contextualisée via un mécanisme RAG,
+    \item la restitution de réponses accompagnées de références temporelles.
+\end{itemize}
+
+Sur le plan architectural, le projet nous a amenés à structurer une application distribuée en trois couches distinctes (frontend, backend, service IA), à gérer un traitement asynchrone avec suivi d’état explicite, et à assurer une séparation claire des responsabilités entre les composants.
+
+D’un point de vue technique, nous avons approfondi plusieurs concepts majeurs :
+\begin{itemize}
+    \item fonctionnement des embeddings et recherche vectorielle,
+    \item intégration d’un modèle de langage externe via LangChain,
+    \item conception d’un pipeline Retrieval-Augmented Generation robuste,
+    \item gestion des seuils, du reranking et des mécanismes de fallback,
+    \item mise en place de mécanismes d’explicabilité via citations temporelles.
+\end{itemize}
+
+Le projet nous a également confrontés aux limites concrètes des modèles de langage, notamment le risque d’hallucination, la dépendance à la qualité de la transcription et l’importance du contrôle du contexte fourni au modèle.
+
+Au-delà des aspects techniques, OCULA nous a permis de mieux comprendre les enjeux liés à la conception d’un système intelligent complet : 
+il ne s’agit pas uniquement d’utiliser un modèle performant, mais d’orchestrer correctement les données, les flux et les contraintes afin de garantir robustesse, pertinence et explicabilité.
 \subsection{Améliorations techniques possibles}
-\noindent \textit{À compléter.}
 
-\subsubsection{Optimisation de la recherche semantique}
-\noindent \textit{À compléter.}
+Bien que le système OCULA soit pleinement fonctionnel dans son périmètre actuel, plusieurs axes d’amélioration technique peuvent être envisagés afin d’en accroître la performance, la scalabilité et les capacités d’analyse.
 
+Ces évolutions concernent principalement l’optimisation du pipeline de traitement, l’enrichissement multimodal du contenu analysé ainsi que l’adaptation de l’infrastructure à un contexte de déploiement à plus grande échelle.
+
+Les sous-sections suivantes présentent les principales pistes identifiées.
 \subsubsection{Streaming transcription}
-\noindent \textit{À compléter.}
 
-\subsubsection{Amélioration de la segmentation (chunking adaptatif)}
-\noindent \textit{À compléter.}
+Dans la version actuelle d’OCULA, la transcription est réalisée de manière batch : la vidéo est d’abord entièrement uploadée, puis traitée dans son intégralité avant que les résultats ne soient disponibles. 
+Cette approche présente l’avantage de la simplicité et de la robustesse, mais elle introduit une latence perceptible pour l’utilisateur, notamment pour des vidéos longues.
 
-\subsubsection{Analyse de video frame par frame}
-\noindent \textit{À compléter.}
+Une évolution naturelle du système consisterait à intégrer un mécanisme de transcription en streaming. 
+Dans ce modèle, l’audio serait traité progressivement au fur et à mesure de sa réception ou de son extraction, permettant une génération incrémentale du transcript.
 
+Une telle approche offrirait plusieurs avantages :
+\begin{itemize}
+    \item réduction significative du temps d’attente avant disponibilité des premiers résultats,
+    \item possibilité d’indexation progressive des chunks,
+    \item ouverture vers une interrogation quasi temps réel du contenu.
+\end{itemize}
+
+Cependant, cette évolution impliquerait des adaptations architecturales importantes, notamment en matière de gestion d’état, de synchronisation entre transcription partielle et indexation vectorielle, ainsi que de gestion des erreurs sur des flux continus. 
+Elle nécessiterait également une réflexion sur la cohérence des timestamps et sur la mise à jour dynamique des collections vectorielles.
+
+Le streaming transcription constitue ainsi une perspective d’amélioration ambitieuse, orientée vers une expérience utilisateur plus fluide et interactive.
+\subsubsection{Analyse de vidéo frame par frame}
+
+Dans sa version actuelle, OCULA repose exclusivement sur l’analyse du contenu audio via la transcription automatique. 
+Cette approche permet d’exploiter efficacement les informations verbalisées, mais elle ignore les éléments visuels présents dans la vidéo.
+
+Or, de nombreuses vidéos contiennent des informations cruciales qui ne sont pas exprimées oralement : 
+diapositives de présentation, schémas, équations, captures d’écran, démonstrations visuelles ou textes affichés à l’écran. 
+Un système fondé uniquement sur le transcript peut ainsi manquer une partie significative du contenu réel.
+
+Une évolution vers une analyse \textit{frame par frame} permettrait d’intégrer une dimension multimodale au système. 
+Cette approche pourrait inclure :
+\begin{itemize}
+    \item l’extraction périodique d’images clés (key frames),
+    \item la reconnaissance optique de caractères (OCR) pour détecter le texte affiché,
+    \item la détection d’objets ou d’éléments visuels pertinents,
+    \item l’association temporelle entre contenu visuel et contenu audio.
+\end{itemize}
+
+L’intégration de ces informations dans le pipeline d’indexation nécessiterait une adaptation du modèle de données ainsi qu’un enrichissement des métadonnées stockées dans la base vectorielle. 
+Les embeddings pourraient alors représenter non seulement du texte issu du transcript, mais également des descriptions générées à partir du contenu visuel.
+
+Une telle extension transformerait OCULA en un système véritablement multimodal, capable de répondre à des questions portant sur des éléments visibles à l’écran, et non uniquement sur ce qui est prononcé. 
+Elle représenterait toutefois un défi significatif en termes de coût de calcul, de stockage et de complexité algorithmique.
 \subsubsection{Infrastructure}
-\noindent \textit{À compléter.}
 
+L’architecture actuelle d’OCULA repose sur une séparation claire entre frontend, backend et service IA, déployés sous forme de conteneurs distincts. 
+Cette organisation est adaptée à un contexte académique et à une charge modérée, mais plusieurs évolutions seraient nécessaires pour envisager un déploiement à plus grande échelle.
+
+Tout d’abord, la base vectorielle pourrait être optimisée afin de mieux supporter un volume important de vidéos et de requêtes simultanées. 
+Une distribution de l’index vectoriel, l’utilisation d’index plus avancés ou l’intégration d’un moteur spécialisé pour la recherche à grande échelle permettraient d’améliorer la performance et la latence.
+
+Ensuite, le traitement asynchrone des vidéos pourrait être externalisé vers une file de messages (message broker), permettant une meilleure gestion des tâches longues et une meilleure résilience en cas de montée en charge. 
+Cette approche faciliterait également la mise en place d’un système de workers dédiés au traitement IA.
+
+L’orchestration des conteneurs pourrait également évoluer vers une solution de type Kubernetes, offrant des mécanismes de réplication automatique, de supervision et de tolérance aux pannes.
+
+Enfin, l’ajout d’outils de monitoring et de centralisation des logs permettrait d’améliorer l’observabilité du système. 
+Dans un contexte de production, le suivi des performances du pipeline RAG, des temps de réponse du LLM et des taux d’erreur deviendrait essentiel pour garantir la qualité du service.
+
+Ces améliorations renforceraient la scalabilité, la robustesse et la maintenabilité du système, tout en préparant une éventuelle industrialisation.
 \subsection{Ouverture produit : industrialisation}
-\noindent \textit{À compléter.}
 
-
-
-% \section{État de l'art}
-
-% Cette section présente les principales applications et plateformes existantes proposant des fonctionnalités proches de celles du projet OCULA. Pour chaque concurrent, sont analysés les services proposés, le modèle économique ainsi que les principales limitations.
-
-% \subsection{Analyse des solutions existantes}
-
-% \subsubsection{Otter.ai}
-
-% \textbf{Description} \\
-% Otter.ai est une application spécialisée dans la transcription automatique de contenus audio et vidéo, principalement orientée vers les réunions professionnelles. Elle propose également des résumés automatiques et une recherche textuelle dans les transcriptions.
-
-% \textbf{Fonctionnalités principales}
-% \begin{itemize}
-%     \item Transcription automatique en temps réel ou différé
-%     \item Résumé automatique de réunions
-%     \item Recherche par mots-clés dans les transcriptions
-% \end{itemize}
-
-% \textbf{Modèle économique}  
-% Solution freemium avec des fonctionnalités avancées accessibles uniquement via abonnement payant.
-
-% \textbf{Limites}
-% \begin{itemize}
-%     \item Orienté réunions, peu adapté aux vidéos longues génériques
-%     \item Absence de chatbot conversationnel basé sur RAG
-%     \item Pipeline de traitement fermé et non personnalisable
-% \end{itemize}
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=\linewidth]{image.png}
-%     \caption{Page tarification de Otter.ai}
-%     \label{fig:otter}
-% \end{figure}
-% ---------------------------------------
-
-% \subsubsection{Fireflies.ai}
-
-% \textbf{Description} \\  
-% Fireflies.ai est un outil d’analyse automatique de réunions intégrant transcription, résumé et recherche. Il s’intègre directement à des plateformes de visioconférence.
-
-% \textbf{Fonctionnalités principales}
-% \begin{itemize}
-%     \item Transcription automatique de réunions
-%     \item Résumés et points clés
-%     \item Recherche dans les conversations
-% \end{itemize}
-
-% \textbf{Modèle économique}  
-% Service payant avec abonnement mensuel.
-
-% \textbf{Limites}
-% \begin{itemize}
-%     \item Fortement dépendant des outils de visioconférence
-%     \item Pas conçu pour l’analyse libre de fichiers vidéo
-%     \item Absence d’interrogation conversationnelle avancée
-% \end{itemize}
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=\linewidth]{image2.png}
-%     \caption{Service et tarification Fireflies.ai}
-%     \label{fig:placeholder}
-% \end{figure}
-
-% % --------------------------------------------------
-
-% \subsubsection{Google (YouTube / Vertex AI)}
-
-% \textbf{Description}  
-% Google propose plusieurs solutions permettant l’analyse de contenus vidéo. YouTube intègre la génération automatique de sous-titres, tandis que Vertex AI et Speech-to-Text permettent la transcription et l’analyse via API.
-
-% \textbf{Fonctionnalités principales}
-% \begin{itemize}
-%     \item Transcription automatique de vidéos
-%     \item Recherche textuelle basique
-%     \item APIs d’analyse audio et vidéo
-% \end{itemize}
-
-% \textbf{Modèle économique}  
-% YouTube est gratuit pour l’utilisateur final, tandis que les APIs Google Cloud sont facturées à l’usage.
-
-% \textbf{Limites}
-% \begin{itemize}
-%     \item Pas de chatbot conversationnel sur le contenu vidéo
-%     \item Solutions fragmentées (plusieurs services à combiner)
-%     \item Mise en place technique complexe
-% \end{itemize}
-
-
-% % --------------------------------------------------
-
-% \subsubsection{OpenAI (ChatGPT / Whisper API)}
-
-% \textbf{Description}  
-% OpenAI propose des modèles de langage et de transcription permettant l’analyse de contenus textuels et audio. ChatGPT permet l’interrogation conversationnelle de documents, tandis que Whisper assure une transcription automatique de haute qualité.
-
-% \textbf{Fonctionnalités principales}
-% \begin{itemize}
-%     \item Transcription audio multilingue
-%     \item Génération de résumés
-%     \item Question-réponse conversationnelle
-% \end{itemize}
-
-% \textbf{Modèle économique}  
-% APIs payantes facturées à l’usage, avec accès gratuit limité via l’interface ChatGPT.
-
-% \textbf{Limites}
-% \begin{itemize}
-%     \item Pas de gestion native de vidéos complètes
-%     \item Absence de pipeline clé-en-main pour l’analyse vidéo
-%     \item Pas d’indexation temporelle automatique
-% \end{itemize}
-
-
-% \begin{table}[H]
-% \centering
-% \renewcommand{\arraystretch}{1.3}
-% \begin{tabular}{|l|c|c|c|c|}
-% \hline
-% \textbf{Solution} & \textbf{Vidéo} & \textbf{Résumé} & \textbf{Chat RAG} & \textbf{Pipeline ouvert} \\
-% \hline
-% Otter.ai & \checkmark & \checkmark & \texttimes & \texttimes \\
-% Fireflies.ai & \checkmark & \checkmark & \texttimes & \texttimes \\
-% Google (YouTube) & \checkmark & \texttimes & \texttimes & \texttimes \\
-% OpenAI (API) & \texttimes & \checkmark & \checkmark & \texttimes \\
-% \textbf{OCULA} & \checkmark & \checkmark & \checkmark & \checkmark \\
-% \hline
-% \end{tabular}
-% \caption{Comparaison fonctionnelle entre OCULA et les solutions existantes}
-% \label{tab:comparison}
-% \end{table}
-
-% % ==================================================
-% \section{Différenciation du projet OCULA}
-
-% Bien que plusieurs applications et plateformes proposent des fonctionnalités proches de celles du projet OCULA, aucune ne couvre l’ensemble du périmètre fonctionnel visé. OCULA se distingue des solutions existantes à plusieurs niveaux, tant sur le plan fonctionnel que technique.
-
-% \subsection{Différence de périmètre fonctionnel}
-
-% Les applications existantes se concentrent généralement sur une seule tâche spécifique, telle que la transcription automatique de réunions, le résumé de documents textuels ou l’édition audio et vidéo. À l’inverse, OCULA adopte une approche globale de l’analyse de contenu vidéo.
-
-% OCULA permet :
-% \begin{itemize}
-%     \item l’upload libre de vidéos, indépendamment de leur source,
-%     \item la transcription automatique du contenu audio,
-%     \item la génération d’un titre et d’un résumé représentatif,
-%     \item l’interrogation conversationnelle du contenu via un chatbot,
-%     \item la recherche d’information contextualisée dans l’ensemble de la vidéo.
-% \end{itemize}
-
-% Cette combinaison de fonctionnalités, appliquée spécifiquement au contenu vidéo, constitue une première différence majeure avec les solutions existantes.
-
-% \subsection{Différence dans l’approche technique}
-
-% Contrairement aux applications commerciales clés-en-main, OCULA repose sur une architecture modulaire et transparente. Le pipeline de traitement est entièrement contrôlé et comprend des étapes explicites de transcription, de segmentation, d’indexation sémantique et de génération de réponses.
-
-% L’utilisation de la \textit{Retrieval-Augmented Generation} (RAG) permet d’ancrer les réponses du chatbot dans le contenu réel de la vidéo, réduisant ainsi les hallucinations des modèles de langage. Cette approche est rarement proposée de manière explicite dans les applications existantes, qui reposent souvent sur des traitements opaques.
-
-% \subsection{Différence par rapport aux APIs et frameworks}
-
-% Des plateformes comme OpenAI ou Google proposent des APIs puissantes pour la transcription, la génération de texte ou l’analyse sémantique. Toutefois, ces solutions fournissent uniquement des briques technologiques et non une application utilisateur complète.
-
-% OCULA se distingue en intégrant ces briques au sein d’une application cohérente, orientée utilisateur final, tout en gérant des problématiques concrètes telles que :
-% \begin{itemize}
-%     \item le stockage de données volumineuses,
-%     \item le traitement asynchrone de tâches longues,
-%     \item la persistance des résultats,
-%     \item l’interaction continue entre l’utilisateur et le contenu analysé.
-% \end{itemize}
-
-% \subsection{Différence en termes de finalité}
-
-% Enfin, OCULA se positionne comme un projet à la fois expérimental et pédagogique. L’objectif n’est pas de concurrencer directement des solutions commerciales existantes, mais de démontrer la faisabilité et l’intérêt d’une architecture complète d’analyse et d’interrogation de contenus vidéo basée sur les technologies actuelles de l’intelligence artificielle.
-
-% Ainsi, OCULA se distingue par son caractère intégratif, sa flexibilité et sa transparence, là où les solutions existantes restent soit partielles, soit fermées, soit orientées vers des usages spécifiques.
-
-% % --------------------------------------------------
-% % ==================================================
-% \section{Justification du choix des modèles}
-
-% Dans le cadre du projet OCULA, le choix des modèles de traitement automatique du langage et de la parole a été guidé par plusieurs critères : qualité des résultats, coût d’utilisation, facilité d’intégration, contrôle du pipeline et adéquation avec un projet académique. Cette section détaille les modèles retenus ainsi que les raisons pour lesquelles certaines alternatives n’ont pas été privilégiées.
-
-% \subsection{Modèle d'embeddings : \path{all-MiniLM-L6-v2}}
-
-% Le modèle \path{sentence-transformers/all-MiniLM-L6-v2} est utilisé pour transformer des phrases en représentations vectorielles numériques. Ces vecteurs sont ensuite exploités pour la recherche sémantique dans le cadre de la méthode \textit{Retrieval-Augmented Generation} (RAG).
-
-% \textbf{Justification du choix}
-% \begin{itemize}
-%     \item Modèle open-source, utilisable localement sans coût d’API.
-%     \item Temps d’inférence réduit, adapté à une exécution sur CPU.
-%     \item Bon compromis entre performance sémantique et légèreté.
-%     \item Large adoption dans les systèmes RAG académiques et industriels.
-% \end{itemize}
-
-% \textbf{Alternatives considérées et limites}
-% \begin{itemize}
-%     \item Modèles plus volumineux (ex. MPNet, BERT large) : performances légèrement supérieures mais coûts computationnels plus élevés.
-%     \item Embeddings via API (OpenAI, Cohere) : qualité élevée mais dépendance à un service externe payant.
-% \end{itemize}
-
-% Ainsi, \path{all-MiniLM-L6-v2} représente un compromis optimal entre coût, performance et simplicité d’intégration.
-
-% % --------------------------------------------------
-
-% \subsection{Modèle de transcription : Whisper}
-
-% Le modèle Whisper est utilisé pour la transcription automatique des pistes audio extraites des vidéos.
-
-% \textbf{Justification du choix}
-% \begin{itemize}
-%     \item Modèle open-source permettant une exécution locale.
-%     \item Très bonne qualité de transcription, même en présence de bruit.
-%     \item Support multilingue natif.
-%     \item Large reconnaissance académique et industrielle.
-% \end{itemize}
-
-% \textbf{Alternatives considérées et limites}
-% \begin{itemize}
-%     \item APIs cloud (Google Speech-to-Text, Azure Speech) : solutions performantes mais facturées à l’usage.
-%     \item Modèles plus légers (Vosk) : coût nul mais qualité inférieure.
-% \end{itemize}
-
-% L’utilisation de Whisper en local permet de réduire les coûts tout en conservant une qualité de transcription élevée, ce qui est particulièrement adapté à un projet académique manipulant des données volumineuses.
-
-% % --------------------------------------------------
-
-% \subsection{Modèle de langage : \path{gpt-oss-120b}}
-
-% Le modèle \path{gpt-oss-120b}, accessible via une API externe fournie par Cerebras, est utilisé pour la compréhension et la génération de texte, notamment pour la génération de résumés et l’interrogation conversationnelle.
-
-% \textbf{Justification du choix}
-% \begin{itemize}
-%     \item Modèle open-source, garantissant une transparence du fonctionnement.
-%     \item Capacités avancées de raisonnement et de génération de texte.
-%     \item Accès via API évitant la gestion d’une infrastructure lourde.
-%     \item Coût inférieur aux grands modèles propriétaires à performances comparables.
-% \end{itemize}
-
-% \textbf{Alternatives considérées et limites}
-% \begin{itemize}
-%     \item Modèles propriétaires (OpenAI, Google) : très bonnes performances mais coûts élevés et dépendance à des services fermés.
-%     \item Modèles open-source auto-hébergés (LLaMA, Mistral) : contrôle total mais besoins matériels importants (GPU).
-% \end{itemize}
-
-% Le choix de \path{gpt-oss-120b} permet ainsi de bénéficier de la puissance d’un grand modèle de langage tout en conservant une approche ouverte et économiquement raisonnable.
-
-
-
-% % --------------------------------------------------
-
-% \subsection{Synthèse des choix}
-
-% La combinaison de modèles locaux pour les tâches intensives en données (embeddings, transcription) et d’un modèle de langage accessible via API pour les tâches de génération permet d’optimiser les coûts tout en garantissant de bonnes performances. Cette approche hybride offre un équilibre pertinent entre contrôle, scalabilité et qualité, en adéquation avec les objectifs du projet OCULA.
-
-
-
+Au-delà de son cadre académique, OCULA présente un potentiel d’industrialisation significatif. 
+La capacité à transformer automatiquement une vidéo en ressource interrogeable et synthétisée répond à un besoin croissant dans de nombreux secteurs.
+
+Plusieurs domaines pourraient bénéficier d’un tel système :
+\begin{itemize}
+    \item plateformes de formation en ligne souhaitant rendre leurs cours plus interactifs,
+    \item entreprises cherchant à valoriser des enregistrements internes (réunions, conférences, webinaires),
+    \item institutions académiques souhaitant indexer des archives audiovisuelles,
+    \item plateformes de diffusion de contenu éducatif ou technique.
+\end{itemize}
+
+Toutefois, le passage d’un prototype académique à un produit industriel impliquerait plusieurs adaptations majeures.
+
+Sur le plan technique, il serait nécessaire de renforcer :
+\begin{itemize}
+    \item la gestion de la montée en charge et la distribution des services,
+    \item la sécurisation des données et la conformité réglementaire,
+    \item l’optimisation des coûts liés aux appels aux modèles de langage externes,
+    \item la supervision continue des performances du système.
+\end{itemize}
+
+Sur le plan fonctionnel, une industrialisation impliquerait également :
+\begin{itemize}
+    \item une amélioration de l’interface utilisateur,
+    \item une personnalisation des paramètres d’analyse,
+    \item une gestion fine des droits d’accès et des rôles,
+    \item une adaptation à différents contextes linguistiques et sectoriels.
+\end{itemize}
+
+Ainsi, OCULA constitue non seulement une démonstration technique cohérente, mais également une base conceptuelle solide pour le développement futur d’outils d’exploration intelligente de contenus vidéo à grande échelle.
 
 \end{document}
