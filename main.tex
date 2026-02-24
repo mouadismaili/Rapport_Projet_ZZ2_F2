@@ -7,6 +7,7 @@
 \usepackage{csquotes}
 \usepackage{biblatex}
 \bibliography{biblio} 
+\usepackage{booktabs}
 \usepackage{minted}
 \usepackage{caption}
 \usepackage{amssymb} % pour \checkmark
@@ -109,15 +110,147 @@
 
 \section{Introduction}
 \subsection{Contexte et motivation}
-\noindent \textit{À compléter.}
+La vidéo est devenue un support dominant pour la diffusion d’information, de formation et de communication. 
+Cours enregistrés, conférences, tutoriels, réunions, contenus éducatifs ou techniques : ces ressources sont riches, mais difficiles à exploiter rapidement lorsqu’elles dépassent quelques minutes. 
+Contrairement au texte, une vidéo ne se \og parcourt \fg{} pas efficacement : retrouver un passage précis, vérifier une information ou synthétiser l’essentiel demande souvent un visionnage long et répétitif.
+
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Situation} & \textbf{Limite actuelle} & \textbf{Conséquence} \\
+\midrule
+Vidéo longue & Navigation linéaire uniquement & Temps de recherche élevé \\
+Transcript brut & Texte non structuré & Difficulté d’exploration \\
+Recherche par mots-clés & Sens non capturé & Résultats incomplets \\
+Absence de synthèse & Pas de résumé automatique & Compréhension globale limitée \\
+Réponses non traçables & Pas de références temporelles & Manque d’explicabilité \\
+\bottomrule
+\end{tabular}
+\caption{Limites de l’exploration vidéo traditionnelle}
+\label{tab:problem-video}
+\end{table}
+Cette difficulté est accentuée par deux constats. 
+D’une part, les métadonnées associées aux vidéos (titre, description, chapitrage) sont souvent incomplètes ou peu fiables. 
+D’autre part, la recherche classique par mots-clés reste limitée : elle dépend fortement des termes exacts utilisés et ne capture pas toujours le sens réel d’une question. 
+Ainsi, même lorsque l’information est présente dans la vidéo, il est fréquent de ne pas pouvoir la retrouver rapidement.
+
+Dans ce contexte, les progrès récents en reconnaissance automatique de la parole et en modèles de langage permettent d’envisager une nouvelle approche : transformer une vidéo en une source interrogeable, où l’utilisateur peut poser des questions en langage naturel et obtenir des réponses contextualisées. 
+L’objectif n’est pas seulement de générer une réponse, mais de fournir un accès plus direct au contenu, tout en gardant une forme de traçabilité (par exemple via des repères temporels) pour faciliter la vérification.
+
+
 \subsection{Problématique}
-\noindent \textit{À compléter.}
+
+Si la transcription automatique permet aujourd’hui de transformer un contenu audio en texte exploitable, elle ne suffit pas à rendre une vidéo réellement intelligible et interrogeable. 
+Un transcript brut représente un volume important de texte non structuré, difficile à synthétiser, à explorer et à exploiter efficacement.
+
+La problématique centrale du projet OCULA peut être formulée ainsi :
+\medskip
+
+
+\noindent\textbf{Comment transformer automatiquement une vidéo longue en une ressource structurée, synthétisée et interrogeable en langage naturel, tout en garantissant des réponses pertinentes et traçables ?}
+\medskip
+
+Cette problématique implique plusieurs dimensions complémentaires :
+
+\begin{itemize}
+    \item générer automatiquement des métadonnées pertinentes (titre et résumé) à partir du contenu réel de la vidéo,
+    \item segmenter et structurer le transcript afin de le rendre exploitable,
+    \item indexer le contenu de manière sémantique et non uniquement lexicale,
+    \item permettre une interaction en langage naturel via un mécanisme de question–réponse,
+    \item garantir l’explicabilité des réponses en fournissant des références temporelles précises.
+\end{itemize}
+
+Le défi consiste donc à concevoir un système combinant reconnaissance automatique de la parole, indexation vectorielle et génération augmentée par récupération (RAG), capable d’assurer un équilibre entre synthèse, pertinence, robustesse et explicabilité.
 \subsection{Objectifs du projet}
-\noindent \textit{À compléter.}
+
+Afin de répondre à la problématique formulée précédemment, le projet OCULA poursuit plusieurs objectifs techniques complémentaires.
+
+\paragraph{1. Automatiser la transformation d’une vidéo en ressource exploitable}
+
+Le système doit être capable de traiter automatiquement une vidéo déposée par un utilisateur, d’en extraire l’audio et de produire une transcription fiable à l’aide d’un modèle de reconnaissance automatique de la parole.
+
+\paragraph{2. Enrichir automatiquement les métadonnées}
+
+À partir de la transcription complète, OCULA doit générer un titre pertinent et un résumé synthétique reflétant fidèlement le contenu réel de la vidéo. 
+Ces éléments visent à améliorer la compréhension globale et l’accessibilité du contenu.
+
+\paragraph{3. Structurer et indexer le contenu de manière sémantique}
+
+Le transcript doit être segmenté en unités cohérentes, converties en représentations vectorielles et indexées dans une base de données adaptée à la recherche sémantique. 
+L’objectif est de permettre une récupération efficace des passages pertinents en fonction du sens de la question posée.
+
+\paragraph{4. Permettre une interaction en langage naturel}
+
+OCULA doit offrir un mécanisme de question–réponse permettant à l’utilisateur d’interroger le contenu d’une vidéo en langage naturel. 
+Les réponses générées doivent être contextualisées et basées uniquement sur les informations présentes dans la vidéo.
+
+\paragraph{5. Garantir la traçabilité et l’explicabilité}
+
+Chaque réponse produite doit être accompagnée de références temporelles précises, permettant à l’utilisateur de vérifier l’origine des informations dans la vidéo. 
+L’explicabilité constitue ainsi une exigence centrale du système.
+
+\paragraph{6. Concevoir une architecture robuste et modulaire}
+
+Enfin, le projet vise à mettre en place une architecture distribuée séparant clairement frontend, backend et service IA, tout en assurant la robustesse du traitement asynchrone et la gestion explicite des états du pipeline.
+
 \subsection{Périmètre et hypothèses}
-\noindent \textit{À compléter.}
+
+Le projet OCULA s’inscrit dans un cadre fonctionnel clairement défini, avec des choix techniques assumés et des limites explicites.
+
+\paragraph{Périmètre fonctionnel}
+
+OCULA traite des vidéos déposées par des utilisateurs authentifiés et repose principalement sur l’analyse du contenu audio. 
+Le système permet :
+
+\begin{itemize}
+    \item la transcription automatique de la piste video,
+    \item la génération d’un titre et d’un résumé à partir du transcript,
+    \item l’indexation sémantique du contenu textuel,
+    \item l’interrogation de la vidéo via un mécanisme de question–réponse basé sur le transcript.
+\end{itemize}
+
+Le système ne réalise pas d’analyse visuelle avancée (reconnaissance d’objets, analyse d’images frame-by-frame ou OCR), et ne prend pas en compte les éléments purement visuels non exprimés oralement.
+
+\paragraph{Hypothèses techniques}
+
+Le fonctionnement d’OCULA repose sur plusieurs hypothèses :
+
+\begin{itemize}
+    \item la qualité de la transcription est suffisante pour permettre une indexation sémantique pertinente ;
+    \item les réponses générées doivent exclusivement s’appuyer sur le contenu fourni dans le contexte RAG ;
+    \item le modèle de langage externe ne dispose pas d’accès direct aux bases de données ;
+    \item la charge utilisateur reste compatible avec une architecture microservices non distribuée à grande échelle.
+\end{itemize}
+
+\paragraph{Limites actuelles}
+
+Certaines limites sont identifiées dans le périmètre actuel :
+
+\begin{itemize}
+    \item absence de traitement multimodal (audio + image),
+    \item absence de fine-tuning spécifique du modèle de langage,
+\end{itemize}
+
+Ces éléments constituent des pistes d’évolution futures mais ne font pas partie du périmètre initial du projet.
 \subsection{Organisation du rapport}
-\noindent \textit{À compléter.}
+
+Le présent rapport est structuré de manière progressive afin de présenter successivement le cadre théorique, les choix de conception, l’implémentation et l’évaluation du système OCULA.
+
+Le chapitre 2 décrit l’organisation du projet et la méthodologie adoptée, en détaillant la répartition des responsabilités, la planification et les choix d’ingénierie collaborative.
+
+Le chapitre 3 présente l’état de l’art et les fondements théoriques mobilisés, notamment en reconnaissance automatique de la parole, en représentations vectorielles et en génération augmentée par récupération (RAG).
+
+Le chapitre 4 expose les spécifications et la conception du système, en mettant en évidence l’architecture globale ainsi que le modèle de données retenu.
+
+Le chapitre 5 détaille l’implémentation technique, incluant le frontend, le backend et le service IA, ainsi que les mécanismes internes du pipeline de traitement.
+
+Le chapitre 6 analyse les résultats obtenus à travers une évaluation qualitative et quantitative du système.
+
+Le chapitre 7 aborde les considérations de sécurité, de confidentialité et les aspects éthiques liés à l’utilisation des modèles d’intelligence artificielle.
+
+Enfin, le chapitre 8 conclut le rapport et présente les perspectives d’évolution du projet.
 \section{Organisation et gestion du projet}
 
 Le projet OCULA, développé sur une durée de \textbf{quatre semaines}, s'est appuyé sur une organisation collaborative où chaque membre de l'équipe a participé à tous les domaines d'expertise (frontend, backend, service IA). Cette approche holistique a permis à chacun d'acquérir une compréhension globale du système et de contribuer à l'émergence d'une architecture cohérente. Cette section décrit les processus mis en place pour coordonner l'équipe, planifier les tâches et gérer les risques inhérents à un projet combinant plusieurs technologies.
