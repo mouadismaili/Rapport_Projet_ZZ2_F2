@@ -2241,162 +2241,67 @@ L’utilisation de contenus dans l’application Ocula doit respecter certaines 
 L’utilisation de l’application Ocula est strictement encadrée afin de garantir un usage responsable et éthique. Il est notamment interdit de téléverser, diffuser ou partager des contenus inappropriés, tels que ceux portant contenant des propos violents, haineux, discriminatoires ou illégaux.
 
 \section{Conclusion et perspectives}
-\noindent \textit{À compléter.}
 
 \subsection{Bilan du projet}
-\noindent \textit{À compléter.}
+
+Le projet OCULA avait pour ambition de transformer une vidéo en une ressource intelligemment exploitable. 
+Au-delà de la simple transcription automatique, l’objectif était de concevoir un système capable de structurer, synthétiser et rendre interrogeable un contenu vidéo en langage naturel.
+
+Les résultats obtenus démontrent la faisabilité de cette approche. 
+Le système permet aujourd’hui :
+\begin{itemize}
+    \item la transcription automatique d’une vidéo via un modèle de reconnaissance vocale,
+    \item la génération automatique d’un titre et d’un résumé cohérents,
+    \item l’indexation sémantique du transcript via des embeddings vectoriels,
+    \item l’interrogation contextualisée du contenu grâce à un mécanisme RAG,
+    \item la restitution de réponses accompagnées de références temporelles explicites.
+\end{itemize}
+
+D’un point de vue pédagogique et technique, le projet a permis de consolider des compétences en architecture microservices, traitement asynchrone, intégration de modèles d’intelligence artificielle, recherche vectorielle et conception de pipelines robustes et explicables.
 
 \subsection{Améliorations techniques possibles}
-\noindent \textit{À compléter.}
 
-\subsubsection{Optimisation de la recherche semantique}
-\noindent \textit{À compléter.}
+Bien que fonctionnel, le système peut être amélioré sur plusieurs axes afin d’en accroître la performance, la robustesse et les capacités.
 
 \subsubsection{Streaming transcription}
-\noindent \textit{À compléter.}
 
-\subsubsection{Amélioration de la segmentation (chunking adaptatif)}
-\noindent \textit{À compléter.}
+Actuellement, la transcription est réalisée de manière batch après l’upload complet de la vidéo. 
+Une évolution naturelle consisterait à intégrer un mécanisme de transcription en streaming, permettant d’indexer progressivement le contenu pendant le traitement. 
+Cela réduirait la latence perçue par l’utilisateur et ouvrirait la voie à une interrogation quasi temps réel.
 
-\subsubsection{Analyse de video frame par frame}
-\noindent \textit{À compléter.}
+\subsubsection{Analyse de vidéo frame par frame}
+
+Le périmètre actuel repose exclusivement sur le contenu audio. 
+L’intégration d’une analyse visuelle (détection d’objets, OCR, reconnaissance d’éléments graphiques) permettrait d’exploiter les informations présentes uniquement à l’écran. 
+Une approche multimodale combinant audio et image améliorerait significativement la richesse du système.
 
 \subsubsection{Infrastructure}
-\noindent \textit{À compléter.}
+
+L’architecture actuelle repose sur une séparation frontend/backend/service IA adaptée à un contexte académique. 
+Pour un déploiement à plus grande échelle, plusieurs optimisations seraient envisageables :
+\begin{itemize}
+    \item distribution de la base vectorielle,
+    \item mise en cache des requêtes fréquentes,
+    \item orchestration via conteneurisation avancée,
+    \item surveillance et métriques centralisées.
+\end{itemize}
+
+Ces améliorations renforceraient la scalabilité et la résilience du système.
 
 \subsection{Ouverture produit : industrialisation}
-\noindent \textit{À compléter.}
 
+Au-delà de son cadre académique, OCULA présente un potentiel d’industrialisation important. 
+Un tel système pourrait être appliqué à des plateformes de formation en ligne, à la gestion de conférences enregistrées, à la documentation d’entreprise ou encore à l’archivage intelligent de contenus audiovisuels.
 
+Une industrialisation impliquerait :
+\begin{itemize}
+    \item un renforcement des mécanismes de sécurité et de conformité,
+    \item une gestion fine des coûts liés aux appels aux modèles externes,
+    \item une optimisation de la performance et de la latence,
+    \item une amélioration continue des modèles et des paramètres RAG.
+\end{itemize}
 
-% \section{État de l'art}
-
-% Cette section présente les principales applications et plateformes existantes proposant des fonctionnalités proches de celles du projet OCULA. Pour chaque concurrent, sont analysés les services proposés, le modèle économique ainsi que les principales limitations.
-
-%
-% % ==================================================
-% \section{Différenciation du projet OCULA}
-
-% Bien que plusieurs applications et plateformes proposent des fonctionnalités proches de celles du projet OCULA, aucune ne couvre l’ensemble du périmètre fonctionnel visé. OCULA se distingue des solutions existantes à plusieurs niveaux, tant sur le plan fonctionnel que technique.
-
-% \subsection{Différence de périmètre fonctionnel}
-
-% Les applications existantes se concentrent généralement sur une seule tâche spécifique, telle que la transcription automatique de réunions, le résumé de documents textuels ou l’édition audio et vidéo. À l’inverse, OCULA adopte une approche globale de l’analyse de contenu vidéo.
-
-% OCULA permet :
-% \begin{itemize}
-%     \item l’upload libre de vidéos, indépendamment de leur source,
-%     \item la transcription automatique du contenu audio,
-%     \item la génération d’un titre et d’un résumé représentatif,
-%     \item l’interrogation conversationnelle du contenu via un chatbot,
-%     \item la recherche d’information contextualisée dans l’ensemble de la vidéo.
-% \end{itemize}
-
-% Cette combinaison de fonctionnalités, appliquée spécifiquement au contenu vidéo, constitue une première différence majeure avec les solutions existantes.
-
-% \subsection{Différence dans l’approche technique}
-
-% Contrairement aux applications commerciales clés-en-main, OCULA repose sur une architecture modulaire et transparente. Le pipeline de traitement est entièrement contrôlé et comprend des étapes explicites de transcription, de segmentation, d’indexation sémantique et de génération de réponses.
-
-% L’utilisation de la \textit{Retrieval-Augmented Generation} (RAG) permet d’ancrer les réponses du chatbot dans le contenu réel de la vidéo, réduisant ainsi les hallucinations des modèles de langage. Cette approche est rarement proposée de manière explicite dans les applications existantes, qui reposent souvent sur des traitements opaques.
-
-% \subsection{Différence par rapport aux APIs et frameworks}
-
-% Des plateformes comme OpenAI ou Google proposent des APIs puissantes pour la transcription, la génération de texte ou l’analyse sémantique. Toutefois, ces solutions fournissent uniquement des briques technologiques et non une application utilisateur complète.
-
-% OCULA se distingue en intégrant ces briques au sein d’une application cohérente, orientée utilisateur final, tout en gérant des problématiques concrètes telles que :
-% \begin{itemize}
-%     \item le stockage de données volumineuses,
-%     \item le traitement asynchrone de tâches longues,
-%     \item la persistance des résultats,
-%     \item l’interaction continue entre l’utilisateur et le contenu analysé.
-% \end{itemize}
-
-% \subsection{Différence en termes de finalité}
-
-% Enfin, OCULA se positionne comme un projet à la fois expérimental et pédagogique. L’objectif n’est pas de concurrencer directement des solutions commerciales existantes, mais de démontrer la faisabilité et l’intérêt d’une architecture complète d’analyse et d’interrogation de contenus vidéo basée sur les technologies actuelles de l’intelligence artificielle.
-
-% Ainsi, OCULA se distingue par son caractère intégratif, sa flexibilité et sa transparence, là où les solutions existantes restent soit partielles, soit fermées, soit orientées vers des usages spécifiques.
-
-% % --------------------------------------------------
-% % ==================================================
-% \section{Justification du choix des modèles}
-
-% Dans le cadre du projet OCULA, le choix des modèles de traitement automatique du langage et de la parole a été guidé par plusieurs critères : qualité des résultats, coût d’utilisation, facilité d’intégration, contrôle du pipeline et adéquation avec un projet académique. Cette section détaille les modèles retenus ainsi que les raisons pour lesquelles certaines alternatives n’ont pas été privilégiées.
-
-% \subsection{Modèle d'embeddings : \path{all-MiniLM-L6-v2}}
-
-% Le modèle \path{sentence-transformers/all-MiniLM-L6-v2} est utilisé pour transformer des phrases en représentations vectorielles numériques. Ces vecteurs sont ensuite exploités pour la recherche sémantique dans le cadre de la méthode \textit{Retrieval-Augmented Generation} (RAG).
-
-% \textbf{Justification du choix}
-% \begin{itemize}
-%     \item Modèle open-source, utilisable localement sans coût d’API.
-%     \item Temps d’inférence réduit, adapté à une exécution sur CPU.
-%     \item Bon compromis entre performance sémantique et légèreté.
-%     \item Large adoption dans les systèmes RAG académiques et industriels.
-% \end{itemize}
-
-% \textbf{Alternatives considérées et limites}
-% \begin{itemize}
-%     \item Modèles plus volumineux (ex. MPNet, BERT large) : performances légèrement supérieures mais coûts computationnels plus élevés.
-%     \item Embeddings via API (OpenAI, Cohere) : qualité élevée mais dépendance à un service externe payant.
-% \end{itemize}
-
-% Ainsi, \path{all-MiniLM-L6-v2} représente un compromis optimal entre coût, performance et simplicité d’intégration.
-
-% % --------------------------------------------------
-
-% \subsection{Modèle de transcription : Whisper}
-
-% Le modèle Whisper est utilisé pour la transcription automatique des pistes audio extraites des vidéos.
-
-% \textbf{Justification du choix}
-% \begin{itemize}
-%     \item Modèle open-source permettant une exécution locale.
-%     \item Très bonne qualité de transcription, même en présence de bruit.
-%     \item Support multilingue natif.
-%     \item Large reconnaissance académique et industrielle.
-% \end{itemize}
-
-% \textbf{Alternatives considérées et limites}
-% \begin{itemize}
-%     \item APIs cloud (Google Speech-to-Text, Azure Speech) : solutions performantes mais facturées à l’usage.
-%     \item Modèles plus légers (Vosk) : coût nul mais qualité inférieure.
-% \end{itemize}
-
-% L’utilisation de Whisper en local permet de réduire les coûts tout en conservant une qualité de transcription élevée, ce qui est particulièrement adapté à un projet académique manipulant des données volumineuses.
-
-% % --------------------------------------------------
-
-% \subsection{Modèle de langage : \path{gpt-oss-120b}}
-
-% Le modèle \path{gpt-oss-120b}, accessible via une API externe fournie par Cerebras, est utilisé pour la compréhension et la génération de texte, notamment pour la génération de résumés et l’interrogation conversationnelle.
-
-% \textbf{Justification du choix}
-% \begin{itemize}
-%     \item Modèle open-source, garantissant une transparence du fonctionnement.
-%     \item Capacités avancées de raisonnement et de génération de texte.
-%     \item Accès via API évitant la gestion d’une infrastructure lourde.
-%     \item Coût inférieur aux grands modèles propriétaires à performances comparables.
-% \end{itemize}
-
-% \textbf{Alternatives considérées et limites}
-% \begin{itemize}
-%     \item Modèles propriétaires (OpenAI, Google) : très bonnes performances mais coûts élevés et dépendance à des services fermés.
-%     \item Modèles open-source auto-hébergés (LLaMA, Mistral) : contrôle total mais besoins matériels importants (GPU).
-% \end{itemize}
-
-% Le choix de \path{gpt-oss-120b} permet ainsi de bénéficier de la puissance d’un grand modèle de langage tout en conservant une approche ouverte et économiquement raisonnable.
-
-
-
-% % --------------------------------------------------
-
-% \subsection{Synthèse des choix}
-
-% La combinaison de modèles locaux pour les tâches intensives en données (embeddings, transcription) et d’un modèle de langage accessible via API pour les tâches de génération permet d’optimiser les coûts tout en garantissant de bonnes performances. Cette approche hybride offre un équilibre pertinent entre contrôle, scalabilité et qualité, en adéquation avec les objectifs du projet OCULA.
-
-
+Ainsi, OCULA constitue non seulement une démonstration technique cohérente, mais également une base solide pour le développement futur d’outils d’exploration intelligente de contenus vidéo à grande échelle.
 
 
 \end{document}
