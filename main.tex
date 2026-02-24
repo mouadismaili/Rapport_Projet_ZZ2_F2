@@ -89,25 +89,95 @@
 
 %----------- Informations du rapport ---------
 
-
-\titre{OCULA} %Titre du fichier .pdf
-\UE{\textbf{Projet ZZ2 F2}} %Nom de la UE
-\enseignant{Loïc \textsc{Yon}} %Nom de l'enseignant
-\eleves{Mouad \textsc{Ismaili M'hamdi} \\
-{Brahim \textsc{Id Benouakrim}}\\
-{Achraf \textsc{El Allali}}
- } %Nom des élèves
+\titre{OCULA}
+\UE{\textbf{Projet ZZ2 F2}}
+\sujet{Application Web Full-Stack pour l’Analyse Intelligente des Contenus Vidéo}
+\enseignant{Loïc \textsc{Yon}}
+\eleves{
+Mouad \textsc{Ismaili M'hamdi} \\
+Brahim \textsc{Id Benouakrim} \\
+Achraf \textsc{El Allali}
+}
 
 %----------- Initialisation -------------------
-        
-\fairemarges %Afficher les marges
-\fairepagedegarde %Créer la page de gard
-\tabledematieres %Créer la table de matières
+
+\fairemarges
+\fairepagedegarde
+\clearpage
+
+%----------- Résumé (FR) ----------------------
+
+%----------- Résumé (FR) ----------------------
+\section*{Résumé}
+\addcontentsline{toc}{section}{Résumé}
+
+OCULA est une application web full-stack permettant de transformer automatiquement une vidéo en une ressource intelligemment exploitable. 
+Le système s’appuie sur un frontend Angular et un backend Java Spring Boot, complétés par un microservice IA en Flask orchestrant un pipeline de traitement incluant transcription automatique, génération de titre et de résumé, indexation sémantique et question–réponse en langage naturel via un mécanisme Retrieval-Augmented Generation (RAG).
+
+Après l’upload d’une vidéo, le contenu est stocké en stockage objet, puis l’audio est transcrit et segmenté. 
+Les segments sont découpés en chunks, vectorisés à l’aide d’un modèle d’embeddings, puis indexés dans une base vectorielle afin de permettre une recherche sémantique par vidéo. 
+Lorsqu’un utilisateur pose une question, le service IA récupère les passages pertinents, construit un contexte contraint et interroge un modèle de langage externe pour générer une réponse. 
+Les réponses sont accompagnées de références temporelles afin d’assurer traçabilité et explicabilité.
+
+Cette architecture distribuée, intégrant traitement asynchrone et gestion d’état explicite, démontre l’intérêt de combiner ASR, recherche vectorielle et génération augmentée par récupération pour l’exploration intelligente de contenus vidéo.
+
+\bigskip
+\noindent\textbf{Mots-clés :}
+Application web full-stack,
+Angular,
+Spring Boot,
+Java,
+Microservice Flask,
+Reconnaissance automatique de la parole (ASR),
+Transcription audio–texte,
+Embeddings,
+Recherche sémantique,
+Indexation vectorielle,
+Retrieval-Augmented Generation (RAG),
+Modèles de langage (LLM),
+Explicabilité (citations temporelles),
+Traitement asynchrone,
+Architecture microservices.
+\clearpage
+
+%----------- Abstract (EN) ----------------------
+\section*{Abstract}
+\addcontentsline{toc}{section}{Abstract}
+
+OCULA is a full-stack web application designed to turn a video into an intelligently exploitable resource.
+It relies on an Angular frontend and a Java Spring Boot backend, complemented by a Flask-based AI microservice that orchestrates a processing pipeline including automatic transcription, title and summary generation, semantic indexing, and natural language question answering through a Retrieval-Augmented Generation (RAG) approach.
+
+After a video is uploaded, the content is stored in object storage, then the audio is transcribed and segmented.
+Segments are split into coherent text chunks, embedded using a sentence embedding model, and indexed in a vector database to enable per-video semantic retrieval.
+When a user asks a question, the AI service retrieves the most relevant passages, builds a constrained context, and queries an external language model to generate an answer.
+Responses include temporal references to ensure traceability and explainability.
+
+This distributed architecture, combining asynchronous processing and explicit state management, demonstrates the value of integrating ASR, vector search, and retrieval-augmented generation for intelligent exploration of video content.
+
+\bigskip
+\noindent\textbf{Keywords:}
+Full-stack web application,
+Angular,
+Spring Boot,
+Java,
+Flask microservice,
+Automatic Speech Recognition (ASR),
+Audio-to-Text Transcription,
+Embeddings,
+Semantic Search,
+Vector Indexing,
+Retrieval-Augmented Generation (RAG),
+Large Language Models (LLM),
+Explainability (temporal citations),
+Asynchronous Processing,
+Microservices Architecture.
+\clearpage
+
+%----------- Table des matières ----------------
+
+\tabledematieres
 
 %------------ Corps du rapport ----------------
-
-
-
 \section{Introduction}
 \subsection{Contexte et motivation}
 La vidéo est devenue un support dominant pour la diffusion d’information, de formation et de communication. 
@@ -1973,11 +2043,10 @@ Ce Dockerfile permet d'exécuter la partie IA d'Ocula. Il utilise une image de P
 
 Ce Dockerfile sert à construire et lancer le frontend de l’application. Il utilise d’abord Node.js pour installer les dépendances du projet, puis il utilise Nginx pour servir les fichiers générés. Enfin, il expose le port 80 et démarre le serveur Nginx pour rendre l’application accessible.
 
-\section{Évaluation et résultats}
 
-\subsection{Protocole de test}
+\section{Protocole de test}
 
-\subsubsection{Jeu de vidéos utilisé}
+\subsection{Jeu de vidéos utilisé}
 Notre application accepte plusieurs formats vidéo couramment utilisés, notamment : MP4, MOV, AVI, WebM et MKV. Cette diversité permet d’assurer la compatibilité avec la majorité des sources vidéo utilisées par les utilisateurs.
 
 La taille maximale des vidéos a été fixée à 150~Mo afin de garantir le bon fonctionnement du système. Cette limite permet de respecter les contraintes du stockage Azure Blob Storage, de maintenir des performances acceptables lors des traitements IA exécutés en local (transcription, embeddings), 
@@ -1992,7 +2061,7 @@ Le jeu de test comprenait des vidéos présentant des caractéristiques variées
 	\item divers domaines de contenu
 \end{itemize}
 
-\subsubsection{Scénarios de test}
+\subsection{Scénarios de test} 
 
 \paragraph{Test d'importation de vidéo}
 
@@ -2021,17 +2090,6 @@ Il consiste à lancer l’analyse d’une vidéo et à vérifier les étapes sui
 	\item mise à jour progressive des statuts de traitement jusqu’à COMPLETED.
 \end{itemize}
 
-\subsection{Discussion}
-\noindent \textit{À compléter.}
-
-\subsubsection{Limites observées}
-\noindent \textit{À compléter.}
-
-\subsubsection{Risques et biais potentiels}
-\noindent \textit{À compléter.}
-
-\subsubsection{Comparaison : RAG vs LLM seul}
-\noindent \textit{À compléter.}
 
 \section{Conformité et considérations éthiques}
 
