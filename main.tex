@@ -1,4 +1,4 @@
-﻿\documentclass{rapportECL}
+\documentclass{rapportECL}
 \usepackage{listings}
 \usepackage{lipsum}
 \usepackage{gensymb}
@@ -442,12 +442,135 @@ L'équipe a réussi à transformer la plupart des difficultés en opportunités 
 \end{figure}
 
 \section{État de l'art et fondements théoriques}
-\subsection{Analyse de contenu vidéo : enjeux et défis}
-\noindent \textit{À compléter.}
-\subsubsection{Données non structurées et difficulté d'indexation}
-\noindent \textit{À compléter.}
-\subsubsection{Contraintes de latence, coût et confidentialité}
-\noindent \textit{À compléter.}
+
+\subsection{Analyse des solutions existantes}
+
+\subsubsection{Otter.ai}
+
+\textbf{Description} \\
+Otter.ai est une application spécialisée dans la transcription automatique de contenus audio et vidéo, principalement orientée vers les réunions professionnelles. Elle propose également des résumés automatiques et une recherche textuelle dans les transcriptions.
+
+\textbf{Fonctionnalités principales}
+\begin{itemize}
+    \item Transcription automatique en temps réel ou différé
+	\item Résumé automatique de réunions
+	\item Recherche par mots-clés dans les transcriptions
+\end{itemize}
+
+\textbf{Modèle économique}  
+Solution freemium avec des fonctionnalités avancées accessibles uniquement via abonnement payant.
+
+\textbf{Limites}
+\begin{itemize}
+	\item Orienté réunions, peu adapté aux vidéos longues génériques
+	\item Absence de chatbot conversationnel basé sur RAG
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{images/otter.png}
+	\caption{Page tarification de Otter.ai}
+	\label{fig:otter}
+\end{figure}
+
+\subsubsection{Fireflies.ai}
+
+\textbf{Description} \\  
+Fireflies.ai est un outil d’analyse automatique de réunions intégrant transcription, résumé et recherche. Il s’intègre directement à des plateformes de visioconférence.
+
+\textbf{Fonctionnalités principales}
+\begin{itemize}
+    \item Transcription automatique de réunions
+	\item Résumés et points clés
+	\item Recherche dans les conversations
+\end{itemize}
+
+\textbf{Modèle économique}  
+Service payant avec abonnement mensuel.
+
+\textbf{Limites}
+\begin{itemize}
+    \item Fortement dépendant des outils de visioconférence
+    \item Pas conçu pour l’analyse libre de fichiers vidéo
+	\item Absence d’interrogation conversationnelle avancée
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+    \includegraphics[width=\linewidth]{images/fireflies.png}
+    \caption{Service et tarification Fireflies.ai}
+    \label{fig:placeholder}
+\end{figure}
+
+
+\subsubsection{Google (YouTube / Vertex AI)}
+
+\textbf{Description}  
+Google propose plusieurs solutions permettant l’analyse de contenus vidéo. YouTube intègre la génération automatique de sous-titres, tandis que Vertex AI et Speech-to-Text permettent la transcription et l’analyse via API.
+
+\textbf{Fonctionnalités principales}
+\begin{itemize}
+    \item Transcription automatique de vidéos
+	\item Recherche textuelle basique
+	\item APIs d’analyse audio et vidéo
+\end{itemize}
+
+\textbf{Modèle économique}  
+YouTube est gratuit pour l’utilisateur final, tandis que les APIs Google Cloud sont facturées à l’usage.
+
+\textbf{Limites}
+\begin{itemize}
+    \item Pas de chatbot conversationnel sur le contenu vidéo
+	\item Solutions fragmentées (plusieurs services à combiner)
+	\item Mise en place technique complexe
+\end{itemize}
+
+
+\subsubsection{OpenAI (ChatGPT / Whisper API)}
+
+\textbf{Description}  
+OpenAI propose des modèles de langage et de transcription permettant l’analyse de contenus textuels et audio. ChatGPT permet l’interrogation conversationnelle de documents, tandis que Whisper assure une transcription automatique de haute qualité.
+
+\textbf{Fonctionnalités principales}
+\begin{itemize}
+    \item Transcription audio multilingue
+	\item Génération de résumés
+	\item Question-réponse conversationnelle
+\end{itemize}
+
+\textbf{Modèle économique}  
+APIs payantes facturées à l’usage, avec accès gratuit limité via l’interface ChatGPT.
+
+\textbf{Limites}
+\begin{itemize}
+	\item Pas de gestion native de vidéos complètes
+	\item Absence de pipeline clé-en-main pour l’analyse vidéo
+	\item Pas d’indexation temporelle automatique
+\end{itemize}
+
+Bien que plusieurs applications et plateformes proposent des fonctionnalités proches
+de celles du projet OCULA, aucune ne couvre l’ensemble du périmètre fonctionnel visé.
+OCULA se distingue des solutions existantes à plusieurs niveaux, tant sur le plan fonctionnel
+que technique.
+
+\begin{table}[H]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{|l|c|c|c|}
+		\hline
+		\textbf{Solution} & \textbf{Vidéo} & \textbf{Résumé} & \textbf{Chat RAG} \\
+		\hline
+		Otter.ai & \checkmark & \checkmark & \texttimes \\
+		Fireflies.ai & \checkmark & \checkmark & \texttimes \\
+		Google (YouTube) & \checkmark & \texttimes & \texttimes \\
+		OpenAI (API) & \texttimes & \checkmark & \checkmark \\
+		\textbf{OCULA} & \checkmark & \checkmark & \checkmark \\
+		\hline
+	\end{tabular}
+	\caption{Comparaison fonctionnelle entre OCULA et les solutions existantes}
+	\label{tab:comparison}
+\end{table}
+
 
 \subsection{Reconnaissance automatique de la parole (ASR)}
 ASR (automatic speech recognition) est une technologie qui convertit le langage parlé en texte écrit. Elle traite les signaux audio, identifie les modèles de parole et les transcrit en texte avec une grande précision.
@@ -1760,135 +1883,7 @@ Ce Dockerfile sert à construire et lancer le frontend de l’application. Il ut
 
 % Cette section présente les principales applications et plateformes existantes proposant des fonctionnalités proches de celles du projet OCULA. Pour chaque concurrent, sont analysés les services proposés, le modèle économique ainsi que les principales limitations.
 
-% \subsection{Analyse des solutions existantes}
-
-% \subsubsection{Otter.ai}
-
-% \textbf{Description} \\
-% Otter.ai est une application spécialisée dans la transcription automatique de contenus audio et vidéo, principalement orientée vers les réunions professionnelles. Elle propose également des résumés automatiques et une recherche textuelle dans les transcriptions.
-
-% \textbf{Fonctionnalités principales}
-% \begin{itemize}
-%     \item Transcription automatique en temps réel ou différé
-%     \item Résumé automatique de réunions
-%     \item Recherche par mots-clés dans les transcriptions
-% \end{itemize}
-
-% \textbf{Modèle économique}  
-% Solution freemium avec des fonctionnalités avancées accessibles uniquement via abonnement payant.
-
-% \textbf{Limites}
-% \begin{itemize}
-%     \item Orienté réunions, peu adapté aux vidéos longues génériques
-%     \item Absence de chatbot conversationnel basé sur RAG
-%     \item Pipeline de traitement fermé et non personnalisable
-% \end{itemize}
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=\linewidth]{image.png}
-%     \caption{Page tarification de Otter.ai}
-%     \label{fig:otter}
-% \end{figure}
-% ---------------------------------------
-
-% \subsubsection{Fireflies.ai}
-
-% \textbf{Description} \\  
-% Fireflies.ai est un outil d’analyse automatique de réunions intégrant transcription, résumé et recherche. Il s’intègre directement à des plateformes de visioconférence.
-
-% \textbf{Fonctionnalités principales}
-% \begin{itemize}
-%     \item Transcription automatique de réunions
-%     \item Résumés et points clés
-%     \item Recherche dans les conversations
-% \end{itemize}
-
-% \textbf{Modèle économique}  
-% Service payant avec abonnement mensuel.
-
-% \textbf{Limites}
-% \begin{itemize}
-%     \item Fortement dépendant des outils de visioconférence
-%     \item Pas conçu pour l’analyse libre de fichiers vidéo
-%     \item Absence d’interrogation conversationnelle avancée
-% \end{itemize}
-
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=\linewidth]{image2.png}
-%     \caption{Service et tarification Fireflies.ai}
-%     \label{fig:placeholder}
-% \end{figure}
-
-% % --------------------------------------------------
-
-% \subsubsection{Google (YouTube / Vertex AI)}
-
-% \textbf{Description}  
-% Google propose plusieurs solutions permettant l’analyse de contenus vidéo. YouTube intègre la génération automatique de sous-titres, tandis que Vertex AI et Speech-to-Text permettent la transcription et l’analyse via API.
-
-% \textbf{Fonctionnalités principales}
-% \begin{itemize}
-%     \item Transcription automatique de vidéos
-%     \item Recherche textuelle basique
-%     \item APIs d’analyse audio et vidéo
-% \end{itemize}
-
-% \textbf{Modèle économique}  
-% YouTube est gratuit pour l’utilisateur final, tandis que les APIs Google Cloud sont facturées à l’usage.
-
-% \textbf{Limites}
-% \begin{itemize}
-%     \item Pas de chatbot conversationnel sur le contenu vidéo
-%     \item Solutions fragmentées (plusieurs services à combiner)
-%     \item Mise en place technique complexe
-% \end{itemize}
-
-
-% % --------------------------------------------------
-
-% \subsubsection{OpenAI (ChatGPT / Whisper API)}
-
-% \textbf{Description}  
-% OpenAI propose des modèles de langage et de transcription permettant l’analyse de contenus textuels et audio. ChatGPT permet l’interrogation conversationnelle de documents, tandis que Whisper assure une transcription automatique de haute qualité.
-
-% \textbf{Fonctionnalités principales}
-% \begin{itemize}
-%     \item Transcription audio multilingue
-%     \item Génération de résumés
-%     \item Question-réponse conversationnelle
-% \end{itemize}
-
-% \textbf{Modèle économique}  
-% APIs payantes facturées à l’usage, avec accès gratuit limité via l’interface ChatGPT.
-
-% \textbf{Limites}
-% \begin{itemize}
-%     \item Pas de gestion native de vidéos complètes
-%     \item Absence de pipeline clé-en-main pour l’analyse vidéo
-%     \item Pas d’indexation temporelle automatique
-% \end{itemize}
-
-
-% \begin{table}[H]
-% \centering
-% \renewcommand{\arraystretch}{1.3}
-% \begin{tabular}{|l|c|c|c|c|}
-% \hline
-% \textbf{Solution} & \textbf{Vidéo} & \textbf{Résumé} & \textbf{Chat RAG} & \textbf{Pipeline ouvert} \\
-% \hline
-% Otter.ai & \checkmark & \checkmark & \texttimes & \texttimes \\
-% Fireflies.ai & \checkmark & \checkmark & \texttimes & \texttimes \\
-% Google (YouTube) & \checkmark & \texttimes & \texttimes & \texttimes \\
-% OpenAI (API) & \texttimes & \checkmark & \checkmark & \texttimes \\
-% \textbf{OCULA} & \checkmark & \checkmark & \checkmark & \checkmark \\
-% \hline
-% \end{tabular}
-% \caption{Comparaison fonctionnelle entre OCULA et les solutions existantes}
-% \label{tab:comparison}
-% \end{table}
-
+%
 % % ==================================================
 % \section{Différenciation du projet OCULA}
 
