@@ -88,6 +88,7 @@
 
 %----------- Informations du rapport ---------
 
+
 \titre{OCULA} %Titre du fichier .pdf
 \UE{\textbf{Projet ZZ2 F2}} %Nom de la UE
 \enseignant{Loïc \textsc{Yon}} %Nom de l'enseignant
@@ -837,7 +838,7 @@ Pour la \textbf{persistance des données}, nous avons choisi \textbf{PostgreSQL}
 \subsection{Conception}
 \subsubsection{Modèle conceptuel et logique}
 
-Le modèle conceptuel d’OCULA est structuré autour de l’entité \textit{Video}, qui constitue le cœur fonctionnel du système. Bien que l’application soit multi-utilisateur, l’ensemble du cycle de traitement IA est vidéo-centré : les opérations d’analyse, de transcription, de génération d’embeddings et de question–réponse s’appuient systématiquement sur l’identifiant \path{video\_id}.
+Le modèle conceptuel d’OCULA est structuré autour de l’entité \textit{Video}, qui constitue le cœur fonctionnel du système. Bien que l’application soit multi-utilisateur, l’ensemble du cycle de traitement IA est vidéo-centré : les opérations d’analyse, de transcription, de génération d’embeddings et de question–réponse s’appuient systématiquement sur l’identifiant \path{video\id}.
 Ainsi, l’entité \textit{User} possède les vidéos, mais c’est la \textit{Video} qui orchestre le pipeline métier.
 
 \begin{figure}[H]
@@ -945,7 +946,7 @@ Cette représentation vectorielle permet de comparer la question de l’utilisat
 \textbf{3. Organisation dans la base vectorielle}
 
 Les embeddings sont stockés dans ChromaDB selon une organisation par vidéo. 
-Pour chaque vidéo, une collection dédiée (\path{video\_<video\_id>}) est utilisée ou créée lors de l’initialisation du flux d’indexation.
+Pour chaque vidéo, une collection dédiée (\path{video\<video\id>}) est utilisée ou créée lors de l’initialisation du flux d’indexation.
 
 Chaque document vectoriel contient :
 
@@ -953,7 +954,7 @@ Chaque document vectoriel contient :
 
     \item le texte du chunk,
     \item l’embedding associé,
-    \item des métadonnées : \path{video\_id}, \path{start\_time}, \path{end\_time}.
+    \item des métadonnées : \path{video\id}, \path{start\time}, \path{end\time}.
 \end{itemize}
 \begin{figure}[H]
     \centering
@@ -978,7 +979,7 @@ Cette organisation garantit :
     \item une correspondance directe entre passage récupéré et intervalle temporel.
 \end{itemize}
 
-Le modèle relationnel assure la cohérence transactionnelle des données métier, tandis que la couche vectorielle optimise la récupération contextuelle pour le RAG ; les deux couches sont donc complémentaires et synchronisées par \path{video\_id}.
+Le modèle relationnel assure la cohérence transactionnelle des données métier, tandis que la couche vectorielle optimise la récupération contextuelle pour le RAG ; les deux couches sont donc complémentaires et synchronisées par \path{video\id}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{images/rag_pipeline_matrix.png}
@@ -1026,7 +1027,7 @@ Ce choix permet :
 
 Les embeddings générés à partir des chunks sont stockés dans une base vectorielle dédiée (ChromaDB).
 
-Chaque vidéo dispose d’une collection nommée \path{video\_<video\_id>}. 
+Chaque vidéo dispose d’une collection nommée \path{video\<video\id>}. 
 
 Cette organisation assure :
 
@@ -1047,7 +1048,7 @@ Cette organisation assure :
 \medskip
 
 Le modèle relationnel assure la cohérence des données métier, le stockage objet prend en charge les contenus binaires via des clés d’objet, et la base vectorielle optimise la récupération sémantique pour le RAG. 
-Ces trois couches sont complémentaires et interconnectées principalement par \path{video\_id} (et \path{user\_id} pour les ressources utilisateur). 
+Ces trois couches sont complémentaires et interconnectées principalement par \path{video\id} (et \path{user\id} pour les ressources utilisateur). 
 \medskip
 
 La conception présentée précédemment définit la structure logique et la stratégie de persistance du système. 
@@ -1391,13 +1392,16 @@ Concrètement, son utilisation dans le service IA couvre :
     \item \textbf{Embeddings} : la classe \path{HuggingFaceEmbeddings} 
     charge le modèle \path{sentence-transformers/all-MiniLM-L6-v2} afin de vectoriser les chunks avant leur stockage dans ChromaDB.
     
-    \item \textbf{Base vectorielle} : \path{langchain\_chroma.Chroma} sert d’interface avec ChromaDB pour l’ajout de documents (\path{add\_documents}) et la recherche par similarité (\path{similarity\_search\_with\_score}).
+    \item \textbf{Base vectorielle} : \path{langchain\chroma.Chroma} sert d’interface avec ChromaDB pour l’ajout de documents (\path{add_documents}) et la recherche par similarité (\path{similarity_search_with_score}).
     
     \item \textbf{Prompting et chaining} : les différents prompts (titre, résumé, réécriture, RAG) sont définis via \path{PromptTemplate} et exécutés sous forme de pipeline :
-    \begin{verbatim}
-prompt | llm | StrOutputParser()
-    \end{verbatim}
-    
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.82\textwidth]{images/langchain-prompt-chain.png}
+    \caption{Pipeline LangChain de prompting et chaining}
+    \label{fig:langchain-prompt-chain}
+    \end{figure}
+
     \item \textbf{Appel au LLM} : \path{ChatCerebras} permet d’interagir avec le modèle externe \path{gpt-oss-120b} pour la génération du titre, du résumé et des réponses RAG.
 \end{itemize}
 
@@ -1463,8 +1467,8 @@ def processing_task(video_id, object_key):
     pass
 \end{lstlisting}
 
-La vidéo est d’abord téléchargée depuis Azure Blob Storage à l’aide de sa clé d’objet (\path{object\_key}) vers un fichier temporaire local. 
-La transcription est ensuite effectuée via \path{whisper\_model.transcribe}, qui retourne :
+La vidéo est d’abord téléchargée depuis Azure Blob Storage à l’aide de sa clé d’objet (\path{object\key}) vers un fichier temporaire local. 
+La transcription est ensuite effectuée via \path{whisper\model.transcribe}, qui retourne :
 
 \begin{itemize}
     \item un texte global (\path{text}),
@@ -1487,8 +1491,8 @@ Le découpage en chunks est réalisé sur le texte complet issu de Whisper (\pat
 Cependant, pour préserver la traçabilité temporelle, chaque chunk doit être associé à un intervalle \path{[start, end]} exploitable comme source dans l’interface.
 
 Pour cela, le service construit d’abord une correspondance (\textit{segment\_map}) entre la progression en caractères dans le texte global et les segments Whisper. 
-Chaque segment est représenté par une borne \path{end\_char} et ses timestamps \path{start/end}. 
-Ensuite, pour chaque chunk extrait, sa position \path{[chunk\_start, chunk\_end]} dans le texte global est retrouvée, puis convertie en timestamps en recherchant les segments couvrant ces bornes.
+Chaque segment est représenté par une borne \path{end\char} et ses timestamps \path{start/end}. 
+Ensuite, pour chaque chunk extrait, sa position \path{[chunk\start, chunk\end]} dans le texte global est retrouvée, puis convertie en timestamps en recherchant les segments couvrant ces bornes.
 
 Cette approche permet d’associer à chaque chunk un intervalle temporel cohérent, tout en conservant un découpage textuel adapté au retrieval.
 \begin{lstlisting}[language=Python, caption={Découpage en chunks avec reconstruction des timestamps}, label={lst:chunk-video-transcript}]
@@ -1556,7 +1560,7 @@ Le service IA utilise le modèle \path{sentence-transformers/all-MiniLM-L6-v2}, 
 \paragraph{Initialisation du modèle d'embedding}
 
 Le modèle d’embedding est chargé une seule fois à l’initialisation du service IA, afin d’éviter une surcharge à chaque requête. 
-Dans l’implémentation actuelle, les embeddings ne sont pas normalisés lors de l’encodage (\path{normalize\_embeddings=False}), et l’exécution est configurée sur CPU.
+Dans l’implémentation actuelle, les embeddings ne sont pas normalisés lors de l’encodage (\path{normalize\embeddings=False}), et l’exécution est configurée sur CPU.
 
 
 \begin{lstlisting}[language=Python, caption={Initialisation du modèle d'embedding}, label={lst:embed-model-init}]
@@ -1577,7 +1581,7 @@ embed_model = HuggingFaceEmbeddings(
 \paragraph{Construction des documents vectoriels}
 
 Chaque chunk est encapsulé dans un objet \path{Document} (LangChain) contenant :
-(i) le texte du chunk (\path{page\_content}), et (ii) les métadonnées nécessaires à la traçabilité : \path{video\_id}, \path{start\_time} et \path{end\_time}. 
+(i) le texte du chunk (\path{page\content}), et (ii) les métadonnées nécessaires à la traçabilité : \path{video\id}, \path{start\time} et \path{end\time}. 
 Ces métadonnées permettent notamment de restituer des sources temporelles associées aux réponses du chatbot.
 
 \begin{lstlisting}[language=Python, caption={Création des documents avec métadonnées}, label={lst:doc-metadata}]
@@ -1596,8 +1600,8 @@ doc = Document(
 
 \paragraph{Indexation dans ChromaDB}
 
-Les documents vectoriels sont stockés dans ChromaDB via l’interface \path{langchain\_chroma.Chroma}. 
-L’indexation est organisée par vidéo : chaque vidéo possède une collection dédiée nommée \path{video\_<video\_id>}. 
+Les documents vectoriels sont stockés dans ChromaDB via l’interface \path{langchain\chroma.Chroma}. 
+L’indexation est organisée par vidéo : chaque vidéo possède une collection dédiée nommée \path{video\<video\id>}. 
 Cette stratégie limite le bruit inter-vidéos et garantit que la recherche sémantique effectuée lors du chat reste strictement associée à la vidéo consultée.
 
 \begin{lstlisting}[language=Python, caption={Indexation des documents dans une collection Chroma dédiée}, label={lst:chroma-index}]
@@ -1627,8 +1631,187 @@ embed_script(video_id, chunks)
 
 Ainsi, à l’issue du traitement, chaque vidéo est associée à une collection Chroma contenant les chunks vectorisés et leurs métadonnées temporelles, base nécessaire au retrieval utilisé dans la phase RAG.
 
-\subsubsection{RAG : retrieval et construction du prompt}
-\noindent \textit{À compléter.}
+\subsubsection{RAG : retrieval, filtrage et construction du contexte}
+
+Le mécanisme RAG (Retrieval-Augmented Generation) constitue le cœur du système de question–réponse. 
+Il permet de générer une réponse contextualisée à partir des chunks précédemment indexés dans ChromaDB.
+
+\paragraph{Réécriture optionnelle de la requête}
+
+Avant la phase de retrieval, le service IA peut appliquer une réécriture de la question utilisateur via la fonction \texttt{rewrite\_query}. 
+Cette étape est activée uniquement si le paramètre \texttt{RAG\_ENABLE\_QUERY\_REWRITE} est positionné à \texttt{True}.
+
+L’objectif est d’améliorer la qualité du retrieval en reformulant la question sous une forme plus descriptive ou plus adaptée à la recherche sémantique.
+
+Afin de garantir un comportement stable, plusieurs contraintes sont appliquées :
+\begin{itemize}
+    \item normalisation sur une seule ligne (suppression des retours multiples),
+    \item limitation de la longueur via \texttt{RAG\_QUERY\_REWRITE\_MAX\_CHARS},
+    \item retour à la question originale en cas d’échec ou de sortie vide.
+\end{itemize}
+
+Cette étape constitue une optimisation contrôlée du pipeline et n’altère jamais la requête initiale en cas d’erreur.
+\paragraph{Retrieval vectoriel et filtrage par distance}
+
+La recherche est effectuée exclusivement dans la collection associée à la vidéo (\texttt{video\_<video\_id>}) afin de garantir l’isolation des contenus.
+
+\begin{lstlisting}[language=Python, caption={Retrieval et filtrage par distance}, label={lst:rag-core}]
+vector_store = Chroma(
+    client=ai_models.db_client,
+    collection_name=f"video_{video_id}",
+    embedding_function=ai_models.embed_model
+)
+
+doc_scores = vector_store.similarity_search_with_score(
+    retrieval_question,
+    k=RAG_TOP_K
+)
+
+filtered = [
+    (doc, distance)
+    for doc, distance in doc_scores
+    if float(distance) <= RAG_MAX_DISTANCE
+]
+
+if not filtered:
+    fallback_count = max(1, min(RAG_FALLBACK_TOP_K, len(doc_scores)))
+    filtered = doc_scores[:fallback_count]
+\end{lstlisting}
+
+Le score retourné est traité comme une \textbf{distance} : plus la distance est faible, plus le document est pertinent.  
+Un seuil configurable (\texttt{RAG\_MAX\_DISTANCE}) permet d’exclure les passages trop éloignés sémantiquement. 
+En l’absence de résultat satisfaisant, un mécanisme de repli conserve les meilleurs éléments du top-k initial.
+
+\paragraph{Reranking hybride lexical et sémantique}
+
+Après la phase de retrieval initiale, le service IA peut appliquer un mécanisme de reranking via la fonction \texttt{rerank\_context}, si le paramètre \texttt{RAG\_ENABLE\_RERANK} est activé.
+
+Contrairement à une simple sélection par distance, cette étape combine deux signaux complémentaires :
+
+\begin{itemize}
+    \item \textbf{Similarité sémantique} : dérivée de la distance retournée par Chroma, transformée en score via la formule $1 / (1 + distance)$. Cette transformation garantit une valeur comprise dans $(0,1]$, où une distance faible produit une similarité élevée.
+    
+    \item \textbf{Recouvrement lexical} : proportion de termes communs entre la question et le contenu du chunk. Les tokens sont extraits via une tokenisation par expression régulière, avec suppression d’un ensemble de stopwords (anglais et français).
+\end{itemize}
+
+Le score final est calculé comme une combinaison pondérée :
+
+\[
+\text{score}_{final} =
+\alpha \cdot \text{similarité}_{sémantique}
++
+(1-\alpha) \cdot \text{recouvrement}_{lexical}
+\]
+
+où $\alpha$ correspond au paramètre \texttt{RAG\_RERANK\_SEMANTIC\_WEIGHT}.
+
+Les documents sont ensuite triés par score décroissant et seuls les \texttt{RAG\_RERANK\_TOP\_N} meilleurs passages sont conservés.
+
+Cette approche hybride permet de corriger certaines limites du retrieval purement vectoriel, notamment lorsque la similarité sémantique ne capture pas explicitement des mots-clés importants présents dans la question.
+
+
+
+
+\paragraph{Construction du contexte}
+
+Après le reranking éventuel, les documents retenus sont transformés en un contexte structuré via la fonction \texttt{format\_context}.
+Chaque chunk est préfixé par une balise temporelle stable.
+
+\begin{lstlisting}[language=Python, caption={Construction du contexte annoté}]
+def format_context(doc_scores):
+    parts = []
+    sources = []
+
+    for doc, score in doc_scores:
+        metadata = doc.metadata or {}
+        start = round(float(metadata.get("start_time", 0)), 2)
+        end = round(float(metadata.get("end_time", 0)), 2)
+        text = doc.page_content or ""
+
+        parts.append(f"[{start}-{end}] {text}")
+        sources.append({
+            "start_time": start,
+            "end_time": end,
+            "text": text,
+            "score": float(score)
+        })
+
+    return "\n\n".join(parts), sources
+\end{lstlisting}
+
+Les timestamps sont arrondis afin de garantir un format stable, facilitant la détection ultérieure des citations.
+\paragraph{Appel au modèle de langage}
+
+Le contexte ainsi construit est injecté dans le prompt RAG via une chaîne LangChain.
+
+\begin{lstlisting}[language=Python, caption={Génération de la réponse via LangChain}]
+chain = rag_prompt | ai_models.llm | StrOutputParser()
+
+answer = chain.invoke({
+    "question": question,
+    "context": context_text
+})
+\end{lstlisting}
+
+Le modèle reçoit la question originale ainsi que le contexte concaténé issu des chunks sélectionnés.
+\paragraph{Validation des citations et filtrage des sources}
+
+Après génération, deux post-traitements garantissent la cohérence et l’explicabilité du système.
+
+\begin{lstlisting}[language=Python, caption={Insertion automatique de citations}]
+answer = ensure_citations(answer, sources)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python, caption={Filtrage des sources réellement utilisées}]
+used_sources = filter_sources_by_answer(answer, sources)
+\end{lstlisting}
+
+Si aucun contexte exploitable n’est disponible, la réponse de repli est :
+
+\begin{lstlisting}[language=Python]
+if not context_text:
+    return {
+        "answer": "I don't have enough context from this video yet.",
+        "sources": []
+    }
+\end{lstlisting}
+
+La réponse finale retournée au backend contient \texttt{answer} et \texttt{sources}, encapsulés ensuite dans un objet \texttt{AskMessageResponse}.
+
+La structure retournée par le service IA contient donc la réponse générée ainsi que la liste des sources associées. 
+Le backend encapsule ensuite cette réponse dans un objet \texttt{AskMessageResponse} transmis au frontend.
+
+\medskip
+
+Le comportement du pipeline RAG repose sur un ensemble de paramètres configurables permettant d’ajuster finement la stratégie de récupération, de filtrage et de reranking. 
+Ces paramètres sont définis au niveau du service IA et peuvent être adaptés selon les besoins en précision, robustesse ou performance.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|l|c|l|}
+\hline
+Paramètre & Type & Rôle \\
+\hline
+RAG\_TOP\_K & int & Nombre initial de passages récupérés \\
+RAG\_MAX\_DISTANCE & float & Seuil maximal de distance acceptable \\
+RAG\_FALLBACK\_TOP\_K & int & Nombre conservé si seuil trop strict \\
+RAG\_ENABLE\_QUERY\_REWRITE & bool & Activation réécriture requête \\
+RAG\_ENABLE\_RERANK & bool & Activation reranking \\
+RAG\_RERANK\_SEMANTIC\_WEIGHT & float & Pondération sémantique \\
+RAG\_RERANK\_TOP\_N & int & Nombre final de passages retenus \\
+\hline
+\end{tabular}
+\caption{Paramètres configurables du pipeline RAG}
+\label{tab:rag-parameters-final}
+\end{table}
+
+Cette paramétrisation offre une flexibilité importante mais introduit également certaines limites. 
+En particulier, le reranking lexical repose sur une tokenisation simple basée sur des expressions régulières. 
+Cette approche reste sensible aux variations linguistiques, aux synonymes et aux différences morphologiques, ce qui constitue une limite identifiée du mécanisme hybride.
+
+
+
+
 
 \subsubsection{Appel au LLM externe et post-traitements}
 \noindent \textit{À compléter.}
