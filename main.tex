@@ -1293,14 +1293,20 @@ Le schéma suivant synthétise le scénario métier principal après l'upload d'
 \noindent Cette page centralise les actions de gestion du compte utilisateur, notamment la mise à jour du profil, de l’adresse e-mail et du mot de passe.
 
 \subsection{Backend : API Spring Boot}
-
-Le backend d'OCULA est une API REST basée sur Spring Boot, responsable de l'orchestration transactionnelle du système, de la gestion des données métier et de la coordination avec les services externes (stockage objet, service IA). Il garantit l'intégrité des entités, l'authentification des utilisateurs et la notification en temps réel via WebSocket.
-
 \subsubsection{Organisation en couches}
 
-L'architecture du backend suit le pattern classique stratifié, où chaque couche assume une responsabilité bien définie et interagit explicitement avec ses voisines. Cette séparation des responsabilités offre plusieurs avantages : testabilité accrue (chaque couche peut être testée indépendamment), évolutivité (modification d'une couche sans impact sur les autres) et maintenabilité (logique métier centralisée).
+L'architecture du backend suit le pattern classique stratifié, où chaque couche assume une responsabilité bien définie et interagit explicitement avec ses voisines.
 
 \paragraph{Structure des couches}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.98\linewidth]{images/Architecture technique du backend.png}
+\caption{Architecture en couches du backend OCULA}
+\label{fig:backend-architecture}
+\end{figure}
+
+\noindent Comme l'illustre la figure~\ref{fig:backend-architecture}, l'architecture en couches du backend segmente les responsabilités en quatre niveaux distincts qui sont:
 
 \begin{itemize}
     \item \textbf{Couche présentation (Controllers)} : expose les endpoints REST et gère la sérialisation HTTP. Elle valide les paramètres entrants, délègue aux services et retourne les réponses formatées. Elle n'applique pas de logique métier complexe.
@@ -1316,42 +1322,14 @@ L'architecture du backend suit le pattern classique stratifié, où chaque couch
 
 Cette organisation garantit une cohérence comportementale : la logique de validation ou d'autorisation n'est jamais dupliquée entre contrôleurs et services, et les repositories évitent les requêtes ad hoc parsemées dans le code applicatif. En cas de changement de base de données ou de technologie de persistence, seule la couche Repository est affectée.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.98\linewidth]{images/Architecture technique du backend.png}
-\caption{Architecture en couches du backend OCULA}
-\label{fig:backend-architecture}
-\end{figure}
+
 
 \subsubsection{Gestion des entités}
 
 Le modèle de données d'OCULA repose sur quatre entités principales structurant les domaines clés : utilisateurs, vidéos, transcriptions et conversations. Chaque entité est persistée en base relationnelle via JPA et possède des responsibilities explicites dans le cycle de traitement des vidéos.
 
-\paragraph{Entités principales et cardinalités}
+\paragraph{Entités principales}
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[
-    entity/.style={draw, rectangle, rounded corners=4pt, minimum width=2.2cm, minimum height=0.7cm, font=\bfseries, fill=blue!8, line width=1.5pt},
-    relation/.style={-latex, thick, line width=1.2pt},
-    label/.style={font=\normalsize}
-]
-
-% Entités
-\node[entity] (user) at (0,2) {User};
-\node[entity] (video) at (3.5,2) {Video};
-\node[entity] (transcript) at (3.5,0) {VideoTranscript};
-\node[entity] (message) at (7,2) {Message};
-
-% Relations
-\draw[relation] (user.east) -- (video.west) node[midway, above, label]{0:N};
-\draw[relation] (video.south) -- (transcript.north) node[midway, right, label]{1:N};
-\draw[relation] (video.east) -- (message.west) node[midway, above, label]{1:N};
-
-\end{tikzpicture}
-\caption{Vue simplifiée des entités du domaine métier OCULA}
-\label{fig:domain-entities-simple}
-\end{figure}
 
 \noindent \textit{Les attributs détaillés de chaque entité et le diagramme complet du modèle de classes sont présentés à la section \hyperref[fig:domain-model]{Conception}.}
 
@@ -1387,7 +1365,7 @@ Le modèle de données d'OCULA repose sur quatre entités principales structuran
 \end{minipage}\hfill
 \begin{minipage}[t]{0.62\textwidth}
 \vspace{0pt}
-Représente un utilisateur authentifié du système. Identifiée par un UUID, elle stocke les identifiants de connexion (email, mot de passe haché via BCrypt), le profil (prénom, nom) et optionnellement un avatar. L'email est unique et obligatoire. La relation \texttt{1:N} vers Video impose une cascade de suppression : supprimer un utilisateur supprime automatiquement toutes ses vidéos et épargne les opérations d'orphelinat. L'entité implémente \texttt{UserDetails} de Spring Security, fournissant les informations nécessaires à l'authentification.
+Représente un utilisateur authentifié du système. Identifiée par un UUID, elle stocke les identifiants de connexion (email, mot de passe haché), le profil (prénom, nom) et optionnellement un avatar. L'entité implémente \texttt{UserDetails} de Spring Security, fournissant les informations nécessaires à l'authentification.
 \end{minipage}
 
 \vspace{0.5cm}
@@ -1423,7 +1401,7 @@ Représente un utilisateur authentifié du système. Identifiée par un UUID, el
 \end{minipage}\hfill
 \begin{minipage}[t]{0.62\textwidth}
 \vspace{0pt}
-Entité centrale du système, modélisant une vidéo téléversée. Elle maintient des références vers ses ressources binaires (contenu vidéo, miniature) via des URLs ou clés de stockage objet, et inclut les métadonnées générées ou éditées (titre, résumé). Le champ \texttt{status} (énumération : PENDING, PROCESSING, COMPLETED, FAILED) orchestre explicitement le cycle de vie asynchrone du traitement IA. Cela permet au frontend de suivre l'avancement sans polling continu. Le champ \texttt{duration} capture la durée en secondes, essentiel pour les opérations de découpage temporel. Le timestamp \texttt{uploadedAt} est automatiquement défini à la création via \texttt{@CreationTimestamp}.
+Entité centrale du système, modélisant une vidéo téléversée. Elle maintient des références vers ses ressources (contenu vidéo, miniature) via des URLs ou clés de stockage objet, et inclut les métadonnées générées ou éditées (titre, résumé). Le champ \texttt{status} (énumération : PENDING, PROCESSING, COMPLETED, FAILED) orchestre explicitement le cycle de vie asynchrone du traitement IA. Cela permet au frontend de suivre l'avancement sans polling continu. Le champ \texttt{duration} capture la durée en secondes, essentiel pour les opérations de découpage temporel. Le timestamp \texttt{uploadedAt} est automatiquement défini à la création.
 \end{minipage}
 
 \vspace{0.5cm}
@@ -1499,98 +1477,68 @@ Les endpoints REST d'OCULA sont organisés par domaine fonctionnel. Chaque group
 \begin{enumerate}
     \item \textbf{Authentification} (\textit{/auth})
     \begin{itemize}
-        \item \texttt{POST /auth/signup} -- Inscription. Accepte email, mot de passe et données profil. Retourne l'utilisateur persisté (200 OK) ou erreur 409 si email déjà enregistré.
-        \item \texttt{POST /auth/login} -- Connexion. Accepte email et mot de passe. Retourne JWT, durée d'expiration et infos utilisateur (200 OK) ou 401 en cas de credentials invalides.
+        \item[\textbullet] \textbf{POST}
+        \begin{itemize}
+            \item \texttt{POST /auth/signup} -- Inscription. Accepte email, mot de passe et données profil. Retourne l'utilisateur persisté ou erreur si email déjà enregistré.
+            \item \texttt{POST /auth/login} -- Connexion. Accepte email et mot de passe. Retourne JWT, durée d'expiration et infos utilisateur ou erreur en cas de credentials invalides.
+        \end{itemize}
     \end{itemize}
 
     \item \textbf{Gestion des vidéos} (\textit{/videos})
     \begin{itemize}
-        \item \texttt{POST /videos/upload} -- Upload. Accepte fichier vidéo, miniature, titre, résumé et ID utilisateur. Crée les clés blob, stocke les fichiers, crée l'entité Video en base (statut PENDING), retourne VideoDto (200 OK) ou 400/401 en cas d'erreur.
-        \item \texttt{GET /videos/\{id\}} -- Lecture. Retourne les détails d'une vidéo (200 OK) ou 404 si absent.
-        \item \texttt{GET /videos/page/\{userId\}} -- Liste paginée. Retourne un Page<VideoDto> (200 OK). Paramètres de query: page, size, sort.
-        \item \texttt{PUT /videos/update/\{id\}} -- Mise à jour. Modifie titre, résumé ou avatar. Format multipart. Retourne VideoDto (200 OK) ou 404.
-        \item \texttt{POST /videos/process/\{id\}} -- Déclenchement IA. Enclenche le pipeline de transcription asynchrone via le service Flask. Retourne statut de la tâche (202 Accepted) ou 404.
-        \item \texttt{PUT /videos/update/status/\{id\}} -- Mise à jour de statut (interne). Endpoint appelé par le service IA pour signaler l'avancement (PROCESSING, COMPLETED, FAILED). Déclenche notification WebSocket. 200 OK ou 404.
+        \item[\textbullet] \textbf{POST}
+        \begin{itemize}
+            \item \texttt{POST /videos/upload} -- Upload. Accepte fichier vidéo, miniature, titre, résumé et ID utilisateur. Crée les clés blob, stocke les fichiers, crée l'entité Video en base (statut PENDING), retourne les détails de la vidéo créée ou erreur.
+            \item \texttt{POST /videos/process/\{id\}} -- Déclenchement IA. Enclenche le pipeline de transcription asynchrone via le service Flask. Retourne le statut de la tâche.
+        \end{itemize}
+        \item[\textbullet] \textbf{GET}
+        \begin{itemize}
+            \item \texttt{GET /videos/\{id\}} -- Lecture. Retourne les détails d'une vidéo ou erreur si absent.
+            \item \texttt{GET /videos/page/\{userId\}} -- Récupère la liste paginée des vidéos d'un utilisateur.
+        \end{itemize}
+        \item[\textbullet] \textbf{PUT}
+        \begin{itemize}
+            \item \texttt{PUT /videos/update/\{id\}} -- Mise à jour. Modifie titre, résumé ou avatar. Format multipart. Retourne les détails actualisés de la vidéo ou erreur.
+            \item \texttt{PUT /videos/update/status/\{id\}} -- Mise à jour de statut (interne). Endpoint appelé par le service IA pour signaler l'avancement (PROCESSING, COMPLETED, FAILED). Déclenche notification WebSocket.
+        \end{itemize}
     \end{itemize}
 
     \item \textbf{Transcripts} (\textit{/video-transcripts})
     \begin{itemize}
-        \item \texttt{POST /video-transcripts} -- Persistance segment. Accepte videoId, startTime, endTime, transcriptText. Retourne l'entité créée (201 Created) ou 400 en cas de validation échouée (ex : endTime < startTime).
+        \item[\textbullet] \textbf{POST}
+        \begin{itemize}
+            \item \texttt{POST /video-transcripts} -- Persistance segment. Retourne l'entité créée ou erreur en cas de validation échouée (ex : endTime < startTime).
+        \end{itemize}
     \end{itemize}
 
     \item \textbf{Messages (Chatbot)} (\textit{/messages})
     \begin{itemize}
-        \item \texttt{GET /messages/page/\{videoId\}} -- Historique paginé. Retourne les messages d'une vidéo. Paramètres de query : page, size. 200 OK ou 404 si vidéo absente.
-        \item \texttt{POST /messages} -- Envoi message (future amélioration, actuellement géré par le service IA via callbacks).
+        \item[\textbullet] \textbf{GET}
+        \begin{itemize}
+            \item \texttt{GET /messages/page/\{videoId\}} -- Historique paginé. Retourne les messages d'une vidéo. Erreur si vidéo absente.
+        \end{itemize}
+        \item[\textbullet] \textbf{POST}
+        \begin{itemize}
+            \item \texttt{POST /messages} -- Envoi message.
+        \end{itemize}
     \end{itemize}
 
     \item \textbf{Stockage objet} (\textit{/files})
     \begin{itemize}
-        \item \texttt{GET /files/get-url?key=...} -- Génération d'URL signée. Accepte la clé blob, retourne une URL sécurisée (200 OK). La clé est généralement au format \texttt{userId/videos/...} ou \texttt{userId/thumbnails/...}.
+        \item[\textbullet] \textbf{GET}
+        \begin{itemize}
+            \item \texttt{GET /files/get-url?key=...} -- Génération d'URL signée. Accepte la clé blob, retourne une URL sécurisée.
+        \end{itemize}
     \end{itemize}
 
     \item \textbf{Utilisateurs} (\textit{/users})
     \begin{itemize}
-        \item \texttt{PUT /users/update/\{id\}} -- Profil. Mise à jour prénom, nom, email, mot de passe, avatar. Accepte multipart/form-data. Validation : email doit être unique (409 si collision), mot de passe doit respecter contraintes (min 8 caractères). Retourne UserDto (200 OK) ou 400/409/404.
+        \item[\textbullet] \textbf{PUT}
+        \begin{itemize}
+            \item \texttt{PUT /users/update/\{id\}} -- Profil. Mise à jour prénom, nom, email, mot de passe, avatar. Accepte multipart/form-data. Validation : email doit être unique, mot de passe doit respecter contraintes (min 8 caractères). Retourne les informations actualisées de l'utilisateur ou erreur.
+        \end{itemize}
     \end{itemize}
 \end{enumerate}
-
-\paragraph{Exemple d'endpoint représentatif : POST /videos/upload}
-
-\begin{lstlisting}[language=Java, caption={Endpoint d'upload vidéo avec validation},label={lst:endpoint-upload}]
-@PostMapping("/upload")
-public ResponseEntity<VideoDto> createVideoWithUpload(
-        @RequestParam("video") MultipartFile video,
-        @RequestParam("thumbnail") MultipartFile thumbnail,
-        @RequestParam("title") String title,
-        @RequestParam("summary") String summary,
-        @RequestParam("userId") UUID userId,
-        @RequestParam("duration") String durationSeconds) 
-            throws IOException, UserNotFoundException {
-    
-    Duration duration = Duration.ofSeconds(Long.parseLong(durationSeconds));
-    String videoKey = userId + "/videos/" + UUID.randomUUID();
-    String thumbnailKey = userId + "/thumbnails/" + UUID.randomUUID();
-    
-    blobStorageService.uploadFile(videoKey, video.getInputStream(), video.getSize());
-    blobStorageService.uploadFile(thumbnailKey, thumbnail.getInputStream(), thumbnail.getSize());
-    
-    VideoDto createdVideo = videoService.createVideoWithUpload(
-        videoKey, thumbnailKey, title, summary, userId, duration);
-
-    return ResponseEntity.ok(createdVideo);
-}
-\end{lstlisting}
-
-Cet endpoint orchestre le flux : réception du fichier multipart, stockage en objet, création de l'enregistrement métier. Le service valide l'existence de l'utilisateur et génère les clés blob de manière sécurisée.
-
-\paragraph{Exemple d'endpoint : POST /auth/login}
-
-\begin{lstlisting}[language=Java, caption={Endpoint d'authentification retournant JWT},label={lst:endpoint-login}]
-@PostMapping("/login")
-public ResponseEntity<LoginResponse> authenticate(
-        @Valid @RequestBody LoginUserDto loginUserDto) 
-            throws InvalidParamsException {
-    
-    User authenticatedUser = authenticationService.authenticate(loginUserDto);
-    String jwtToken = jwtService.generateToken(authenticatedUser);
-    
-    LoginResponse loginResponse = new LoginResponse();
-    loginResponse.setToken(jwtToken);
-    loginResponse.setExpiresIn(jwtService.getExpirationTime());
-    loginResponse.setUserInfo(new UserInfo(
-        authenticatedUser.getId(),
-        authenticatedUser.getAvatar(),
-        authenticatedUser.getFirstName(),
-        authenticatedUser.getLastName(),
-        authenticatedUser.getEmail()
-    ));
-
-    return ResponseEntity.ok(loginResponse);
-}
-\end{lstlisting}
-
-Le service d'authentification (\textit{AuthenticationService}) effectue la vérification du mot de passe. En cas d'erreur, une exception \textit{InvalidParamsException} est levée et mappée à 401 Unauthorized par le gestionnaire global d'exceptions.
 
 \subsubsection{Sécurité : authentification et autorisation}
 
@@ -1603,99 +1551,287 @@ La chaîne de sécurité du backend repose sur deux mécanismes complémentaires
 \label{fig:backend-security-chain}
 \end{figure}
 
-\noindent \textit{À développer -- Stratégie JWT stateless, filtres de sécurité, gestion des tokens, certificats et rotations.}
+\noindent Cette figure montre le flux de sécurité appliqué à chaque requête entrante. Comme l'illustre la figure~\ref{fig:backend-security-chain}, la chaîne de sécurité du backend implémente une stratégie de défense en profondeur avec deux sentinelles : validation de route, puis authentification (clé API interne ou JWT utilisateur). Chaque requête entrante est d'abord validée pour confirmer que la route cible existe. Si la route est publique (e.g., \path{/auth/signup}, \path{/auth/login}), la requête est directement acheminée vers le contrôleur approprié. En revanche, si la route est protégée, le système vérifie d'abord la présence d'une clé API interne (utilisée par le service IA pour les callbacks d'avancement). Si cette clé n'est pas valide, la requête est soumise à une vérification JWT : le token JWT fourni par le client est validé et décodé pour extraire l'identité utilisateur. Si le token est invalide ou expiré, une réponse 401 Unauthorized est retournée. Cette architecture garantit l'isolation sécurisée des appels machine-à-machine (backend $\leftrightarrow$ service IA) et protège les ressources utilisateur contre les accès non authentifiés.
 
-\subsubsection{Extraits de code importants}
+\paragraph{Autorisation et isolation des ressources \\}
 
-Cette section illustre les patterns clés du backend à travers des exemples courts et commentés.
+Au-delà de l'authentification, le backend implémente un contrôle d'accès granulaire basé sur l'\textbf{ownership}. Chaque ressource métier (vidéos, transcriptions, messages) est explicitement liée à un utilisateur propriétaire. Avant de retourner une ressource, le système effectue une \textbf{vérification d'appartenance} : il s'assure que l'identité utilisateur extraite du JWT correspond au propriétaire de la ressource demandée.
 
-\paragraph{Repository JPA typé}
+\subsubsection{Extraits de code importants des services}
 
-\begin{lstlisting}[language=Java, caption={Repository JPA pour accès aux vidéos},label={lst:repo-video}]
-@Repository
-public interface VideoRepository extends JpaRepository<Video, UUID> {
-    Optional<Video> findByTitle(String title);
-    
-    Page<Video> findAllByUserId(UUID userId, Pageable pageable);
+Cette section présente les implémentations clés des services backend qui constituent le cœur fonctionnel de l'application OCULA.
+
+\paragraph{Service d'authentification et gestion de tokens JWT \\}
+
+Le service JWT génère et valide les tokens d'authentification, permettant les sessions sécurisées côté client.
+
+\begin{lstlisting}[language=Java, caption={JwtService : génération et validation des tokens JWT},label={lst:jwt-service}]
+public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    return buildToken(extraClaims, userDetails, jwtExpiration);
+}
+
+private String buildToken(Map<String, Object> extraClaims, 
+                         UserDetails userDetails, long expiration) {
+    return Jwts.builder()
+            .setClaims(extraClaims)
+            .setSubject(userDetails.getUsername())
+            .setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + expiration))
+            .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+            .compact();
+}
+
+public boolean isTokenValid(String token, UserDetails userDetails) {
+    final String username = extractUsername(token);
+    return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
 }
 \end{lstlisting}
 
-Spring Data JPA génère automatiquement les implémentations SQL pour \texttt{findAllByUserId}, optimisant les requêtes paginées. La pagination côté base de données limite la transmission réseau.
+\noindent
+\textbf{Description :} Le token JWT est construit avec les claims utilisateur, un timestamp d'émission, une date d'expiration et est signé avec une clé secrète HS256. La validation vérifie que l'utilisateur du token correspond à celui de la requête et que le token n'a pas expiré.
 
-\paragraph{Entité avec cascade et relations}
+\paragraph{Authentification des utilisateurs \\}
 
-\begin{lstlisting}[language=Java, caption={Entité User avec relation OneToMany en cascade},label={lst:entity-user}]
-@Entity
-@Table(name = "Users")
-public class User implements UserDetails {
-    @Id
-    @GeneratedValue
-    @UuidGenerator
-    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
-    private UUID id;
+Le service d'authentification gère l'inscription sécurisée et la connexion avec hachage de mot de passe.
 
-    @Email
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, 
-               orphanRemoval = true)
-    private List<Video> videos = new ArrayList<>();
-    
-    // ... autres champs
+\begin{lstlisting}[language=Java, caption={AuthenticationService : inscription et authentification},label={lst:auth-service}]
+public User signup(RegisterUserDto input) throws UsedEmailException {
+    if (userRepository.existsByEmail(input.getEmail())) {
+        throw new UsedEmailException();
+    }
+    User user = new User();
+    user.setFirstName(input.getFirstName());
+    user.setLastName(input.getLastName());
+    user.setEmail(input.getEmail());
+    user.setPassword(passwordEncoder.encode(input.getPassword()));
+    return userRepository.save(user);
 }
-\end{lstlisting}
 
-L'annotation \texttt{CascadeType.REMOVE} assure que supprimer un utilisateur supprime implicitement toutes ses vidéos, évitant l'incohérence relationnelle.
-
-\paragraph{Validation avec contraintes métier}
-
-\begin{lstlisting}[language=Java, caption={Entité VideoTranscript avec validation},label={lst:entity-transcript}]
-@Entity
-@Table(name = "VideoTranscripts")
-public class VideoTranscript {
-    @Id
-    @GeneratedValue
-    @UuidGenerator
-    private UUID id;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "video_id", nullable = false)
-    private Video video;
-
-    @Column(name = "start_time", nullable = false)
-    private Double startTime;
-
-    @Column(name = "end_time", nullable = false)
-    private Double endTime;
-
-    @NotBlank(message = "Transcript text is mandatory")
-    @Column(columnDefinition = "TEXT", nullable = false)
-    private String transcriptText;
-    
-    // Validation métier : endTime >= startTime effectuée au niveau service
-}
-\end{lstlisting}
-
-Les constraints JPA (@NotBlank, @Email, etc.) valident les invariants simples. Les règles métier complexes (ex : endTime >= startTime) sont validées dans le service.
-
-\paragraph{Configuration Spring Data et OpenAPI}
-
-\begin{lstlisting}[language=Java, caption={Configuration Enable OpenAPI et Swagger pour documentation},label={lst:config-openapi}]
-@Configuration
-@EnableOpenApi
-public class OpenApiConfiguration {
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-            .info(new Info().title("OCULA API")
-                .version("1.0.0")
-                .description("API REST du backend OCULA"));
+public User authenticate(LoginUserDto input) throws InvalidParamsException {
+    authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                    input.getEmail(), input.getPassword()));
+    User user = userRepository.findByEmail(input.getEmail()).orElse(null);
+    if (user != null && checkPassword(input.getPassword(), user.getPassword())) {
+        return user;
+    } else {
+        throw new InvalidParamsException();
     }
 }
 \end{lstlisting}
 
-Cette configuration expose automatiquement la documentation Swagger à \texttt{/swagger-ui.html} et génère le schéma OpenAPI à \texttt{/v3/api-docs}, facilitant l'intégration frontend et la documentation.
+\noindent
+\textbf{Description :} L'inscription vérifie d'abord l'unicité de l'email, crée un nouvel utilisateur et encode le mot de passe avant la sauvegarde. L'authentification utilise le gestionnaire Spring Security pour valider les credentials.
+
+\paragraph{Gestion du stockage en blob Azure \\}
+
+Le service BlobStorage encapsule toutes les opérations de fichiers avec Azure Blob Storage, incluant les URLs signées temporaires.
+
+\begin{lstlisting}[language=Java, caption={BlobStorageService : upload et accès sécurisé aux fichiers},label={lst:blob-service}]
+public void uploadFile(String fileName, InputStream data, long size) {
+    BlobClient blobClient = containerClient.getBlobClient(fileName);
+    blobClient.upload(data, size, true);
+}
+
+public String getFileUrl(String fileName) {
+    BlobClient blobClient = containerClient.getBlobClient(fileName);
+    OffsetDateTime expiryTime = OffsetDateTime.now().plusHours(6);
+    BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
+    BlobServiceSasSignatureValues values = new BlobServiceSasSignatureValues(expiryTime, permission)
+            .setStartTime(OffsetDateTime.now().minusMinutes(5));
+    return blobClient.getBlobUrl() + "?" + blobClient.generateSas(values);
+}
+
+public void deleteFile(String fileName) {
+    BlobClient blobClient = containerClient.getBlobClient(fileName);
+    blobClient.deleteIfExists();
+}
+\end{lstlisting}
+
+\noindent
+\textbf{Description :} L'upload stocke les fichiers directement dans un conteneur Azure. Les URLs de fichier incluent une signature SAS (Shared Access Signature) valide 6 heures, permettant l'accès temporaire sécurisé sans authentification. La suppression utilise \texttt{deleteIfExists()} pour éviter les erreurs.
+
+\paragraph{Gestion des utilisateurs avec avatars \\}
+
+Le service utilisateur encapsule la création, modification et suppression d'utilisateurs, avec gestion des avatars en stockage blob.
+
+\begin{lstlisting}[language=Java, caption={UserService : création et mise à jour avec gestion des avatars},label={lst:user-service}]
+public UserDto updateUser(UUID id, String avatarKey, UpdateUserDto userDto)
+        throws UserNotFoundException, UsedEmailException {
+    Optional<User> optionalUser = userRepository.findById(id);
+    if (optionalUser.isEmpty()) {
+        throw new UserNotFoundException();
+    }
+    User user = optionalUser.get();
+    if (avatarKey != null) {
+        if (user.getAvatar() != null) {
+            this.blobStorageService.deleteFile(user.getAvatar());
+        }
+        user.setAvatar(avatarKey);
+    }
+    String newEmail = userDto.getEmail();
+    if (newEmail != null && !newEmail.isBlank() && 
+        !user.getEmail().equals(newEmail) && 
+        userRepository.existsByEmail(newEmail)) {
+        throw new UsedEmailException();
+    }
+    // mise à jour d'autres champs...
+    userRepository.save(user);
+    return userMapper.toDto(user);
+}
+\end{lstlisting}
+
+\noindent
+\textbf{Description :} Lors de la mise à jour, si un nouvel avatar est fourni, l'ancien est supprimé de Blob Storage. La modification d'email vérifie qu'il n'existe pas déjà en base de données.
+
+\paragraph{Gestion des vidéos et statuts \\}
+
+Le service vidéo offre des opérations CRUD complètes et permet de mettre à jour le statut de traitement des vidéos.
+
+\begin{lstlisting}[language=Java, caption={VideoService : création avec upload et gestion de statuts},label={lst:video-service}]
+public VideoDto createVideoWithUpload(String content, String thumbnail, 
+        String title, String summary, UUID userId, Duration duration)
+        throws UserNotFoundException {
+    User user = userRepository.findById(userId).orElse(null);
+    if (user == null) {
+        throw new UserNotFoundException();
+    }
+    Video video = new Video();
+    video.setTitle(title);
+    video.setSummary(summary);
+    video.setContent(content);
+    video.setThumbnail(thumbnail);
+    video.setUser(user);
+    video.setDuration(duration);
+    Video savedVideo = videoRepository.save(video);
+    return videoMapper.toDto(savedVideo);
+}
+
+public VideoDto updateStatus(UUID id, VideoStatus videoStatus) 
+        throws VideoNotFoundException {
+    Video video = videoRepository.findById(id).orElse(null);
+    if (video == null) {
+        throw new VideoNotFoundException();
+    }
+    video.setStatus(videoStatus);
+    videoRepository.save(video);
+    return videoMapper.toDto(video);
+}
+\end{lstlisting}
+
+\noindent
+\textbf{Description :} La création avec upload associe directement une vidéo à un utilisateur et enregistre sa durée. L'update de statut permet de tracker la progression du traitement (PENDING, PROCESSING, COMPLETED, etc.).
+
+\paragraph{Service de messages et chat avec IA \\}
+
+Le service de messages gère la conversation bidirectionnelle entre l'utilisateur et l'IA, en sauvegardant les questions et réponses.
+
+\begin{lstlisting}[language=Java, caption={MessageService : conversation avec l'IA},label={lst:message-service}]
+public AskMessageResponse askQuestion(UUID videoId, String question) 
+        throws VideoNotFoundException {
+    MessageDto userInput = MessageDto.builder()
+            .videoId(videoId)
+            .sender(Sender.USER)
+            .text(question)
+            .build();
+    MessageDto savedUserMessage = createMessage(userInput);
+
+    ChatResponse aiResponse = aiService.ask(videoId.toString(), question);
+    String answer = aiResponse != null ? aiResponse.getAnswer() : null;
+    if (answer == null || answer.isBlank()) {
+        answer = "I couldn't generate an answer from the available context.";
+    }
+
+    MessageDto botOutput = MessageDto.builder()
+            .videoId(videoId)
+            .sender(Sender.BOT)
+            .text(answer)
+            .build();
+    MessageDto savedBotMessage = createMessage(botOutput);
+
+    return new AskMessageResponse(savedUserMessage, savedBotMessage, 
+            aiResponse != null ? aiResponse.getSources() : null);
+}
+\end{lstlisting}
+
+\noindent
+\textbf{Description :} La méthode orchestre l'interaction : elle crée un message utilisateur, appelle le service IA, gère les réponses vides, puis sauvegarde la réponse du bot avec les sources utilisées pour la génération.
+
+\paragraph{Gestion des transcriptions vidéo \\}
+
+Le service de transcription valide les segments temporels et gère les transcriptions avec tri automatique.
+
+\begin{lstlisting}[language=Java, caption={VideoTranscriptService : création avec validation temporelle},label={lst:transcript-service}]
+public VideoTranscriptDto createVideoTranscript(VideoTranscriptDto dto)
+        throws VideoNotFoundException, InvalidTranscriptException {
+    if (dto == null || dto.getVideoId() == null) {
+        throw new InvalidTranscriptException("videoId is required");
+    }
+    if (!videoRepository.existsById(dto.getVideoId())) {
+        throw new VideoNotFoundException();
+    }
+    validateTimes(dto.getStartTime(), dto.getEndTime());
+
+    Video video = videoRepository.findById(dto.getVideoId()).orElse(null);
+    VideoTranscript videoTranscript = videoTranscriptMapper.toEntity(dto);
+    videoTranscript.setVideo(video);
+    VideoTranscript savedVideoTranscript = videoTranscriptRepository.save(videoTranscript);
+    return videoTranscriptMapper.toDto(savedVideoTranscript);
+}
+
+private void validateTimes(Double startTime, Double endTime) 
+        throws InvalidTranscriptException {
+    if (startTime == null || endTime == null) {
+        throw new InvalidTranscriptException("startTime and endTime are required");
+    }
+    if (startTime < 0 || endTime < 0) {
+        throw new InvalidTranscriptException("Times must be positive");
+    }
+    if (endTime < startTime) {
+        throw new InvalidTranscriptException("endTime must be >= startTime");
+    }
+}
+\end{lstlisting}
+
+\noindent
+\textbf{Description :} La validation s'effectue en trois étapes : vérification de la présence, positivité des timestamps et cohérence de l'ordre. Les transcriptions sont automatiquement triées par temps de début lors de la récupération.
+
+\paragraph{Service d'intégration IA \\}
+
+Le service IA encapsule les appels au microservice Python, en découplant le backend du service IA.
+
+\begin{lstlisting}[language=Java, caption={AiService : communication avec le service IA Python},label={lst:ai-service}]
+public ProcessResponse process(String videoId, String objectKey) {
+    ProcessRequest request = new ProcessRequest();
+    request.setVideo_id(videoId);
+    request.setObject_key(objectKey);
+
+    return aiServiceWebClient
+            .post()
+            .uri("/process")
+            .bodyValue(request)
+            .retrieve()
+            .bodyToMono(ProcessResponse.class)
+            .block();
+}
+
+public ChatResponse ask(String videoId, String question) {
+    ChatRequest request = new ChatRequest();
+    request.setVideo_id(videoId);
+    request.setQuestion(question);
+
+    return aiServiceWebClient
+            .post()
+            .uri("/chat")
+            .bodyValue(request)
+            .retrieve()
+            .bodyToMono(ChatResponse.class)
+            .block();
+}
+\end{lstlisting}
+
+\noindent
+\textbf{Description :} Le service utilise un \texttt{WebClient} Spring injecté pour faire des appels HTTP asynchrones au service Python. Le \texttt{.block()} convertit la réponse réactive Mono en résultat synchrone. Les deux endpoints clés sont \texttt{/process} pour l'indexation vidéo et \texttt{/chat} pour les requêtes conversationnelles.
 
 \subsection{Service IA : LangChain + Flask}
 Le traitement intelligent des vidéos est assuré par un microservice dédié développé en Python et exposé via Flask. 
