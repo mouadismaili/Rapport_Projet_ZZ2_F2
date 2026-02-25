@@ -1,4 +1,4 @@
-﻿\documentclass{rapportECL}
+\documentclass{rapportECL}
 \usepackage{listings}
 \usepackage{lipsum}
 \usepackage{gensymb}
@@ -385,7 +385,7 @@ Les interfaces utilisateur ont été prototypées avec \raisebox{-1.1ex}{\includ
 
 Ces maquettes ont guidé le développement du frontend et ont évolué vers une version finale améliorée, fidèle à la vision initiale.
 
-\subsection{stratégie Docker-first}
+\subsection{Stratégie Docker-first}
 
 La gestion des environments et du déploiement a reposé sur une stratégie favorisant la conteneurisation complète de l'application.
 
@@ -418,8 +418,8 @@ Un diagramme de Gantt a été élaboré pour visualiser le calendrier, les dépe
 Sur GitLab, nous avons adopté un workflow structuré pour la gestion du code :
 
 \begin{itemize}
-    \item Chaque fonctionnalité ou tâche génère une nouvelle branche (ex. \path{feature/video-upload}, \path{feature/rag-chatbot}),
-    \item Une fois la fonctionnalité terminée, la branche est fusionnée dans \path{develop},
+    \item Chaque fonctionnalité ou tâche génère une nouvelle branche (ex. \path{feature/video-upload}, \path{feature/rag-chatbot}).
+    \item Une fois la fonctionnalité terminée, la branche est fusionnée dans \path{dev}.
     \item Après tests et vérification que tout fonctionne correctement, le code est fusionné dans \path{main}.
 \end{itemize}
 
@@ -447,17 +447,14 @@ Ce workflow garantit une séparation claire entre le développement actif, l'int
     \item \textbf{Stratégie Docker-first} : l'application a été entièrement conteneurisée, garantissant une cohérence totale entre développement et déploiement.
     \item \textbf{Docker Compose} : orchestration centralisée de tous les services, permettant le lancement de l'application entière en une seule commande, quel que soit l'OS.
     \item \textbf{Documentation d'installation} : guide détaillé pour installer Docker et Docker Compose sur tous les OS, éliminant les frictions de setup.
-    \item \textbf{Tests dans les conteneurs} : tests et validations effectués dans les conteneurs, assurant la compatibilité avec l'environnement de production.
 \end{itemize}
 
 \paragraph{Mécanismes de gestion des risques mis en place}
 
 \begin{itemize}
     \item \textbf{Discussions régulières d'équipe} : réunions quotidiennes pour synchronisation et détection des blocages,
-    \item \textbf{Répartition claire des tâches} : chaque membre savait précisément sur quoi travailler, minimisant les doublons,
-    \item \textbf{Validation progressive des fonctionnalités} : chaque module était validé manuellement lors de son développement,
-    \item \textbf{Consultation de la documentation} : les développeurs consultaient la documentation officielle pour résoudre les problèmes,
-    \item \textbf{Flexibilité de scope} : capacité à ajuster les priorités et à reporter les fonctionnalités optionnelles.
+    \item \textbf{Répartition claire des tâches} : chaque membre savait précisément sur quoi travailler, minimisant les doublons.
+    \item \textbf{Validation progressive des fonctionnalités} : chaque module était validé manuellement lors de son développement.
 \end{itemize}
 
 \section{État de l'art et fondements théoriques}
