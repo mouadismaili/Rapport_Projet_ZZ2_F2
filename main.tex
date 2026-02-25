@@ -1550,246 +1550,11 @@ Chaque ressource (vidéo, transcription, message) est liée à un propriétaire.
 
 \subsubsection{Extraits de code importants des services}
 
-Cette section présente les implémentations clés des services backend qui constituent le cœur fonctionnel de l'application OCULA.
-
-\paragraph{Service d'authentification et gestion de tokens JWT \\}
-
-Le service JWT génère et valide les tokens d'authentification, permettant les sessions sécurisées côté client.
-
-\begin{lstlisting}[language=Java, caption={JwtService : génération et validation des tokens JWT},label={lst:jwt-service}]
-public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-    return buildToken(extraClaims, userDetails, jwtExpiration);
-}
-
-private String buildToken(Map<String, Object> extraClaims, 
-                         UserDetails userDetails, long expiration) {
-    return Jwts.builder()
-            .setClaims(extraClaims)
-            .setSubject(userDetails.getUsername())
-            .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + expiration))
-            .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-            .compact();
-}
-
-public boolean isTokenValid(String token, UserDetails userDetails) {
-    final String username = extractUsername(token);
-    return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
-}
-\end{lstlisting}
-
-\noindent
-\textbf{Description :} Le token JWT est construit avec les claims utilisateur, un timestamp d'émission, une date d'expiration et est signé avec une clé secrète HS256. La validation vérifie que l'utilisateur du token correspond à celui de la requête et que le token n'a pas expiré.
-
-\paragraph{Authentification des utilisateurs \\}
-
-Le service d'authentification gère l'inscription sécurisée et la connexion avec hachage de mot de passe.
-
-\begin{lstlisting}[language=Java, caption={AuthenticationService : inscription et authentification},label={lst:auth-service}]
-public User signup(RegisterUserDto input) throws UsedEmailException {
-    if (userRepository.existsByEmail(input.getEmail())) {
-        throw new UsedEmailException();
-    }
-    User user = new User();
-    user.setFirstName(input.getFirstName());
-    user.setLastName(input.getLastName());
-    user.setEmail(input.getEmail());
-    user.setPassword(passwordEncoder.encode(input.getPassword()));
-    return userRepository.save(user);
-}
-
-public User authenticate(LoginUserDto input) throws InvalidParamsException {
-    authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                    input.getEmail(), input.getPassword()));
-    User user = userRepository.findByEmail(input.getEmail()).orElse(null);
-    if (user != null && checkPassword(input.getPassword(), user.getPassword())) {
-        return user;
-    } else {
-        throw new InvalidParamsException();
-    }
-}
-\end{lstlisting}
-
-\noindent
-\textbf{Description :} L'inscription vérifie d'abord l'unicité de l'email, crée un nouvel utilisateur et encode le mot de passe avant la sauvegarde. L'authentification utilise le gestionnaire Spring Security pour valider les credentials.
-
-\paragraph{Gestion du stockage en blob Azure \\}
-
-Le service BlobStorage encapsule toutes les opérations de fichiers avec Azure Blob Storage, incluant les URLs signées temporaires.
-
-\begin{lstlisting}[language=Java, caption={BlobStorageService : upload et accès sécurisé aux fichiers},label={lst:blob-service}]
-public void uploadFile(String fileName, InputStream data, long size) {
-    BlobClient blobClient = containerClient.getBlobClient(fileName);
-    blobClient.upload(data, size, true);
-}
-
-public String getFileUrl(String fileName) {
-    BlobClient blobClient = containerClient.getBlobClient(fileName);
-    OffsetDateTime expiryTime = OffsetDateTime.now().plusHours(6);
-    BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
-    BlobServiceSasSignatureValues values = new BlobServiceSasSignatureValues(expiryTime, permission)
-            .setStartTime(OffsetDateTime.now().minusMinutes(5));
-    return blobClient.getBlobUrl() + "?" + blobClient.generateSas(values);
-}
-
-public void deleteFile(String fileName) {
-    BlobClient blobClient = containerClient.getBlobClient(fileName);
-    blobClient.deleteIfExists();
-}
-\end{lstlisting}
-
-\noindent
-\textbf{Description :} L'upload stocke les fichiers directement dans un conteneur Azure. Les URLs de fichier incluent une signature SAS (Shared Access Signature) valide 6 heures, permettant l'accès temporaire sécurisé sans authentification. La suppression utilise \texttt{deleteIfExists()} pour éviter les erreurs.
-
-\paragraph{Gestion des utilisateurs avec avatars \\}
-
-Le service utilisateur encapsule la création, modification et suppression d'utilisateurs, avec gestion des avatars en stockage blob.
-
-\begin{lstlisting}[language=Java, caption={UserService : création et mise à jour avec gestion des avatars},label={lst:user-service}]
-public UserDto updateUser(UUID id, String avatarKey, UpdateUserDto userDto)
-        throws UserNotFoundException, UsedEmailException {
-    Optional<User> optionalUser = userRepository.findById(id);
-    if (optionalUser.isEmpty()) {
-        throw new UserNotFoundException();
-    }
-    User user = optionalUser.get();
-    if (avatarKey != null) {
-        if (user.getAvatar() != null) {
-            this.blobStorageService.deleteFile(user.getAvatar());
-        }
-        user.setAvatar(avatarKey);
-    }
-    String newEmail = userDto.getEmail();
-    if (newEmail != null && !newEmail.isBlank() && 
-        !user.getEmail().equals(newEmail) && 
-        userRepository.existsByEmail(newEmail)) {
-        throw new UsedEmailException();
-    }
-    // mise à jour d'autres champs...
-    userRepository.save(user);
-    return userMapper.toDto(user);
-}
-\end{lstlisting}
-
-\noindent
-\textbf{Description :} Lors de la mise à jour, si un nouvel avatar est fourni, l'ancien est supprimé de Blob Storage. La modification d'email vérifie qu'il n'existe pas déjà en base de données.
-
-\paragraph{Gestion des vidéos et statuts \\}
-
-Le service vidéo offre des opérations CRUD complètes et permet de mettre à jour le statut de traitement des vidéos.
-
-\begin{lstlisting}[language=Java, caption={VideoService : création avec upload et gestion de statuts},label={lst:video-service}]
-public VideoDto createVideoWithUpload(String content, String thumbnail, 
-        String title, String summary, UUID userId, Duration duration)
-        throws UserNotFoundException {
-    User user = userRepository.findById(userId).orElse(null);
-    if (user == null) {
-        throw new UserNotFoundException();
-    }
-    Video video = new Video();
-    video.setTitle(title);
-    video.setSummary(summary);
-    video.setContent(content);
-    video.setThumbnail(thumbnail);
-    video.setUser(user);
-    video.setDuration(duration);
-    Video savedVideo = videoRepository.save(video);
-    return videoMapper.toDto(savedVideo);
-}
-
-public VideoDto updateStatus(UUID id, VideoStatus videoStatus) 
-        throws VideoNotFoundException {
-    Video video = videoRepository.findById(id).orElse(null);
-    if (video == null) {
-        throw new VideoNotFoundException();
-    }
-    video.setStatus(videoStatus);
-    videoRepository.save(video);
-    return videoMapper.toDto(video);
-}
-\end{lstlisting}
-
-\noindent
-\textbf{Description :} La création avec upload associe directement une vidéo à un utilisateur et enregistre sa durée. L'update de statut permet de tracker la progression du traitement (PENDING, PROCESSING, COMPLETED, etc.).
-
-\paragraph{Service de messages et chat avec IA \\}
-
-Le service de messages gère la conversation bidirectionnelle entre l'utilisateur et l'IA, en sauvegardant les questions et réponses.
-
-\begin{lstlisting}[language=Java, caption={MessageService : conversation avec l'IA},label={lst:message-service}]
-public AskMessageResponse askQuestion(UUID videoId, String question) 
-        throws VideoNotFoundException {
-    MessageDto userInput = MessageDto.builder()
-            .videoId(videoId)
-            .sender(Sender.USER)
-            .text(question)
-            .build();
-    MessageDto savedUserMessage = createMessage(userInput);
-
-    ChatResponse aiResponse = aiService.ask(videoId.toString(), question);
-    String answer = aiResponse != null ? aiResponse.getAnswer() : null;
-    if (answer == null || answer.isBlank()) {
-        answer = "I couldn't generate an answer from the available context.";
-    }
-
-    MessageDto botOutput = MessageDto.builder()
-            .videoId(videoId)
-            .sender(Sender.BOT)
-            .text(answer)
-            .build();
-    MessageDto savedBotMessage = createMessage(botOutput);
-
-    return new AskMessageResponse(savedUserMessage, savedBotMessage, 
-            aiResponse != null ? aiResponse.getSources() : null);
-}
-\end{lstlisting}
-
-\noindent
-\textbf{Description :} La méthode orchestre l'interaction : elle crée un message utilisateur, appelle le service IA, gère les réponses vides, puis sauvegarde la réponse du bot avec les sources utilisées pour la génération.
-
-\paragraph{Gestion des transcriptions vidéo \\}
-
-Le service de transcription valide les segments temporels et gère les transcriptions avec tri automatique.
-
-\begin{lstlisting}[language=Java, caption={VideoTranscriptService : création avec validation temporelle},label={lst:transcript-service}]
-public VideoTranscriptDto createVideoTranscript(VideoTranscriptDto dto)
-        throws VideoNotFoundException, InvalidTranscriptException {
-    if (dto == null || dto.getVideoId() == null) {
-        throw new InvalidTranscriptException("videoId is required");
-    }
-    if (!videoRepository.existsById(dto.getVideoId())) {
-        throw new VideoNotFoundException();
-    }
-    validateTimes(dto.getStartTime(), dto.getEndTime());
-
-    Video video = videoRepository.findById(dto.getVideoId()).orElse(null);
-    VideoTranscript videoTranscript = videoTranscriptMapper.toEntity(dto);
-    videoTranscript.setVideo(video);
-    VideoTranscript savedVideoTranscript = videoTranscriptRepository.save(videoTranscript);
-    return videoTranscriptMapper.toDto(savedVideoTranscript);
-}
-
-private void validateTimes(Double startTime, Double endTime) 
-        throws InvalidTranscriptException {
-    if (startTime == null || endTime == null) {
-        throw new InvalidTranscriptException("startTime and endTime are required");
-    }
-    if (startTime < 0 || endTime < 0) {
-        throw new InvalidTranscriptException("Times must be positive");
-    }
-    if (endTime < startTime) {
-        throw new InvalidTranscriptException("endTime must be >= startTime");
-    }
-}
-\end{lstlisting}
-
-\noindent
-\textbf{Description :} La validation s'effectue en trois étapes : vérification de la présence, positivité des timestamps et cohérence de l'ordre. Les transcriptions sont automatiquement triées par temps de début lors de la récupération.
+Cette section se concentre sur deux services backend clés pour l'intégration IA et la communication temps réel : \texttt{AiService} et \texttt{WebsocketNotifier}.
 
 \paragraph{Service d'intégration IA \\}
 
-Le service IA encapsule les appels au microservice Python, en découplant le backend du service IA.
+Le code ci-dessous fait le lien entre le backend Spring Boot et le microservice IA Python pour le traitement d'une vidéo et les requêtes de chat.
 
 \begin{lstlisting}[language=Java, caption={AiService : communication avec le service IA Python},label={lst:ai-service}]
 public ProcessResponse process(String videoId, String objectKey) {
@@ -1822,7 +1587,26 @@ public ChatResponse ask(String videoId, String question) {
 \end{lstlisting}
 
 \noindent
-\textbf{Description :} Le service utilise un \texttt{WebClient} Spring injecté pour faire des appels HTTP asynchrones au service Python. Le \texttt{.block()} convertit la réponse réactive Mono en résultat synchrone. Les deux endpoints clés sont \texttt{/process} pour l'indexation vidéo et \texttt{/chat} pour les requêtes conversationnelles.
+\textbf{Description :} Ce code fait la construction des requêtes HTTP vers \texttt{/process} et \texttt{/chat}, puis récupère les réponses du microservice IA pour alimenter le flux métier du backend.
+
+\paragraph{Notification temps réel via WebSocket \\}
+
+Le code ci-dessous fait la diffusion des changements de statut vidéo vers les clients connectés en temps réel.
+
+\begin{lstlisting}[language=Java, caption={WebsocketNotifier : diffusion des changements de statut vidéo},label={lst:websocket-notifier}]
+@Service
+public class WebsocketNotifier {
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
+    public void sendStatusUpdate(String videoId, VideoStatus status) {
+        messagingTemplate.convertAndSend("/topic/videos/" + videoId, status.name());
+    }
+}
+\end{lstlisting}
+
+\noindent
+\textbf{Description :} Ce code fait la publication des événements de statut sur \texttt{/topic/videos/\{videoId\}}. Les clients abonnés reçoivent immédiatement les mises à jour de progression (PENDING, PROCESSING, COMPLETED).
 
 \subsection{Service IA : LangChain + Flask}
 Le traitement intelligent des vidéos est assuré par un microservice dédié développé en Python et exposé via Flask. 
