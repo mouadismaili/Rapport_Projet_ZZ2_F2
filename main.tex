@@ -112,10 +112,10 @@ Achraf \textsc{El Allali}
 \addcontentsline{toc}{section}{Résumé}
 
 OCULA est une application web full-stack permettant de transformer automatiquement une vidéo en une ressource intelligemment exploitable. 
-Le système s’appuie sur un frontend Angular et un backend Java Spring Boot, complétés par un microservice IA en Flask orchestrant un pipeline de traitement incluant transcription automatique, génération de titre et de résumé, indexation sémantique et question–réponse en langage naturel via un mécanisme Retrieval-Augmented Generation (RAG).
+Le système s’appuie sur un frontend Angular et un backend Java Spring Boot, complétés par un service IA en Flask orchestrant un pipeline de traitement incluant transcription automatique, génération de titre et de résumé, indexation sémantique et question–réponse en langage naturel via un mécanisme Retrieval-Augmented Generation (RAG).
 
-Après l’upload d’une vidéo, le contenu est stocké en stockage objet, puis l’audio est transcrit et segmenté. 
-Les segments sont découpés en chunks, vectorisés à l’aide d’un modèle d’embeddings, puis indexés dans une base vectorielle afin de permettre une recherche sémantique par vidéo. 
+Après l'importation d'une vidéo, le contenu est stocké en stockage objet (Azure Blob Storage), puis la vidéo est transcrit et segmenté. 
+La transcription est découpé en chunks, vectorisés à l’aide d’un modèle d’embeddings, puis indexés dans une base vectorielle afin de permettre une recherche sémantique par vidéo. 
 Lorsqu’un utilisateur pose une question, le service IA récupère les passages pertinents, construit un contexte contraint et interroge un modèle de langage externe pour générer une réponse. 
 Les réponses sont accompagnées de références temporelles afin d’assurer traçabilité et explicabilité.
 
@@ -145,10 +145,10 @@ Architecture microservices.
 \addcontentsline{toc}{section}{Abstract}
 
 OCULA is a full-stack web application designed to turn a video into an intelligently exploitable resource.
-It relies on an Angular frontend and a Java Spring Boot backend, complemented by a Flask-based AI microservice that orchestrates a processing pipeline including automatic transcription, title and summary generation, semantic indexing, and natural language question answering through a Retrieval-Augmented Generation (RAG) approach.
+It relies on an Angular frontend and a Java Spring Boot backend, complemented by a Flask-based AI service that orchestrates a processing pipeline including automatic transcription, title and summary generation, semantic indexing, and natural language question answering through a Retrieval-Augmented Generation (RAG) approach.
 
-After a video is uploaded, the content is stored in object storage, then the audio is transcribed and segmented.
-Segments are split into coherent text chunks, embedded using a sentence embedding model, and indexed in a vector database to enable per-video semantic retrieval.
+After a video is uploaded, the content is stored in object storage (Azure Blob Storage), then the video is transcribed and segmented.
+The transcription is splited into coherent text chunks, embedded using a sentence embedding model, and indexed in a vector database to enable per-video semantic retrieval.
 When a user asks a question, the AI service retrieves the most relevant passages, builds a constrained context, and queries an external language model to generate an answer.
 Responses include temporal references to ensure traceability and explainability.
 
