@@ -1542,12 +1542,7 @@ La chaîne de sécurité du backend repose sur deux mécanismes complémentaires
 \label{fig:backend-security-chain}
 \end{figure}
 
-\noindent La figure~\ref{fig:backend-security-chain} montre le flux : routes publiques (signup/login) sont directement acheminées, les routes protégées vérifient d'abord une clé API interne (service IA), puis un JWT utilisateur. Le JWT est validé et l'identité extraite. Toute tentative d'accès invalide retourne 401 Unauthorized.
-
-\paragraph{Autorisation et isolation des ressources \\}
-
-Chaque ressource (vidéo, transcription, message) est liée à un propriétaire. Une vérification d'appartenance s'assure que seul le propriétaire de la ressource peut y accéder ; accès non autorisé retourne 403 Forbidden.
-
+\noindent La figure~\ref{fig:backend-security-chain} montre d'abord la phase d'authentification où les routes publiques (signup/login) sont directement acheminées, tandis que les routes protégées vérifient d'abord une clé API interne (service IA), puis un JWT utilisateur. Une fois le JWT validé et l'identité extraite, la requête passe à la phase d'autorisation où l'identité authentifiée est utilisée pour contrôler l'accès aux ressources métier. Chaque ressource (vidéo, transcription, message) est liée à un propriétaire. Une vérification d'appartenance s'assure que seul le propriétaire de la ressource peut y accéder.
 \subsubsection{Extraits de code importants des services}
 
 Cette section se concentre sur deux services backend clés pour l'intégration IA et la communication temps réel : \texttt{AiService} et \texttt{WebsocketNotifier}.
