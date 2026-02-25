@@ -620,22 +620,22 @@ Principalement on distingue entre deux approches pour la reconnaissance automati
 
 Whisper est un système de reconnaissance automatique de la parole (ASR) basé sur l’intelligence artificielle, entraîné sur environ 680 000 heures de données audio multilingues provenant du web. Grâce à cette très grande diversité de données, il est particulièrement robuste face aux accents, au bruit de fond et au vocabulaire technique. Whisper est capable non seulement de transcrire la parole dans plusieurs langues, mais aussi de traduire directement ces langues vers l’anglais, ce qui en fait un outil polyvalent pour de nombreuses applications de traitement vocal et de recherche en intelligence artificielle\cite{openai_whisper_intro, openai_whisper_card}.
 
-
-\begin{table}[h]
-\centering
-\caption{Comparaision des Performance des Models ASR}
-\begin{tabular}{lccccc}
-\hline
-\textbf{Criteria} & \textbf{Whisper} & \textbf{AssemblyAI U3} & \textbf{Amazon} & \textbf{Microsoft} \\
-\hline
-Accuracy (English) & 92.4\% & \textbf{94.1\%} & 92.4\% & 92.5\% \\
-Accuracy (Multilingual) & \textbf{92.6\%} & 91.3\% & 89.9\% & 88.9\% \\
-WER (English) & 6.5\% & \textbf{5.9\%} & 7.6\% & 7.5\% \\
-WER (Multilingual) & \textbf{7.4\%} & 8.7\% & 10.1\% & 11.1\% \\
-\hline
-\end{tabular}
+\begin{table}[H]
+	\centering
+	\renewcommand{\arraystretch}{1.3}
+	\begin{tabular}{|l|c|c|c|c|c|}
+		\hline
+		\textbf{Criteria} & \textbf{Whisper} & \textbf{AssemblyAI U3} & \textbf{Amazon} & \textbf{Microsoft} \\
+		\hline
+		Accuracy (English) & 92.4\% & \textbf{94.1\%} & 92.4\% & 92.5\% \\
+		Accuracy (Multilingual) & \textbf{92.6\%} & 91.3\% & 89.9\% & 88.9\% \\
+		WER (English) & 6.5\% & \textbf{5.9\%} & 7.6\% & 7.5\% \\
+		WER (Multilingual) & \textbf{7.4\%} & 8.7\% & 10.1\% & 11.1\% \\
+		\hline
+	\end{tabular}
+	\caption{Comparaison fonctionnelle entre OCULA et les solutions existantes}
+	\label{tab:comparison}
 \end{table}
-
 
 Le choix de Whisper a été évident , du a ça capacité impressive dans la transcription multilingue , et sont WER minimal par rapport aux autre modèle. De plus nous favorisons les modèles open-source, et Whisper étant le meilleur dans cette catégorie\cite{assemblyai_benchmarks}.
 
