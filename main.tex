@@ -1,4 +1,4 @@
-﻿\documentclass{rapportECL}
+\documentclass{rapportECL}
 \usepackage{listings}
 \usepackage{lipsum}
 \usepackage{gensymb}
@@ -755,7 +755,7 @@ Pour la \textbf{persistance des données}, nous avons choisi \textbf{PostgreSQL}
 \subsection{Conception}
 \subsubsection{Modèle conceptuel et logique}
 
-Le modèle conceptuel d’OCULA est structuré autour de l’entité \textit{Video}, qui constitue le cœur fonctionnel du système. Bien que l’application soit multi-utilisateur, l’ensemble du cycle de traitement IA est vidéo-centré : les opérations d’analyse, de transcription, de génération d’embeddings et de question–réponse s’appuient systématiquement sur l’identifiant \path{video\id}.
+Le modèle conceptuel d’OCULA est structuré autour de l’entité \textit{Video}, qui constitue le cœur fonctionnel du système. Bien que l’application soit multi-utilisateur, l’ensemble du cycle de traitement IA est vidéo-centré : les opérations d’analyse, de transcription, de génération d’embeddings et de question–réponse s’appuient systématiquement sur l’identifiant \path{video_id}.
 Ainsi, l’entité \textit{User} possède les vidéos, mais c’est la \textit{Video} qui orchestre le pipeline métier.
 
 \begin{figure}[H]
@@ -863,7 +863,7 @@ Cette représentation vectorielle permet de comparer la question de l’utilisat
 \textbf{3. Organisation dans la base vectorielle}
 
 Les embeddings sont stockés dans ChromaDB selon une organisation par vidéo. 
-Pour chaque vidéo, une collection dédiée (\path{video\<video\id>}) est utilisée ou créée lors de l’initialisation du flux d’indexation.
+Pour chaque vidéo, une collection dédiée (\path{video_<video_id>}) est utilisée ou créée lors de l’initialisation du flux d’indexation.
 
 Chaque document vectoriel contient :
 
@@ -871,7 +871,7 @@ Chaque document vectoriel contient :
 
     \item le texte du chunk,
     \item l’embedding associé,
-    \item des métadonnées : \path{video\id}, \path{start\time}, \path{end\time}.
+    \item des métadonnées : \path{video_id}, \path{start_time}, \path{end_time}.
 \end{itemize}
 \begin{figure}[H]
     \centering
@@ -896,7 +896,7 @@ Cette organisation garantit :
     \item une correspondance directe entre passage récupéré et intervalle temporel.
 \end{itemize}
 
-Le modèle relationnel assure la cohérence transactionnelle des données métier, tandis que la couche vectorielle optimise la récupération contextuelle pour le RAG ; les deux couches sont donc complémentaires et synchronisées par \path{video\id}.
+Le modèle relationnel assure la cohérence transactionnelle des données métier, tandis que la couche vectorielle optimise la récupération contextuelle pour le RAG ; les deux couches sont donc complémentaires et synchronisées par \path{video_id}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.95\textwidth]{images/rag_pipeline_matrix.png}
@@ -944,7 +944,7 @@ Ce choix permet :
 
 Les embeddings générés à partir des chunks sont stockés dans une base vectorielle dédiée (ChromaDB).
 
-Chaque vidéo dispose d’une collection nommée \path{video\<video\id>}. 
+Chaque vidéo dispose d’une collection nommée \path{video_<video_id>}. 
 
 Cette organisation assure :
 
@@ -965,7 +965,7 @@ Cette organisation assure :
 \medskip
 
 Le modèle relationnel assure la cohérence des données métier, le stockage objet prend en charge les contenus binaires via des clés d’objet, et la base vectorielle optimise la récupération sémantique pour le RAG. 
-Ces trois couches sont complémentaires et interconnectées principalement par \path{video\id} (et \path{user\id} pour les ressources utilisateur). 
+Ces trois couches sont complémentaires et interconnectées principalement par \path{video_id} (et \path{user_id} pour les ressources utilisateur). 
 \medskip
 
 La conception présentée précédemment définit la structure logique et la stratégie de persistance du système. 
@@ -1676,7 +1676,7 @@ Le service IA utilise le modèle \path{sentence-transformers/all-MiniLM-L6-v2}, 
 \paragraph{Initialisation du modèle d'embedding}
 
 Le modèle d’embedding est chargé une seule fois à l’initialisation du service IA, afin d’éviter une surcharge à chaque requête. 
-Dans l’implémentation actuelle, les embeddings ne sont pas normalisés lors de l’encodage (\path{normalize\embeddings=False}), et l’exécution est configurée sur CPU.
+Dans l’implémentation actuelle, les embeddings ne sont pas normalisés lors de l’encodage (\path{normalize_embeddings=False}), et l’exécution est configurée sur CPU.
 
 
 \begin{lstlisting}[language=Python, caption={Initialisation du modèle d'embedding}, label={lst:embed-model-init}]
@@ -1716,7 +1716,7 @@ doc = Document(
 
 \paragraph{Indexation dans ChromaDB}
 
-Les documents vectoriels sont stockés dans ChromaDB via l’interface \path{langchain\chroma.Chroma}. 
+Les documents vectoriels sont stockés dans ChromaDB via l’interface \path{langchain_chroma.Chroma}. 
 L’indexation est organisée par vidéo : chaque vidéo possède une collection dédiée nommée \path{video_<video_id>}. 
 Cette stratégie limite le bruit inter-vidéos et garantit que la recherche sémantique effectuée lors du chat reste strictement associée à la vidéo consultée.
 
