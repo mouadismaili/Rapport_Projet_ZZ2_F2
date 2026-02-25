@@ -1293,7 +1293,7 @@ Le schéma suivant synthétise le scénario métier principal après l'upload d'
 \subsection{Backend : API Spring Boot}
 \subsubsection{Organisation en couches}
 
-L'architecture du backend suit le pattern classique stratifié, où chaque couche assume une responsabilité bien définie et interagit explicitement avec ses voisines.
+L'architecture du backend suit le pattern classique en couches, où chaque couche assume une responsabilité bien définie et interagit explicitement avec ses voisines.
 
 \paragraph{Structure des couches}
 
@@ -1316,15 +1316,9 @@ L'architecture du backend suit le pattern classique stratifié, où chaque couch
     \item \textbf{Couche mapping (DTOs \& Mappers)} : transforme les entités persistées en objets de transfert (Data Transfer Objects) adaptés aux réponses API. Cet isolement protège le modèle interne d'évolutions externes.
 \end{itemize}
 
-\paragraph{Avantages architecturaux}
-
-Cette organisation garantit une cohérence comportementale : la logique de validation ou d'autorisation n'est jamais dupliquée entre contrôleurs et services, et les repositories évitent les requêtes ad hoc parsemées dans le code applicatif. En cas de changement de base de données ou de technologie de persistence, seule la couche Repository est affectée.
-
-
-
 \subsubsection{Gestion des entités}
 
-Le modèle de données d'OCULA repose sur quatre entités principales structurant les domaines clés : utilisateurs, vidéos, transcriptions et conversations. Chaque entité est persistée en base relationnelle via JPA et possède des responsibilities explicites dans le cycle de traitement des vidéos.
+Le modèle de données d'OCULA repose sur quatre entités principales structurant les domaines clés : utilisateurs, vidéos, transcriptions et messages. Chaque entité est persistée en base relationnelle via JPA et possède des responsibilities explicites dans le cycle de traitement des vidéos.
 
 \paragraph{Entités principales}
 
