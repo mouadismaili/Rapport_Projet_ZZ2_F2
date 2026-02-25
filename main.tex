@@ -130,7 +130,7 @@ Application web full-stack,
 Angular,
 Spring Boot,
 Java,
-Microservice Flask,
+Flask,
 Reconnaissance automatique de la parole (ASR),
 Transcription audio–texte,
 Embeddings,
@@ -139,8 +139,7 @@ Indexation vectorielle,
 Retrieval-Augmented Generation (RAG),
 Modèles de langage (LLM),
 Explicabilité (citations temporelles),
-Traitement asynchrone,
-Architecture microservices.
+Traitement asynchrone.
 
 %----------- Abstract (EN) ----------------------
 \section*{Abstract}
@@ -162,7 +161,7 @@ Full-stack web application,
 Angular,
 Spring Boot,
 Java,
-Flask microservice,
+Flask,
 Automatic Speech Recognition (ASR),
 Audio-to-Text Transcription,
 Embeddings,
@@ -171,8 +170,7 @@ Vector Indexing,
 Retrieval-Augmented Generation (RAG),
 Large Language Models (LLM),
 Explainability (temporal citations),
-Asynchronous Processing,
-Microservices Architecture.
+Asynchronous Processing.
 \clearpage
 
 %----------- Table des matières ----------------
@@ -301,10 +299,9 @@ Le système ne réalise pas d’analyse visuelle avancée (reconnaissance d’ob
 Le fonctionnement d’OCULA repose sur plusieurs hypothèses :
 
 \begin{itemize}
-    \item la qualité de la transcription est suffisante pour permettre une indexation sémantique pertinente ;
-    \item les réponses générées doivent exclusivement s’appuyer sur le contenu fourni dans le contexte RAG ;
-    \item le modèle de langage externe ne dispose pas d’accès direct aux bases de données ;
-    \item la charge utilisateur reste compatible avec une architecture microservices non distribuée à grande échelle.
+    \item la qualité de la transcription est suffisante pour permettre une indexation sémantique pertinente
+    \item les réponses générées doivent exclusivement s’appuyer sur le contenu fourni dans le contexte RAG
+    \item le modèle de langage externe ne dispose pas d’accès direct aux bases de données
 \end{itemize}
 
 \paragraph{Limites actuelles}
@@ -1549,7 +1546,7 @@ Cette section se concentre sur deux services backend clés pour l'intégration I
 
 \paragraph{Service d'intégration IA \\}
 
-Le code ci-dessous fait le lien entre le backend Spring Boot et le microservice IA Python pour le traitement d'une vidéo et les requêtes de chat.
+Le code ci-dessous fait le lien entre le backend Spring Boot et le service IA Python pour le traitement d'une vidéo et les requêtes de chat.
 
 \begin{lstlisting}[language=Java, caption={AiService : communication avec le service IA Python},label={lst:ai-service}]
 public ProcessResponse process(String videoId, String objectKey) {
@@ -1582,7 +1579,7 @@ public ChatResponse ask(String videoId, String question) {
 \end{lstlisting}
 
 \noindent
-\textbf{Description :} Ce code fait la construction des requêtes HTTP vers \texttt{/process} et \texttt{/chat}, puis récupère les réponses du microservice IA pour alimenter le flux métier du backend.
+\textbf{Description :} Ce code fait la construction des requêtes HTTP vers \texttt{/process} et \texttt{/chat}, puis récupère les réponses du service IA pour alimenter le flux métier du backend.
 
 \paragraph{Notification temps réel via WebSocket \\}
 
@@ -1604,7 +1601,7 @@ public class WebsocketNotifier {
 \textbf{Description :} Ce code fait la publication des événements de statut sur \texttt{/topic/videos/\{videoId\}}. Les clients abonnés reçoivent immédiatement les mises à jour de progression (PENDING, PROCESSING, COMPLETED).
 
 \subsection{Service IA : LangChain + Flask}
-Le traitement intelligent des vidéos est assuré par un microservice dédié développé en Python et exposé via Flask. 
+Le traitement intelligent des vidéos est assuré par un service dédié développé en Python et exposé via Flask. 
 Ce service prend en charge les opérations computationnelles intensives du système : transcription audio, génération d’embeddings, indexation vectorielle et mécanisme de question–réponse basé sur le RAG.
 
 Contrairement au backend Spring Boot, qui gère les aspects transactionnels et la logique métier applicative, le service IA est spécialisé dans les traitements liés aux modèles de langage et à la recherche sémantique. 
@@ -1694,8 +1691,8 @@ def processing_task(video_id, object_key):
     pass
 \end{lstlisting}
 
-La vidéo est d’abord téléchargée depuis Azure Blob Storage à l’aide de sa clé d’objet (\path{object\key}) vers un fichier temporaire local. 
-La transcription est ensuite effectuée via \path{whisper\model.transcribe}, qui retourne :
+La vidéo est d’abord téléchargée depuis Azure Blob Storage à l’aide de sa clé d’objet (\path{object_key}) vers un fichier temporaire local. 
+La transcription est ensuite effectuée via \path{whisper_model.transcribe}, qui retourne :
 
 \begin{itemize}
     \item un texte global (\path{text}),
@@ -1718,8 +1715,8 @@ Le découpage en chunks est réalisé sur le texte complet issu de Whisper (\pat
 Cependant, pour préserver la traçabilité temporelle, chaque chunk doit être associé à un intervalle \path{[start, end]} exploitable comme source dans l’interface.
 
 Pour cela, le service construit d’abord une correspondance (\textit{segment\_map}) entre la progression en caractères dans le texte global et les segments Whisper. 
-Chaque segment est représenté par une borne \path{end\char} et ses timestamps \path{start/end}. 
-Ensuite, pour chaque chunk extrait, sa position \path{[chunk\start, chunk\end]} dans le texte global est retrouvée, puis convertie en timestamps en recherchant les segments couvrant ces bornes.
+Chaque segment est représenté par une borne \path{end_char} et ses timestamps \path{start_end}. 
+Ensuite, pour chaque chunk extrait, sa position \path{[chunk_start, chunk_end]} dans le texte global est retrouvée, puis convertie en timestamps en recherchant les segments couvrant ces bornes.
 
 Cette approche permet d’associer à chaque chunk un intervalle temporel cohérent, tout en conservant un découpage textuel adapté au retrieval.
 \begin{lstlisting}[language=Python, caption={Découpage en chunks avec reconstruction des timestamps}, label={lst:chunk-video-transcript}]
@@ -1808,7 +1805,7 @@ embed_model = HuggingFaceEmbeddings(
 \paragraph{Construction des documents vectoriels}
 
 Chaque chunk est encapsulé dans un objet \path{Document} (LangChain) contenant :
-(i) le texte du chunk (\path{page\content}), et (ii) les métadonnées nécessaires à la traçabilité : \path{video\id}, \path{start\time} et \path{end\time}. 
+(i) le texte du chunk (\path{page_content}), et (ii) les métadonnées nécessaires à la traçabilité : \path{video_id}, \path{start_time} et \path{end_time}. 
 Ces métadonnées permettent notamment de restituer des sources temporelles associées aux réponses du chatbot.
 
 \begin{lstlisting}[language=Python, caption={Création des documents avec métadonnées}, label={lst:doc-metadata}]
@@ -1828,7 +1825,7 @@ doc = Document(
 \paragraph{Indexation dans ChromaDB}
 
 Les documents vectoriels sont stockés dans ChromaDB via l’interface \path{langchain\chroma.Chroma}. 
-L’indexation est organisée par vidéo : chaque vidéo possède une collection dédiée nommée \path{video\<video\id>}. 
+L’indexation est organisée par vidéo : chaque vidéo possède une collection dédiée nommée \path{video_<video_id>}. 
 Cette stratégie limite le bruit inter-vidéos et garantit que la recherche sémantique effectuée lors du chat reste strictement associée à la vidéo consultée.
 
 \begin{lstlisting}[language=Python, caption={Indexation des documents dans une collection Chroma dédiée}, label={lst:chroma-index}]
