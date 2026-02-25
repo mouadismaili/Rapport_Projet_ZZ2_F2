@@ -42,11 +42,8 @@
 \pagestyle{fancy}
 \fancyheadoffset{1cm}
 \setlength{\headheight}{2cm}
-\lhead{\includegraphics[scale=0.3]{logos/isima_logo.png}} %Affichage de l'image au top de la page
+\lhead{\includegraphics[scale=0.25]{logos/isima_logo.png}} %Affichage de l'image au top de la page
 \rhead{\nouppercase{\leftmark}}
-\rfoot{\thepage}
-\cfoot{\textbf{\titre}}
-\lfoot{\UE}
 }
 
 \newcommand{\fairepagedegarde}{
@@ -57,7 +54,7 @@
 	\includegraphics[width=0.8\textwidth]{logos/isima_logo.png}\par\vspace{1cm} %Insertion du logo
 	{\scshape\LARGE\ Institut Supérieur d’Informatique, de Modélisation et de leurs Applications\par} %Nom de l'université
 	\vspace{1cm}%Espace de 1,5cm
-	{\scshape\Large \UE \\ \sujet \\ Rapport\par} %sous-titre
+	{\scshape\Large \UE \\ \sujet \\ Rapport de projet\par} %sous-titre
 	\vspace{1cm}%Espace de 1cm
     \rule{\linewidth}{0.2 mm} \\[0.4 cm]
 	{\huge\bfseries \titre \par} \
