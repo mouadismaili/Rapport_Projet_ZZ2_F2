@@ -1311,7 +1311,7 @@ L'architecture du backend suit le pattern classique en couches, où chaque couch
     
     \item \textbf{Couche métier (Services)} : concentre les règles applicatives : vérification d'existence des entités, validation des contraintes (unicité d'email, cohérence temporelle des transcripts), orchestration du pipeline IA, notifications WebSocket. Les services constituent le contrat fonctionnel du système.
     
-    \item \textbf{Couche persistance (Repositories)} : assure l'accès aux données via Spring Data JPA, sans exposition de détails techniques sur la base relationnelle. Les repositories masquent la complexité SQL et permettent des migrations futures sans impact applicatif.
+    \item \textbf{Couche persistance (Repositories)} : contrôle l'accès aux données via Spring Data JPA, masquant la complexité SQL.
     
     \item \textbf{Couche mapping (DTOs \& Mappers)} : transforme les entités persistées en objets de transfert (Data Transfer Objects) adaptés aux réponses API. Cet isolement protège le modèle interne d'évolutions externes.
 \end{itemize}
@@ -1357,7 +1357,7 @@ Le modèle de données d'OCULA repose sur quatre entités principales structuran
 \end{minipage}\hfill
 \begin{minipage}[t]{0.62\textwidth}
 \vspace{0pt}
-Représente un utilisateur authentifié du système. Identifiée par un UUID, elle stocke les identifiants de connexion (email, mot de passe haché), le profil (prénom, nom) et optionnellement un avatar. L'entité implémente \texttt{UserDetails} de Spring Security, fournissant les informations nécessaires à l'authentification.
+Représente un utilisateur authentifié du système. Identifiée par un UUID, elle stocke les identifiants de connexion (email, mot de passe haché), le profil (prénom, nom) et optionnellement un avatar.
 \end{minipage}
 
 \vspace{0.5cm}
@@ -1393,7 +1393,7 @@ Représente un utilisateur authentifié du système. Identifiée par un UUID, el
 \end{minipage}\hfill
 \begin{minipage}[t]{0.62\textwidth}
 \vspace{0pt}
-Entité centrale du système, modélisant une vidéo téléversée. Elle maintient des références vers ses ressources (contenu vidéo, miniature) via des URLs ou clés de stockage objet, et inclut les métadonnées générées ou éditées (titre, résumé). Le champ \texttt{status} (énumération : PENDING, PROCESSING, COMPLETED, FAILED) orchestre explicitement le cycle de vie asynchrone du traitement IA. Cela permet au frontend de suivre l'avancement sans polling continu. Le champ \texttt{duration} capture la durée en secondes, essentiel pour les opérations de découpage temporel. Le timestamp \texttt{uploadedAt} est automatiquement défini à la création.
+Entité centrale du système, modélisant une vidéo téléversée. Elle maintient des références vers ses ressources (contenu vidéo, miniature) via des clés de stockage objet, et inclut les métadonnées générées (titre, résumé). Le champ \texttt{status} (énumération : PENDING, PROCESSING, COMPLETED, FAILED) orchestre explicitement le cycle de vie asynchrone du traitement IA. Cela permet au frontend de suivre l'avancement.
 \end{minipage}
 
 \vspace{0.5cm}
@@ -1425,7 +1425,7 @@ Entité centrale du système, modélisant une vidéo téléversée. Elle maintie
 \end{minipage}\hfill
 \begin{minipage}[t]{0.62\textwidth}
 \vspace{0pt}
-Modélise un segment de la transcription, associé à un intervalle temporel précis. À la différence d'une approche monolithique stockant le texte complet, cette granularité segmentée offre plusieurs avantages : (i) \textbf{traçabilité temporelle} -- chaque segment peut être relié à un intervalle précis de la vidéo; (ii) \textbf{résilience} -- en cas d'échec partiel du traitement IA, les segments complétés restent valides; (iii) \textbf{granularité adaptée au RAG} -- les segments constituent la base naturelle du découpage en chunks pour l'indexation vectorielle.
+Stocke un segment temporel de la transcription.
 \end{minipage}
 
 \vspace{0.5cm}
@@ -1457,9 +1457,8 @@ Modélise un segment de la transcription, associé à un intervalle temporel pr�
 \end{minipage}\hfill
 \begin{minipage}[t]{0.62\textwidth}
 \vspace{0pt}
-Enregistre chaque échange du chatbot avec l'utilisateur, y compris le timestamp et le rôle de l'émetteur (énumération : USER ou BOT). La persistence de cet historique dépasse le simple besoin d'affichage : elle permet l'\textbf{audit transactionnel}, la \textbf{reconstruction du contexte multi-requête} (chaque nouvelle question peut s'appuyer sur l'historique), et les \textbf{analyses ultérieures} (métriques d'engagement, amélioration du système). Le timestamp \texttt{sentAt} est automatiquement défini au moment de la création.
+Enregistre chaque échange du chatbot avec l'utilisateur, y compris le rôle de l'émetteur (énumération : USER ou BOT).
 \end{minipage}
-
 \subsubsection{Endpoints clés}
 
 Les endpoints REST d'OCULA sont organisés par domaine fonctionnel. Chaque groupe expose un ensemble cohérent d'opérations sur une ressource métier.
@@ -1543,11 +1542,11 @@ La chaîne de sécurité du backend repose sur deux mécanismes complémentaires
 \label{fig:backend-security-chain}
 \end{figure}
 
-\noindent Cette figure montre le flux de sécurité appliqué à chaque requête entrante. Comme l'illustre la figure~\ref{fig:backend-security-chain}, la chaîne de sécurité du backend implémente une stratégie de défense en profondeur avec deux sentinelles : validation de route, puis authentification (clé API interne ou JWT utilisateur). Chaque requête entrante est d'abord validée pour confirmer que la route cible existe. Si la route est publique (e.g., \path{/auth/signup}, \path{/auth/login}), la requête est directement acheminée vers le contrôleur approprié. En revanche, si la route est protégée, le système vérifie d'abord la présence d'une clé API interne (utilisée par le service IA pour les callbacks d'avancement). Si cette clé n'est pas valide, la requête est soumise à une vérification JWT : le token JWT fourni par le client est validé et décodé pour extraire l'identité utilisateur. Si le token est invalide ou expiré, une réponse 401 Unauthorized est retournée. Cette architecture garantit l'isolation sécurisée des appels machine-à-machine (backend $\leftrightarrow$ service IA) et protège les ressources utilisateur contre les accès non authentifiés.
+\noindent La figure~\ref{fig:backend-security-chain} montre le flux : routes publiques (signup/login) sont directement acheminées, les routes protégées vérifient d'abord une clé API interne (service IA), puis un JWT utilisateur. Le JWT est validé et l'identité extraite. Toute tentative d'accès invalide retourne 401 Unauthorized.
 
 \paragraph{Autorisation et isolation des ressources \\}
 
-Au-delà de l'authentification, le backend implémente un contrôle d'accès granulaire basé sur l'\textbf{ownership}. Chaque ressource métier (vidéos, transcriptions, messages) est explicitement liée à un utilisateur propriétaire. Avant de retourner une ressource, le système effectue une \textbf{vérification d'appartenance} : il s'assure que l'identité utilisateur extraite du JWT correspond au propriétaire de la ressource demandée.
+Chaque ressource (vidéo, transcription, message) est liée à un propriétaire. Une vérification d'appartenance s'assure que seul le propriétaire de la ressource peut y accéder ; accès non autorisé retourne 403 Forbidden.
 
 \subsubsection{Extraits de code importants des services}
 
