@@ -12,3 +12,6 @@ out/*
 *.run.xml
 *.synctex.gz
 *.fdb_latexmk
+*.lof
+*.lot
+*.fls

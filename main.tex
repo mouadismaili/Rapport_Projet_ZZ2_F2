@@ -4,26 +4,30 @@
 \usepackage{gensymb}
 \usepackage{float}
 \usepackage{xcolor}
-\usepackage{csquotes}
-\usepackage{biblatex}
-\bibliography{biblio} 
+\usepackage{csquotes} % Espace fantôme supprimé ici
 \usepackage{booktabs}
 \usepackage{minted}
 \usepackage{caption}
-\usepackage{amssymb} % pour \checkmark
+\usepackage{amssymb} 
 \usepackage{verbatim}
 \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
 \usepackage{placeins}
-\usepackage[utf8]{inputenc}
 \usepackage[french]{babel}
-\usepackage{url} % Pour gérer les URLs
+\usepackage{url} 
 \usepackage{graphicx}
-\usepackage{array}     % For more control over column alignment
-\usepackage{colortbl}  % Table coloring
-\usepackage{tikz} % figs
-\usepackage{minted}
+\usepackage{array} 
+\usepackage{colortbl}
+\usepackage{tikz} 
 \usetikzlibrary{shapes.geometric, arrows.meta, positioning, bending}
-
+\usepackage{cite}
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	citecolor=green,
+	filecolor=magenta,      
+	urlcolor=cyan,
+}
 \title{ArchiLogiciel } %Titre du fichier
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
@@ -175,7 +179,18 @@ Microservices Architecture.
 
 %----------- Table des matières ----------------
 
-\tabledematieres
+\addcontentsline{toc}{section}{Table des matières}
+\tableofcontents
+\newpage
+
+\addcontentsline{toc}{section}{Table des figures}
+\listoffigures
+\newpage
+
+\addcontentsline{toc}{section}{Liste des tableaux}
+\listoftables
+\newpage
+
 
 %------------ Corps du rapport ----------------
 \section{Introduction}
@@ -464,7 +479,7 @@ Ce workflow garantit une séparation claire entre le développement actif, l'int
 \subsubsection{Otter.ai}
 
 \textbf{Description} \\
-Otter.ai est une application spécialisée dans la transcription automatique de contenus audio et vidéo, principalement orientée vers les réunions professionnelles. Elle propose également des résumés automatiques et une recherche textuelle dans les transcriptions.
+Otter.ai est une application spécialisée dans la transcription automatique de contenus audio et vidéo, principalement orientée vers les réunions professionnelles. Elle propose également des résumés automatiques et une recherche textuelle dans les transcriptions\cite{otter_ai_website}.
 
 \textbf{Fonctionnalités principales}
 \begin{itemize}
@@ -492,7 +507,7 @@ Solution freemium avec des fonctionnalités avancées accessibles uniquement via
 \subsubsection{Fireflies.ai}
 
 \textbf{Description} \\  
-Fireflies.ai est un outil d’analyse automatique de réunions intégrant transcription, résumé et recherche. Il s’intègre directement à des plateformes de visioconférence.
+Fireflies.ai est un outil d’analyse automatique de réunions intégrant transcription, résumé et recherche. Il s’intègre directement à des plateformes de visioconférence\cite{fireflies_ai_website}.
 
 \textbf{Fonctionnalités principales}
 \begin{itemize}
@@ -522,7 +537,7 @@ Service payant avec abonnement mensuel.
 \subsubsection{Google (YouTube / Vertex AI)}
 
 \textbf{Description}  
-Google propose plusieurs solutions permettant l’analyse de contenus vidéo. YouTube intègre la génération automatique de sous-titres, tandis que Vertex AI et Speech-to-Text permettent la transcription et l’analyse via API.
+Google propose plusieurs solutions permettant l’analyse de contenus vidéo. YouTube intègre la génération automatique de sous-titres, tandis que Vertex AI et Speech-to-Text permettent la transcription et l’analyse via API\cite{google_vertex_ai}.
 
 \textbf{Fonctionnalités principales}
 \begin{itemize}
@@ -545,7 +560,7 @@ YouTube est gratuit pour l’utilisateur final, tandis que les APIs Google Cloud
 \subsubsection{OpenAI (ChatGPT / Whisper API)}
 
 \textbf{Description}  
-OpenAI propose des modèles de langage et de transcription permettant l’analyse de contenus textuels et audio. ChatGPT permet l’interrogation conversationnelle de documents, tandis que Whisper assure une transcription automatique de haute qualité.
+OpenAI propose des modèles de langage et de transcription permettant l’analyse de contenus textuels et audio. ChatGPT permet l’interrogation conversationnelle de documents, tandis que Whisper assure une transcription automatique de haute qualité\cite{openai_whisper_intro}.
 
 \textbf{Fonctionnalités principales}
 \begin{itemize}
@@ -589,7 +604,7 @@ que technique.
 
 
 \subsection{Reconnaissance automatique de la parole (ASR)}
-ASR (automatic speech recognition) est une technologie qui convertit le langage parlé en texte écrit. Elle traite les signaux audio, identifie les modèles de parole et les transcrit en texte avec une grande précision.
+ASR (automatic speech recognition) est une technologie qui convertit le langage parlé en texte écrit. Elle traite les signaux audio, identifie les modèles de parole et les transcrit en texte avec une grande précision \cite{ionos_asr_guide, huggingface_asr_tasks}.
 
 \begin{figure}[H]
     \centering
@@ -598,7 +613,7 @@ ASR (automatic speech recognition) est une technologie qui convertit le langage 
     \label{fig:placeholder}
 \end{figure}
 \subsubsection{Principes généraux de la transcription audio--texte}
-Principalement on distingue entre deux approches pour la reconnaissance automatique de la parole:
+Principalement on distingue entre deux approches pour la reconnaissance automatique de la parole \cite{ionos_asr_guide, cmusphinx_concepts}:
 
 \begin{itemize}
     \item \textbf{Approche hybride classique: }est une méthode qui combine un modèle acoustique, un modèle de lexique et un modèle linguistique pour transcrire la parole en texte, en s’appuyant sur des données audio alignées afin d’associer précisément les segments aux phonèmes et aux mots.
@@ -608,7 +623,7 @@ Principalement on distingue entre deux approches pour la reconnaissance automati
 
 \subsubsection{Choix de modèle (Whisper)}
 
-Whisper est un système de reconnaissance automatique de la parole (ASR) basé sur l’intelligence artificielle, entraîné sur environ 680 000 heures de données audio multilingues provenant du web. Grâce à cette très grande diversité de données, il est particulièrement robuste face aux accents, au bruit de fond et au vocabulaire technique. Whisper est capable non seulement de transcrire la parole dans plusieurs langues, mais aussi de traduire directement ces langues vers l’anglais, ce qui en fait un outil polyvalent pour de nombreuses applications de traitement vocal et de recherche en intelligence artificielle.
+Whisper est un système de reconnaissance automatique de la parole (ASR) basé sur l’intelligence artificielle, entraîné sur environ 680 000 heures de données audio multilingues provenant du web. Grâce à cette très grande diversité de données, il est particulièrement robuste face aux accents, au bruit de fond et au vocabulaire technique. Whisper est capable non seulement de transcrire la parole dans plusieurs langues, mais aussi de traduire directement ces langues vers l’anglais, ce qui en fait un outil polyvalent pour de nombreuses applications de traitement vocal et de recherche en intelligence artificielle\cite{openai_whisper_intro, openai_whisper_card}.
 
 
 \begin{table}[h]
@@ -627,12 +642,12 @@ WER (Multilingual) & \textbf{7.4\%} & 8.7\% & 10.1\% & 11.1\% \\
 \end{table}
 
 
-Le choix de Whisper a été évident , du a ça capacité impressive dans la transcription multilingue , et sont WER minimal par rapport aux autre modèle. De plus nous favorisons les modèles open-source, et Whisper étant le meilleur dans cette catégorie.
+Le choix de Whisper a été évident , du a ça capacité impressive dans la transcription multilingue , et sont WER minimal par rapport aux autre modèle. De plus nous favorisons les modèles open-source, et Whisper étant le meilleur dans cette catégorie\cite{assemblyai_benchmarks}.
 
 
 \subsection{Représentations vectorielles et recherche sémantique}
 \subsubsection{Définition des embeddings}
-Un embedding est une représentation vectorielle d’éléments comme les textes, les images, les vidéos ou les signaux audio. Cette transformation en valeurs numériques permet aux modèles de machine learning de comprendre les relations sémantiques et d’effectuer des tâches telles que la recherche, la similarité ou la classification.
+Un embedding est une représentation vectorielle d’éléments comme les textes, les images, les vidéos ou les signaux audio. Cette transformation en valeurs numériques permet aux modèles de machine learning de comprendre les relations sémantiques et d’effectuer des tâches telles que la recherche, la similarité ou la classification\cite{cloudflare_embeddings_ai}.
 
 \begin{figure}[H]
     \centering
@@ -644,7 +659,7 @@ Un embedding est une représentation vectorielle d’éléments comme les textes
 \subsubsection{Indexation et recherche vectorielle}
 L’indexation vectorielle est une technique qui consiste à organiser des données sous forme de vecteurs numériques afin de permettre une recherche rapide et efficace dans des espaces de grande dimension.
 
-La recherche vectorielle est le processus qui consiste à comparer le vecteur d’une requête avec ceux stockés dans cet index afin d’identifier les éléments les plus proches sémantiquement.
+La recherche vectorielle est le processus qui consiste à comparer le vecteur d’une requête avec ceux stockés dans cet index afin d’identifier les éléments les plus proches sémantiquement\cite{google_bigquery_vector_search}.
 
 \begin{figure}[H]
     \centering
@@ -661,11 +676,11 @@ les uns des autres, formant des groupes sémantiques. Par exemple, les mots ``ca
 tandis que ``car'', ``truck'' et ``vehicle'' forment un autre groupe lié aux moyens 
 de transport. Lors d’une recherche vectorielle, le système consiste simplement à 
 retrouver les points les plus proches du vecteur de la requête afin d’identifier 
-les résultats les plus pertinents. 
+les résultats les plus pertinents\cite{google_bigquery_vector_search}. 
 
 \subsection{Modèles de langage (LLM)}
 \subsubsection{Capacités et limites des LLM}
-Un LLM (Large Language Model ou Grand Modèle de Langage) est un système d'intelligence artificielle entraîné sur d'immenses quantités de données textuelles pour comprendre, générer et manipuler le langage humain de manière fluide et cohérente.
+Un LLM (Large Language Model ou Grand Modèle de Langage) est un système d'intelligence artificielle entraîné sur d'immenses quantités de données textuelles pour comprendre, générer et manipuler le langage humain de manière fluide et cohérente\cite{haq_llm_limitations}.
 
 \begin{itemize}
     \item \textbf{Capacités:}
@@ -677,12 +692,12 @@ Un LLM (Large Language Model ou Grand Modèle de Langage) est un système d'inte
     \item \textbf{Limites}
     \begin{itemize}
         \item \textbf{Hallucinations:} ils peuvent confirmer des informations fausses.
-        \item \textbf{Coût de calcul élevé:} ils sont très chers à entraîner et à faire fonctionner. 
+        \item \textbf{Coût de calcul élevé:} ils sont très chers à entraîner et à faire fonctionner\cite{haq_llm_limitations}. 
     \end{itemize}
 \end{itemize}
 
 \subsubsection{Choix de modèle (gpt-oss-120b)}
-Lors de notre recherche des modèles de LLM à utiliser, nous avons identifié deux candidats principaux : gpt-oss-120b et llama3.1-8b, tous deux accessibles via l’API fournie par Cerebras.
+Lors de notre recherche des modèles de LLM à utiliser, nous avons identifié deux candidats principaux : gpt-oss-120b et llama3.1-8b, tous deux accessibles via l’API fournie par Cerebras\cite{cerebras_systems, openai_gpt_oss}.
 
 \begin{figure}[h]
     \centering
@@ -691,12 +706,12 @@ Lors de notre recherche des modèles de LLM à utiliser, nous avons identifié d
     \label{fig:placeholder}
 \end{figure}
 
-En analysant les deux indices de performance, GPQA (Graduate-Level Google-Proof Q\&A) et MMLU (Massive Multitask Language Understanding), nous pouvons clairement constater que le modèle gpt-oss-120b surpasse llama3.1-8b. Cette supériorité s’explique notamment par son nombre beaucoup plus élevé de paramètres (120 milliards) ainsi que par son architecture plus avancée, lui permettant d’obtenir de meilleurs résultats sur des tâches complexes de raisonnement et de compréhension.
+En analysant les deux indices de performance, GPQA (Graduate-Level Google-Proof Q\&A) et MMLU (Massive Multitask Language Understanding), nous pouvons clairement constater que le modèle gpt-oss-120b surpasse llama3.1-8b. Cette supériorité s’explique notamment par son nombre beaucoup plus élevé de paramètres (120 milliards) ainsi que par son architecture plus avancée, lui permettant d’obtenir de meilleurs résultats sur des tâches complexes de raisonnement et de compréhension\cite{llmstats_comparison}.
 
 
 \subsection{Retrieval-Augmented Generation (RAG)}
 \subsubsection{Principe général}
-Le RAG (Retrieval-Augmented Generation) est une technique qui permet d'optimiser les réponses d'un modèle d'IA en lui donnant accès à des données externes fiables, au-delà de ses connaissances d'entraînement initiales.
+Le RAG (Retrieval-Augmented Generation) est une technique qui permet d'optimiser les réponses d'un modèle d'IA en lui donnant accès à des données externes fiables, au-delà de ses connaissances d'entraînement initiales\cite{aws_rag_fr}.
 
 \begin{figure}[H]
     \centering
@@ -705,7 +720,7 @@ Le RAG (Retrieval-Augmented Generation) est une technique qui permet d'optimiser
     \label{fig:placeholder}
 \end{figure}
 
-Un pipeline de RAG fonctionne en trois étapes simples : d’abord, des documents sont collectés, découpés en petits morceaux puis transformés en vecteurs pour être stockés dans une base vectorielle. Ensuite, quand un utilisateur pose une question, elle est aussi convertie en vecteur afin de retrouver les passages les plus pertinents dans cette base. Enfin, ces informations sont envoyées avec la question à un LLM, qui s’en sert comme contexte pour produire une réponse plus précise et fiable.
+Un pipeline de RAG fonctionne en trois étapes simples : d’abord, des documents sont collectés, découpés en petits morceaux puis transformés en vecteurs pour être stockés dans une base vectorielle. Ensuite, quand un utilisateur pose une question, elle est aussi convertie en vecteur afin de retrouver les passages les plus pertinents dans cette base. Enfin, ces informations sont envoyées avec la question à un LLM, qui s’en sert comme contexte pour produire une réponse plus précise et fiable\cite{nvidia_rag_explained}.
 
 \subsubsection{Forces et limites du RAG}
 Le RAG est une approche qui combine la recherche d’informations externes avec la génération de texte par un LLM. Cette architecture permet d’améliorer la qualité des réponses, mais elle présente également certaines contraintes techniques.
@@ -2092,11 +2107,11 @@ Il consiste à lancer l’analyse d’une vidéo et à vérifier les étapes sui
 
 \subsection{Propriété intellectuelle et droits sur les contenus vidéo}
 
-Chaque auteur dispose de droits pour protéger son œuvre, comprenant un droit moral et un droit patrimonial. Le droit moral permet à l’auteur de protéger son nom ainsi que l’intégrité de son œuvre contre toute exploitation. Le droit patrimonial, qui dure jusqu'à 70 ans après le décès de l’auteur, lui permet d’en tirer un profit. 
+Chaque auteur dispose de droits pour protéger son œuvre, comprenant un droit moral et un droit patrimonial. Le droit moral permet à l’auteur de protéger son nom ainsi que l’intégrité de son œuvre contre toute exploitation. Le droit patrimonial, qui dure jusqu'à 70 ans après le décès de l’auteur, lui permet d’en tirer un profit\cite{associations_gouv_droit_image}. 
 
 Chaque personne dispose d’un droit exclusif sur son image (photo ou vidéo) ainsi que sur son utilisation. Elle peut s’opposer à l’utilisation de cette image sans son autorisation.
 
-Pour diffuser une vidéo dans notre application Ocula il faudrait obtenir:
+Pour diffuser une vidéo dans notre application Ocula il faudrait obtenir\cite{associations_gouv_droit_image}:
 
 \begin{itemize}
 	\item une autorisation de la personne concernée.
@@ -2238,6 +2253,52 @@ Sur le plan fonctionnel, une industrialisation impliquerait également :
     \item une adaptation à différents contextes linguistiques et sectoriels.
 \end{itemize}
 
-Ainsi, OCULA constitue non seulement une démonstration technique cohérente, mais également une base conceptuelle solide pour le développement futur d’outils d’exploration intelligente de contenus vidéo à grande échelle.
+Ainsi, OCULA constitue non seulement une démonstration technique cohérente, mais également une base conceptuelle solide pour le développement futur d’outils d’exploration intelligente de contenus vidéo à grande échelle \cite{ionos_asr_guide}.
+
+\newpage
+\section*{ANNEXES}
+\addcontentsline{toc}{section}{ANNEXES}
+
+\section*{Lexique}
+\addcontentsline{toc}{section}{Lexique}
+
+\begin{description}
+	\item[\textbf{ASR \textit{(Automatic Speech Recognition)}}] : Technologie de reconnaissance automatique de la parole convertissant un signal audio en texte écrit.
+	
+	\item[\textbf{Azure Blob Storage}] : Service de stockage objet utilisé pour conserver les fichiers volumineux tels que les vidéos, les miniatures et les avatars de manière sécurisée.
+	
+	\item[\textbf{ChromaDB}] : Base de données vectorielle spécialisée dans le stockage et l'interrogation rapide des représentations numériques (embeddings) nécessaires au RAG.
+	
+	\item[\textbf{Chunking}] : Processus consistant à regrouper et découper le texte de la transcription en blocs cohérents pour optimiser l'indexation vectorielle.
+	
+	\item[\textbf{Docker}] : Outil de conteneurisation garantissant la portabilité de l'application et l'isolation des environnements de développement et de déploiement.
+	
+	\item[\textbf{Embedding}] : Représentation vectorielle d'un texte permettant aux modèles de comprendre les relations sémantiques entre différents éléments.
+	
+	\item[\textbf{JWT \textit{(JSON Web Token)}}] : Mécanisme d'authentification sécurisé utilisé pour gérer les sessions utilisateurs entre le frontend et le backend.
+	
+	\item[\textbf{LangChain}] : Framework d'orchestration utilisé pour structurer les interactions entre les embeddings, la base vectorielle et le modèle de langage.
+	
+	\item[\textbf{LLM \textit{(Large Language Model)}}] : Modèle d'intelligence artificielle entraîné sur de vastes volumes de données pour comprendre et générer du langage humain.
+	
+	\item[\textbf{RAG \textit{(Retrieval-Augmented Generation)}}] : Technique optimisant les réponses d'un LLM en lui fournissant un contexte extrait de données externes fiables.
+	
+	\item[\textbf{Recherche Sémantique}] : Méthode de recherche identifiant les résultats les plus proches sémantiquement d'une requête, au-delà de la simple correspondance lexicale.
+	
+	\item[\textbf{URL Signée (SAS)}] : Lien temporaire sécurisé généré dynamiquement pour permettre un accès contrôlé aux fichiers stockés dans le cloud.
+	
+	\item[\textbf{WER \textit{(Word Error Rate)}}] : Taux d'erreur par mot, indicateur principal utilisé pour mesurer la précision des systèmes de reconnaissance automatique de la parole (ASR).
+	
+	\item[\textbf{GPQA \textit{(Graduate-Level Google-Proof Q\&A)}}] : Benchmark de haute difficulté conçu pour évaluer les capacités de raisonnement scientifique et de compréhension experte des modèles de langage (LLM).
+	
+	\item[\textbf{MMLU \textit{(Massive Multitask Language Understanding)}}] : Indice de performance standard mesurant les connaissances générales et les capacités de résolution de problèmes des modèles de langage sur un vaste ensemble de domaines académiques et professionnels.	
+	
+\end{description}
+
+\newpage
+\phantomsection 
+\addcontentsline{toc}{section}{Références}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
 
 \end{document}
